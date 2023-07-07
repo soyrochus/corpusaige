@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "saige"
+version = "0.1.0"
+description = "Use case for LLM connected to external data in Vector DB's (using langchain)"
+authors = ["Iwan van der Kleijn <iwanvanderkleijn@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+jupyterlab = "^4.0.2"
+pandas = "^2.0.2"
+matplotlib = "^3.7.1"
+nbstripout = "^0.6.1"
+langchain = "^0.0.216"
+openai = "^0.27.8"
+llama-cpp-python = "^0.1.66"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
