@@ -52,7 +52,23 @@ The Visual Studio Code plugin can be found under the name __Corpusaige__
 
 ## Usage
 ```bash
+python -m corpusaige --help
+#or
 crpsg --help
+
+usage: crpsg [-h] {new,add,cli} ...
+
+Corpusaige command line interface
+
+positional arguments:
+  {new,add,cli}
+    new          Create a new corpus
+    add          Add files to a corpus
+    cli          Display the Corpusaige CLI 
+
+options:
+  -h, --help     show this help message and exit
+
 ```
 
 ## Used as a library
