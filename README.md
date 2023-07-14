@@ -77,6 +77,19 @@ options:
 import Corpusaige
 # code examples
 ```
+
+## Dependencies
+### Langchain
+Langchain is chosen as our main framework for Corpusaige because of its robustness in natural language processing and its compatibility with various language model APIs, aligning with our requirements.
+
+### OpenAI Models
+We leverage OpenAI's advanced language models, such as GPT-4, GPT-3.5 and Codex, for their superior language understanding and generation capabilities.
+
+For our initial release, these technologies form the core. However, we recognize the dynamic nature of AI and are open to integrating other emerging models in future versions of Corpusaige, ensuring the tool remains relevant and effective.
+
+### ChromaDb
+ChromaDb is integrated for its efficient vector data storage capabilities, crucial in handling the high-dimensional vector representations of our processed documents. It aids in both local and cloud-based data storage, providing scalability and facilitating smooth interaction with the AI models.
+
 ## Configuration
 Detailed configuration instructions go here.
 
