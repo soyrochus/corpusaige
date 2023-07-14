@@ -1,6 +1,8 @@
 # CorpuSaige
 _CorpuSaige_ is a Python utility library and tool enabling AI-powered systems analysis through deep exploration and understanding of comprehensive document sets and source code.
 
+__note__: this README is an excersise in [README Driven Development](https://tom.preston-werner.com/2010/08/23/readme-driven-development.html) or otherwise stated: until further notice the README does promise things which are not as yet implemented. Once the implementaion becomes more then a jumbled mess of ugly code that's likely not going to work, this notice will be removed. 
+ 
 ## Introduction
 CorpuSaige provides a powerful capability for system analysts and developers, aiding in the aggregation of an expansive collection of related document sets and complex source code pertinent to a specific system or domain. By bridging the gap between this collective information (termed the Corpus) and AI Large Language Models (LLMs), CorpuSaige facilitates an insightful, AI-aided analysis, granting an holistic view of the project or system at hand.
 
