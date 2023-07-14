@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -6,3 +7,8 @@ through deep exploration and understanding of comprehensive document sets and so
 @copyright: Copyright © 2023 Iwan van der Kleijn
 @license: MIT
 """
+
+from .cli import main
+
+if __name__ == "__main__":
+    main()
