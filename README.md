@@ -8,6 +8,8 @@ CorpuSaige provides a powerful capability for system analysts and developers, ai
 
 This library embodies an iterative approach to knowledge refinement. It enables users to supplement the Corpus with additional metadata, introduce new information, and incorporate the AI's analysis results back into the system. This iterative enhancement to the Corpus significantly increases the precision and depth of the system's understanding, fostering a dynamic, ever-evolving model that encapsulates all relevant system or domain information.
 
+![CorpuSaige: A Python utility library and tool for deep exploration and understanding of large document sets and source code](corpusaige.png)
+
 ## Features
 __Incremental Knowledge Refinement__: CorpuSaige incorporates an iterative process to enhance the depth and precision of system understanding, allowing the Corpus to dynamically evolve with added metadata, new information, and AI-analyzed results.
 
@@ -24,8 +26,6 @@ __Versatile CLI Tool__: CorpuSaige can operate as a CLI tool, offering two modes
 __Plugin for Visual Studio__: CorpuSaige can be used through a simple plugin for Visual Studio Code, allowing the user to use the tooling and directly navigate to the relevant documents in the active projects (workspace) related with the Corpus.
 
 __Fully Configurable__: CorpuSaige's configurability extends to its usage as either a library or a CLI tool, permitting customization of the dataset, API key, vector database, and type of LLM.
-
-![CorpuSaige: A Python utility library and tool for deep exploration and understanding of large document sets and source code](corpusaige.png)
 
 ## Use Case: Navigating and Enhancing a Complex Software System
 Picture this: you're a software engineer who's recently joined a new team. Your responsibility? Maintaining and augmenting a sophisticated, legacy software system. This system is expansive and rather cryptic, characterized by scattered documentation across numerous sources and dense, intricate source code. To unravel this enigma and grasp the system thoroughly, you'd leverage CorpuSaige.
