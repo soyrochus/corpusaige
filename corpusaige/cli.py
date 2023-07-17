@@ -9,6 +9,10 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 import argparse
+import sys
+from .shell import CorpusaigeShell
+
+
 
 def new_corpus(name):
     """
@@ -17,6 +21,7 @@ def new_corpus(name):
     # Implementation goes here
     pass
 
+
 def add_files(file_types, path_glob):
     """
     Adds files of the given type(s) and path/glob to the corpus.
@@ -24,15 +29,19 @@ def add_files(file_types, path_glob):
     # Implementation goes here
     pass
 
-def cli():
+
+def shell():
     """
-    Displays the Corpusaige CLI help message.
+    Displays the Corpusaige shell help message.
     """
     # Implementation goes here
-    pass
+    repl = CorpusaigeShell()
+    repl.cmdloop()
+
 
 def main():
-    parser = argparse.ArgumentParser(prog='corpusaige', description='Corpusaige command line interface')
+    parser = argparse.ArgumentParser(
+        prog='corpusaige', description='Corpusaige command line interface')
     subparsers = parser.add_subparsers(dest='command')
 
     # New corpus command
@@ -41,22 +50,25 @@ def main():
 
     # Add files command
     add_parser = subparsers.add_parser('add', help='Add files to a corpus')
-    add_parser.add_argument('-t', '--file-types', nargs='+', help='File types to add')
-    add_parser.add_argument('path_glob', help='Path or glob pattern of files to add')
+    add_parser.add_argument('-t', '--file-types',
+                            nargs='+', help='File types to add')
+    add_parser.add_argument(
+        'path_glob', help='Path or glob pattern of files to add')
 
-    # CLI command
-    subparsers.add_parser('cli', help='Display the Corpusaige CLI')
+    # Shell command
+    shell_parser = subparsers.add_parser('shell', help='Display the Corpusaige Shell')
 
-    args = parser.parse_args()
+    args = parser.parse_args(sys.argv[1:])
+
+    # If no command is provided, print help message and exit
+    if args.command is None:
+        parser.print_help()
+        exit()
 
     if args.command == 'new':
         new_corpus(args.name)
     elif args.command == 'add':
         add_files(args.file_types, args.path_glob)
-    elif args.command == 'cli':
-        cli()
-    else:
-        parser.print_help()
+    elif args.command == 'shell':
+        shell()
 
-if __name__ == '__main__':
-    main()
