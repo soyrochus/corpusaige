@@ -46,10 +46,46 @@ def init_db():
 
     vectordb.persist()
 
-
 #copy rust-test-case-corpus.ini to corpus.ini in current directory 
 def copy_ini():
     import shutil
     shutil.copyfile('./rust-test-case-corpus.ini', './corpus.ini')
     
+#init submodules in project, i.e. rust-by-example and rust-book
+def init_submodules():
+    import subprocess
+    subprocess.call(['git', 'submodule', 'update', '--init'])
+
+# Cite sources
+def process_llm_response(llm_response):
+    print(llm_response['result'])
+    print('\n\nSources:')
+    for source in llm_response["source_documents"]:
+        print(source.metadata['source'])
+        
+def test_connection():
+    # Test connection to OpenAI API & vector db
+    persist_directory = 'db'
+
+    # OpenAI embeddings
+    embedding = OpenAIEmbeddings()
+    vectordb = Chroma(persist_directory=persist_directory,
+                   embedding_function=embedding)
+    
+    # Create retriever
+    retriever = vectordb.as_retriever()
+    # create the chain to answer questions
+    qa_chain = RetrievalQA.from_chain_type(llm=OpenAI(),
+                                  chain_type="stuff",
+                                  retriever=retriever,
+                                  return_source_documents=True,
+                                  verbose=True)
+    
+    query = "How can I read a file in Rust?"
+    llm_response = qa_chain(query)
+    process_llm_response(llm_response)
+    
 copy_ini()
+init_submodules()
+init_db()
+test_connection()
