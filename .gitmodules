@@ -1,0 +1,6 @@
+[submodule "test-case/rust-by-example"]
+	path = test-case/rust-by-example
+	url = https://github.com/rust-lang/rust-by-example.git
+[submodule "test-case/book"]
+	path = test-case/book
+	url = https://github.com/rust-lang/book.git

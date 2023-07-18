@@ -171,3 +171,6 @@ transcriptions/
 
 devenv.sh
 doc/_build/
+test-case/db
+test-case/corpus.ini
+
