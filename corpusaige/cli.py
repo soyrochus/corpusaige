@@ -10,8 +10,7 @@ through deep exploration and understanding of comprehensive document sets and so
 # Import necessary modules
 import argparse
 import sys
-from .shell import CorpusaigeShell
-
+from .repl import ChatRepl
 
 
 def new_corpus(name):
@@ -35,9 +34,7 @@ def shell():
     Displays the Corpusaige shell help message.
     """
     # Implementation goes here
-    repl = CorpusaigeShell()
-    repl.cmdloop()
-
+    ChatRepl().run()
 
 def main():
     parser = argparse.ArgumentParser(
