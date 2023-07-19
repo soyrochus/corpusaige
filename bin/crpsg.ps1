@@ -1,1 +1,1 @@
-python3 -m corpusaige $args
+python -m corpusaige $args

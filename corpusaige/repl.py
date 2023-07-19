@@ -13,27 +13,32 @@ from prompt_toolkit.document import Document
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.lexers import PygmentsLexer
 from pygments.lexers import PythonLexer
+import pygments.lexers
+
+from .corpus import Corpus
 
 class ChatRepl:
-    def __init__(self):
+    def __init__(self, corpus: Corpus):
+        self.title = f"Session: {corpus.name} - path: {corpus.path}" 
         self.session = PromptSession()
         self.commands = self.get_commands()
 
     def run(self):
-        print("Welcome to the Corpusaige shell. Type \\help or \\? to list commands.\n")
+        print("Welcome to the Corpusaige shell. Type /help or /? to list commands.\n")
+        print(self.title)
         while True:
             try:
                 with patch_stdout():
                     user_input = self.get_multiline_input()
 
-                if user_input.startswith('\\'):
+                if user_input.startswith('/'):
                     self.handle_command(user_input)
                 else:
                     self.send_chat(user_input)
 
             except KeyboardInterrupt:
                 # Handle Ctrl+C gracefully
-                print("KeyboardInterrupt. Use \\exit to quit the shell.")
+                print("KeyboardInterrupt. Use /exit to quit the shell.")
 
             except EOFError:
                 # Handle Ctrl+D gracefully
@@ -62,10 +67,10 @@ class ChatRepl:
 
         return '\n'.join(lines)
 
-    def send_chat(self, message):
+    def send_chat(self, message: str):
         print(f"Sending chat message: {message}")
 
-    def handle_command(self, command):
+    def handle_command(self, command: str):
         command = command[1:].strip()
 
         if command == 'help' or command == '?':
@@ -73,13 +78,13 @@ class ChatRepl:
         elif command == 'exit':
             self.do_exit()
         else:
-            print("Unknown command. Type \\help or \\? for assistance.")
+            print("Unknown command. Type /help or /? for assistance.")
 
     def show_help(self):
        
         print("Available commands:")
         for command in self.commands:
-            print(f"\\{command:<10} - {self.commands[command].__doc__}")
+            print(f"/{command:<10} - {self.commands[command].__doc__}")
 
     def do_help(self):
         """Show this help message."""
@@ -89,8 +94,5 @@ class ChatRepl:
     def do_exit(self):
         """Exit the shell."""	
         raise EOFError()
-
-if __name__ == '__main__':
-    ChatRepl().run()
 
   

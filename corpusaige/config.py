@@ -15,12 +15,13 @@ from typing import List, Dict, Any
 
 class CorpusConfig:
 
-    def __init__(self, config_path: str = "corpus.ini"):
-        self.config_path = Path(config_path)
+    def __init__(self, config_path: str):
+        self.config_path = Path(config_path).absolute()
         self.config = configparser.ConfigParser()
         self.config.read(self.config_path)
         
         self.main = self.config["main"]
+        self.name = self.main["name"]
         self.llm = self.main["llm"]
         self.vector_db = self.main["vector-db"]
         self.data_sections = self.main["data-sections"].split(",")
@@ -40,7 +41,6 @@ class CorpusConfig:
 
     def get_all_data_section_configs(self) -> Dict[str, Dict[str, Any]]:
         return self.data_section_configs
-
 
 
 def get_config(config_path: str = "corpus.ini") -> CorpusConfig:
