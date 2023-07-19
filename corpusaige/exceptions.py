@@ -8,3 +8,6 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 # Import necessary modules
+
+class InvalidConfigSection(Exception):
+    pass

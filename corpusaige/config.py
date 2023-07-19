@@ -11,8 +11,11 @@ through deep exploration and understanding of comprehensive document sets and so
 import configparser
 import os
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, TypeAlias
 
+from .exceptions import InvalidConfigSection
+
+ConfigEntries : TypeAlias = Dict[str,str]
 class CorpusConfig:
 
     def __init__(self, config_path: str):
@@ -30,18 +33,24 @@ class CorpusConfig:
         self.vector_db_config = self.config[self.vector_db]
         self.data_section_configs = {section: self.config[section] for section in self.data_sections}
 
-    def get_llm_config(self) -> Dict[str, Any]:
+    def get_llm_config(self) -> ConfigEntries:
         return dict(self.llm_config.items())
         
-    def get_vector_db_config(self) -> Dict[str, Any]:
+    def get_vector_db_config(self) -> ConfigEntries:
         return dict(self.vector_db_config.items())
         
-    def get_data_section_config(self, section: str) -> Dict[str, Any]:
-        return self.data_section_configs.get(section, {})
+    def get_data_section_config(self, section: str) -> ConfigEntries:
+        entries = self.data_section_configs.get(section)
+        if entries is None:
+            raise InvalidConfigSection(f"Invalid data section: {section}")
+        else: 
+            return dict(entries.items())
 
-    def get_all_data_section_configs(self) -> Dict[str, Dict[str, Any]]:
-        return self.data_section_configs
-
+    def get_all_data_section_configs(self) -> Dict[str, ConfigEntries]:
+        configs: dict[str, ConfigEntries] = {}
+        for key, value in self.data_section_configs.items():
+            configs[key] = dict(value.items())
+        return configs
 
 def get_config(config_path: str = "corpus.ini") -> CorpusConfig:
     if not os.path.exists(config_path):

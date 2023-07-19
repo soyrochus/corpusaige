@@ -12,9 +12,10 @@ import argparse
 import sys
 import traceback
 
-from .corpus import corpus_factory
+from .corpus import Corpus, CorpusReader
 from .repl import ChatRepl
 from .config import CorpusConfig, get_config
+from corpusaige import corpus
 
 #print error with traceback if DEBUG is True
 DEBUG = True
@@ -36,12 +37,12 @@ def add_files(config: CorpusConfig, file_types, path_glob):
     pass
 
 
-def shell(config: CorpusConfig):
+def shell(corpus: Corpus):
     """
     Displays the Corpusaige shell help message.
     """
     # Implementation goes here
-    ChatRepl(config).run()
+    ChatRepl(corpus).run()
 
 def main():
     
@@ -80,7 +81,7 @@ def main():
         elif args.command == 'add':
             add_files(config, args.file_types, args.path_glob)
         elif args.command == 'shell':
-            shell(corpus_factory(config))
+            shell(CorpusReader(config))
 
     except(Exception) as error:
         if DEBUG:

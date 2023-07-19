@@ -18,10 +18,15 @@ import pygments.lexers
 from .corpus import Corpus
 
 class ChatRepl:
+    title: str
+    session: PromptSession
+    commands: dict
+    
     def __init__(self, corpus: Corpus):
         self.title = f"Session: {corpus.name} - path: {corpus.path}" 
         self.session = PromptSession()
         self.commands = self.get_commands()
+        self.corpus = corpus
 
     def run(self):
         print("Welcome to the Corpusaige shell. Type /help or /? to list commands.\n")
@@ -67,8 +72,8 @@ class ChatRepl:
 
         return '\n'.join(lines)
 
-    def send_chat(self, message: str):
-        print(f"Sending chat message: {message}")
+    def send_chat(self, message: str)-> None:
+        self.corpus.send_prompt(message)
 
     def handle_command(self, command: str):
         command = command[1:].strip()

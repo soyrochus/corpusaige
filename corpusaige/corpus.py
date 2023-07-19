@@ -8,24 +8,34 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 # Import necessary modules
+from pathlib import Path
 from typing import Protocol
-
+from corpusaige.interactions import StatelessInteraction
 from .config import CorpusConfig
 
 class Corpus(Protocol):
     name: str
-    path: str
+    path: Path
 
-    def send_chat(self, prompt: str) -> None:
+    def send_prompt(self, prompt: str) -> None:
         pass
 
 class MockCorpus(Corpus):
-    def __init__(self, name: str, path: str):
+
+    def __init__(self, name: str, path: Path):
         self.name = name
         self.path = path
 
-    def send_chat(self, prompt: str) -> None:
+    def send_prompt(self, prompt: str) -> None:
         print(f"MockCorpus: {self.name} - {self.path} - {prompt}")
         
-def corpus_factory(config: CorpusConfig) -> Corpus:
-    return MockCorpus(config.name, config.config_path)
+class CorpusReader(Corpus):
+
+    def __init__(self, config: CorpusConfig):
+        self.name = config.name
+        self.path = config.config_path
+        self.interaction = StatelessInteraction(config)
+
+    def send_prompt(self, prompt: str) -> None:
+        self.interaction.send_prompt(prompt)
+        
