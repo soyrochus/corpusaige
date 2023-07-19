@@ -10,7 +10,7 @@ through deep exploration and understanding of comprehensive document sets and so
 # Import necessary modules
 from pathlib import Path
 from typing import Protocol
-from corpusaige.interactions import StatelessInteraction
+from corpusaige.interactions import StatefullInteraction, StatelessInteraction
 from .config import CorpusConfig
 
 class Corpus(Protocol):
@@ -34,7 +34,8 @@ class CorpusReader(Corpus):
     def __init__(self, config: CorpusConfig):
         self.name = config.name
         self.path = config.config_path
-        self.interaction = StatelessInteraction(config)
+        self.interaction = StatefullInteraction(config)
+        #self.interaction = StatelessInteraction(config)
 
     def send_prompt(self, prompt: str) -> None:
         self.interaction.send_prompt(prompt)

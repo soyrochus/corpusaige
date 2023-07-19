@@ -3,3 +3,6 @@ https://youtu.be/5KEObONUkik
 
 How to Create and Use Virtual Environments in Python With Poetry
 https://youtu.be/0f3moPe_bhk
+
+LangChain Conversational Retrieval QA
+https://python.langchain.com/docs/modules/chains/popular/chat_vector_db

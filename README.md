@@ -66,9 +66,10 @@ positional arguments:
   {new,add,cli}
     new          Create a new corpus
     add          Add files to a corpus
-    cli          Display the Corpusaige CLI 
+    shell        Display the Corpusaige shell 
 
 options:
+  -p, --path     Path to corpus (default: current dir)
   -h, --help     show this help message and exit
 
 ```
