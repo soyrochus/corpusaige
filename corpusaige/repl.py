@@ -76,12 +76,24 @@ class ChatRepl:
         self.corpus.send_prompt(message)
 
     def handle_command(self, command: str):
+        # Remove leading '/' and trim the command
         command = command[1:].strip()
-
-        if command == 'help' or command == '?':
-            self.show_help()
-        elif command == 'exit':
+        
+        #Can't execute through generic involcation mechanism
+        # due to the Exception it uses, so do it manually
+        if command ==  'exit':
             self.do_exit()
+            
+        if command == '?':
+            command = 'help'
+            
+        func = self.commands.get(command)
+        if func is not None:
+            try:
+                # Call the function
+                func()
+            except Exception as e:
+                print(f"Error executing command {command}: {str(e)}")
         else:
             print("Unknown command. Type /help or /? for assistance.")
 
@@ -95,9 +107,11 @@ class ChatRepl:
         """Show this help message."""
         self.show_help()
 
-
     def do_exit(self):
         """Exit the shell."""	
         raise EOFError()
 
+    def do_clear(self):
+        """Clear the screen."""
+        print("\033c", end="")
   
