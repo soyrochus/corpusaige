@@ -9,24 +9,34 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 import argparse
+import os
 import sys
 import traceback
 
+from corpusaige.providers import create_local_vectordb
+
 from .corpus import Corpus, CorpusReader
 from .repl import ChatRepl
-from .config import CorpusConfig, get_config
+from .config.read import CorpusConfig, get_config
+from .config.create import prompt_user_for_init
 from corpusaige import corpus
 
 #print error with traceback if DEBUG is True
 DEBUG = True
 #DEBUG = False
 
-def new_corpus(config: CorpusConfig, name: str):
+def new_corpus(name: str, path: str):
     """
-    Creates a new corpus with the given name.
+    Creates a new corpus using a wizzard
     """
-    # Implementation goes here
-    pass
+    new_path = os.path.join(path, name)
+    ensure_path_exists(new_path)
+    config = prompt_user_for_init(name, new_path)
+    create_local_vectordb(config)
+ 
+    print(f"\nCorpus {name} created successfully in {path}.")
+    print("Please add files to the corpus using the 'add' command.")
+
 
 
 def add_files(config: CorpusConfig, file_types, path_glob):
@@ -41,7 +51,6 @@ def shell(corpus: Corpus):
     """
     Displays the Corpusaige shell help message.
     """
-    # Implementation goes here
     ChatRepl(corpus).run()
 
 def main():
@@ -75,12 +84,13 @@ def main():
             parser.print_help()
             exit()
    
-        config = get_config(args.path)
         if args.command == 'new':
-            new_corpus(config, args.name)
+            new_corpus(args.name, args.path)
         elif args.command == 'add':
+            config = get_config(args.path)
             add_files(config, args.file_types, args.path_glob)
         elif args.command == 'shell':
+            config = get_config(args.path)
             shell(CorpusReader(config, print_output=True))
 
     except(Exception) as error:
@@ -90,3 +100,11 @@ def main():
         else:
             print(error)
         exit(1)
+        
+def ensure_path_exists(path):
+    """
+    Ensures that the directory at the given path exists.
+    If the directory does not exist, it is created.
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)

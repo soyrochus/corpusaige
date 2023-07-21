@@ -77,8 +77,11 @@ class ChatRepl:
         return '\n'.join(lines)
 
     def send_chat(self, message: str) -> None:
-        self.corpus.send_prompt(message)
-
+        try:
+            self.corpus.send_prompt(message)
+        except Exception as e:
+            print(f"Error sending chat: {str(e)}")
+            
     def handle_command(self, command: str):
         # Remove leading '/' and trim the command
         command = command[1:].strip()

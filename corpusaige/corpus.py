@@ -11,7 +11,7 @@ through deep exploration and understanding of comprehensive document sets and so
 from pathlib import Path
 from typing import Protocol
 from corpusaige.interactions import StatefullInteraction, StatelessInteraction
-from .config import CorpusConfig
+from .config.read import CorpusConfig
 
 class Corpus(Protocol):
     name: str

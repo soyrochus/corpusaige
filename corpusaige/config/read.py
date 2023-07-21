@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, TypeAlias
 
-from .exceptions import InvalidConfigSection
+from ..exceptions import InvalidConfigSection
 
 ConfigEntries : TypeAlias = Dict[str,str]
 class CorpusConfig:
@@ -27,7 +27,11 @@ class CorpusConfig:
         self.name = self.main["name"]
         self.llm = self.main["llm"]
         self.vector_db = self.main["vector-db"]
-        self.data_sections = self.main["data-sections"].split(",")
+        sections = self.main["data-sections"]
+        if not sections:
+            self.data_sections = []
+        else:
+            self.data_sections = self.main["data-sections"].split(",")
         
         self.llm_config = self.config[self.llm]
         self.vector_db_config = self.config[self.vector_db]
@@ -46,6 +50,15 @@ class CorpusConfig:
         else: 
             return dict(entries.items())
 
+    def resolve_path_to_config(self, path: str) -> str:
+        if os.path.exists(path):
+            return os.path.abspath(path)
+        else:
+            return os.path.abspath(os.path.join(self.get_config_dir(), path))
+    
+    def get_config_dir(self) -> str:
+        return os.path.dirname(self.config_path)
+    
     def get_all_data_section_configs(self) -> Dict[str, ConfigEntries]:
         configs: dict[str, ConfigEntries] = {}
         for key, value in self.data_section_configs.items():

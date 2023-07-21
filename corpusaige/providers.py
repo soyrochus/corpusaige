@@ -10,12 +10,14 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 
-from corpusaige.config import ConfigEntries, CorpusConfig
+from corpusaige.config.read import ConfigEntries, CorpusConfig
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
+from typing import Any
 
-def llm_factory(config: CorpusConfig) -> any:
+
+def llm_factory(config: CorpusConfig) -> Any:
     if config.llm == "openai":
         llmconfig : ConfigEntries = config.get_llm_config()
         model = llmconfig.get("model", "")
@@ -25,7 +27,7 @@ def llm_factory(config: CorpusConfig) -> any:
     else:
         raise NotImplementedError(f"LLM type {config.llm} not implemented")
     
-def embeddings_factory(config: CorpusConfig) -> any:
+def embeddings_factory(config: CorpusConfig) -> Any:
     if config.llm == "openai":
         
         llmconfig : ConfigEntries = config.get_llm_config()
@@ -37,11 +39,11 @@ def embeddings_factory(config: CorpusConfig) -> any:
         raise NotImplementedError(f"Embedding function type {config.llm} not implemented")   
    
     
-def retriever_factory(config: CorpusConfig) -> any:
+def retriever_factory(config: CorpusConfig) -> Any:
     
     if config.vector_db == "chroma":
         vbconfig : ConfigEntries = config.get_vector_db_config()
-        path = vbconfig.get("path", None)
+        path = config.resolve_path_to_config(vbconfig.get("path", None))
         connection_string = vbconfig.get("connection-string", None)
         if path is None and connection_string is None: 
             raise ValueError("ChromaDb: Either path or connection must be provided") 
@@ -55,3 +57,17 @@ def retriever_factory(config: CorpusConfig) -> any:
             raise NotImplementedError("ChromaDb: Service connection not implemented")
     else:
         raise NotImplementedError(f"VectorDb type {config.vector_db} not implemented")
+    
+    
+def create_local_vectordb(config: CorpusConfig) -> None:
+    """
+        Create local instance of particular vector database type
+    """
+    if config.vector_db == "chroma":
+        vbconfig : ConfigEntries = config.get_vector_db_config()
+        path = config.resolve_path_to_config(vbconfig.get("path", None))
+        vectordb = Chroma(persist_directory=path)
+        vectordb.persist()  
+    else:
+        raise NotImplementedError(f"VectorDb type {config.vector_db} not implemented")
+      

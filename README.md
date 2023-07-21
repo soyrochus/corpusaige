@@ -50,6 +50,12 @@ Installing the CLI tool:
 ```bash
 pip install Corpusaige
 ```
+or using [Poetry](https://python-poetry.org/):
+
+```bash
+poetry add Corpusaige
+```
+
 The Visual Studio Code plugin can be found under the name __Corpusaige__
 
 ## Usage
@@ -77,8 +83,8 @@ options:
 ## Used as a library
 
 ```python
-from corpusaige.corpus import Corpus, CorpusReader
-from corpusaige.config import CorpusConfig, get_config
+from corpusaige.corpus import CorpusReader
+from corpusaige.config import get_config
 
 config = get_config("../test-case")
 corpus = CorpusReader(config)

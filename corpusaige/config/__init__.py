@@ -6,5 +6,3 @@ through deep exploration and understanding of comprehensive document sets and so
 @copyright: Copyright © 2023 Iwan van der Kleijn
 @license: MIT
 """
-
-# Import necessary modules

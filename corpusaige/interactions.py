@@ -10,7 +10,7 @@ through deep exploration and understanding of comprehensive document sets and so
 # Import necessary modules
 
 from typing import Protocol
-from corpusaige.config import CorpusConfig
+from corpusaige.config.read import CorpusConfig
 from corpusaige.providers import llm_factory, retriever_factory
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
