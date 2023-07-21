@@ -17,19 +17,23 @@ import pygments.lexers
 
 from .corpus import Corpus
 
+
 class ChatRepl:
     title: str
     session: PromptSession
     commands: dict
-    
+
     def __init__(self, corpus: Corpus):
-        self.title = f"Session: {corpus.name} - path: {corpus.path}" 
+        self.title = f"Session: {corpus.name} - path: {corpus.path}"
         self.session = PromptSession()
         self.commands = self.get_commands()
         self.corpus = corpus
 
     def run(self):
-        print("Welcome to the Corpusaige shell. Type /help or /? to list commands.\n")
+        print("Welcome to the Corpusaige shell")
+        print("Use Alt+Enter or Alt-Enter to send command or prompt.")
+        print("Use command /exit to quit the shell. Use /help or /? to get full list commands.\n")
+
         print(self.title)
         while True:
             try:
@@ -61,32 +65,32 @@ class ChatRepl:
     def get_multiline_input(self):
         lines = []
         while True:
-            line = self.session.prompt('> ', lexer=PygmentsLexer(PythonLexer), 
+            line = self.session.prompt('> ', lexer=PygmentsLexer(PythonLexer),
                                        multiline=True, is_password=False,
                                        vi_mode=False, enable_history_search=True)
             lines.append(line)
-            
+
             # Break the loop if the input is complete
             if not line.endswith('\\'):
                 break
 
         return '\n'.join(lines)
 
-    def send_chat(self, message: str)-> None:
+    def send_chat(self, message: str) -> None:
         self.corpus.send_prompt(message)
 
     def handle_command(self, command: str):
         # Remove leading '/' and trim the command
         command = command[1:].strip()
-        
-        #Can't execute through generic involcation mechanism
+
+        # Can't execute through generic involcation mechanism
         # due to the Exception it uses, so do it manually
-        if command ==  'exit':
+        if command == 'exit':
             self.do_exit()
-            
+
         if command == '?':
             command = 'help'
-            
+
         func = self.commands.get(command)
         if func is not None:
             try:
@@ -98,20 +102,28 @@ class ChatRepl:
             print("Unknown command. Type /help or /? for assistance.")
 
     def show_help(self):
-       
+
         print("Available commands:")
         for command in self.commands:
             print(f"/{command:<10} - {self.commands[command].__doc__}")
 
+    def toggle_sources(self):
+        """Toggle between showing sources or not."""
+        self.corpus.show_sources = not self.corpus.show_sources
+        print(f"Show sources: {'on' if self.corpus.show_sources else 'off'}")
+        
     def do_help(self):
         """Show this help message."""
         self.show_help()
 
+    def do_sources(self):
+        """Toggle between showing sources or not."""
+        self.toggle_sources()
+
     def do_exit(self):
-        """Exit the shell."""	
+        """Exit the shell."""
         raise EOFError()
 
     def do_clear(self):
         """Clear the screen."""
         print("\033c", end="")
-  

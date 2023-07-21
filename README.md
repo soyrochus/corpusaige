@@ -77,8 +77,32 @@ options:
 ## Used as a library
 
 ```python
-import Corpusaige
-# code examples
+from corpusaige.corpus import Corpus, CorpusReader
+from corpusaige.config import CorpusConfig, get_config
+
+config = get_config("../test-case")
+corpus = CorpusReader(config)
+
+result = corpus.send_prompt("What is a trait in Rust?")
+
+"""
+result contains: 'A trait in Rust is a language construct that defines a set of methods that can be implemented by types in the language. Traits are used to provide shared behavior between different types and can also be used to define type relationships.'
+"""
+
+```
+
+## Usage of the shell
+
+The shell is a basic multi-line prompt which is immiately avalable to have a conversation (to "chat") with the configured LLM. Use Alt+Enter or Alt-Enter to send the prompt. 
+
+Instead of sending a prompt you can give a command. All commands start with the character "/". For example, use command /exit to quit the shell and use /help or /? to get full list commands.
+
+```bash
+Available commands:
+/clear      - Clear the screen.
+/exit       - Exit the shell.
+/help       - Show this help message.
+/sources    - Toggle between showing sources or not.
 ```
 
 ## Dependencies

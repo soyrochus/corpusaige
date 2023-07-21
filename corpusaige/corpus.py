@@ -17,7 +17,7 @@ class Corpus(Protocol):
     name: str
     path: Path
 
-    def send_prompt(self, prompt: str) -> None:
+    def send_prompt(self, prompt: str) -> str | None:
         pass
 
 class MockCorpus(Corpus):
@@ -26,17 +26,23 @@ class MockCorpus(Corpus):
         self.name = name
         self.path = path
 
-    def send_prompt(self, prompt: str) -> None:
+    def send_prompt(self, prompt: str) -> str | None:
         print(f"MockCorpus: {self.name} - {self.path} - {prompt}")
+        return None
         
 class CorpusReader(Corpus):
 
-    def __init__(self, config: CorpusConfig):
+    show_sources: bool = False
+    print_output: bool = False
+    
+    def __init__(self, config: CorpusConfig, show_sources: bool = False, print_output: bool = False):
         self.name = config.name
         self.path = config.config_path
+        self.show_sources = show_sources
+        self.print_output = print_output
         self.interaction = StatefullInteraction(config)
         #self.interaction = StatelessInteraction(config)
 
-    def send_prompt(self, prompt: str) -> None:
-        self.interaction.send_prompt(prompt)
+    def send_prompt(self, prompt: str) -> str | None:
+        return self.interaction.send_prompt(prompt, self.show_sources, self.print_output)
         

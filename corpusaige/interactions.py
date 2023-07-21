@@ -17,7 +17,7 @@ from langchain.memory import ConversationBufferMemory
 
 class Interaction(Protocol):
 
-    def send_prompt(self, prompt: str) -> None:
+    def send_prompt(self, prompt: str) -> str | None:
         pass
 
 # Cite sources
@@ -40,27 +40,39 @@ class StatelessInteraction(Interaction):
                                                     return_source_documents=True,
                                                     verbose=True)
 
-    def send_prompt(self, prompt: str) -> None:
+    def send_prompt(self, prompt: str) -> str | None:
         llm_response = self.qa_chain(prompt)
         process_llm_response(llm_response)
+        return None
        
 class StatefullInteraction(Interaction):
     def __init__(self, config: CorpusConfig):
         # create the chain to answer questions
         self.llm = llm_factory(config)
         self.retriever = retriever_factory(config)
-        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        self.memory = ConversationBufferMemory(memory_key="chat_history", 
+                                               input_key='question', 
+                                               output_key='answer', 
+                                               return_messages=True)
         
         self.qa_chain = ConversationalRetrievalChain.from_llm(
             llm=self.llm, 
             retriever = self.retriever, 
-            memory=self.memory)
-        
-            #return_source_documents=True,
+            memory=self.memory, 
+            return_source_documents=True)
             #verbose=True)
 
-    def send_prompt(self, prompt: str) -> None:
+    def send_prompt(self, prompt: str, show_sources = False, print_output = True) -> str | None:
         llm_response = self.qa_chain({"question": prompt})
-        print(f"\n{llm_response['answer']}\n")
+        if print_output:
+            print(f"\n{llm_response['answer']}\n")
+            if show_sources:
+                print(f'\n\nSources: {llm_response["source_documents"][0]}')
+            return None
+        else:
+            if show_sources:
+                return f'llm_response["answer"]\n\nSources: {llm_response["source_documents"][0]}'
+            else:
+                return llm_response['answer']
      
 

@@ -81,7 +81,7 @@ def main():
         elif args.command == 'add':
             add_files(config, args.file_types, args.path_glob)
         elif args.command == 'shell':
-            shell(CorpusReader(config))
+            shell(CorpusReader(config, print_output=True))
 
     except(Exception) as error:
         if DEBUG:
