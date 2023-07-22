@@ -32,12 +32,14 @@ class MockCorpus(Corpus):
         
 class CorpusReader(Corpus):
 
+    debug_mode: bool = False
     show_sources: bool = False
     print_output: bool = False
     
-    def __init__(self, config: CorpusConfig, show_sources: bool = False, print_output: bool = False):
+    def __init__(self, config: CorpusConfig, debug_mode: bool = False, show_sources: bool = False, print_output: bool = False):
         self.name = config.name
         self.path = config.config_path
+        self.debug_mode = debug_mode
         self.show_sources = show_sources
         self.print_output = print_output
         self.interaction = StatefullInteraction(config)

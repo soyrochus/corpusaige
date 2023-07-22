@@ -8,6 +8,7 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 # Import necessary modules
+import traceback
 from prompt_toolkit import PromptSession
 from prompt_toolkit.document import Document
 from prompt_toolkit.patch_stdout import patch_stdout
@@ -80,8 +81,11 @@ class ChatRepl:
         try:
             self.corpus.send_prompt(message)
         except Exception as e:
-            print(f"Error sending chat: {str(e)}")
-            
+            if not self.corpus.debug_mode:
+                print(f"Error sending chat: {str(e)}")
+            else:
+                print(f"Error sending chat:\n {traceback.format_exc()}")
+
     def handle_command(self, command: str):
         # Remove leading '/' and trim the command
         command = command[1:].strip()
@@ -104,24 +108,21 @@ class ChatRepl:
         else:
             print("Unknown command. Type /help or /? for assistance.")
 
-    def show_help(self):
+    def do_debug(self):
+        """Toggle debug mode on or off."""
+        self.corpus.debug_mode = not self.corpus.debug_mode
+        print(f"Debug mode: {'on' if self.corpus.debug_mode else 'off'}")
 
+    def do_help(self):
+        """Show this help message."""
         print("Available commands:")
         for command in self.commands:
             print(f"/{command:<10} - {self.commands[command].__doc__}")
 
-    def toggle_sources(self):
+    def do_sources(self):
         """Toggle between showing sources or not."""
         self.corpus.show_sources = not self.corpus.show_sources
         print(f"Show sources: {'on' if self.corpus.show_sources else 'off'}")
-        
-    def do_help(self):
-        """Show this help message."""
-        self.show_help()
-
-    def do_sources(self):
-        """Toggle between showing sources or not."""
-        self.toggle_sources()
 
     def do_exit(self):
         """Exit the shell."""
