@@ -9,11 +9,14 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 
-from typing import Protocol
+from typing import Any, List, Protocol
 from corpusaige.config.read import CorpusConfig
-from corpusaige.providers import llm_factory, retriever_factory
+from corpusaige.documentset import DocumentSet, Entry, FileType
+from corpusaige.providers import llm_factory, retriever_factory, vectorstore_factory
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
+from langchain.document_loaders import DirectoryLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 class Interaction(Protocol):
 
@@ -76,3 +79,37 @@ class StatefullInteraction(Interaction):
                 return llm_response['answer']
      
 
+class Repository(Protocol):
+    def add_docset(self, docset: DocumentSet):
+        pass
+    
+class VectorRepository(Repository):
+    def __init__(self, config: CorpusConfig):
+        self.config = config
+        self.vectorstore = vectorstore_factory(config)
+        
+    def get_glob(self, entry: Entry) -> str:
+        if entry.recursive:
+            return f"./**/*.{entry.file_extension}"
+        else:
+            return f"./*.{entry.file_extension}"    
+        
+    def add_docset(self, docset: DocumentSet):
+       
+        chunks = None
+        for entry in docset.entries:
+            if entry.file_type == FileType.TEXT:
+                
+                text_splitter = RecursiveCharacterTextSplitter (chunk_size=1000, chunk_overlap=200)
+                loader = DirectoryLoader(entry.path, self.get_glob(entry))
+                docs = loader.load()
+                if chunks is None:
+                    chunks = text_splitter.split_documents(docs)
+                else:
+                    chunks.extend(text_splitter.split_documents(docs))
+            else:
+                raise NotImplementedError(f'File type {entry.file_type} not supported yet.')
+        self.vectorstore.add_documents(chunks)
+        self.vectorstore.persist()
+
+   

@@ -173,4 +173,6 @@ devenv.sh
 doc/_build/
 test-case/db
 test-case/corpus.ini
+test-case/test-book/
+test-case/test-gutenberg/
 

@@ -37,10 +37,8 @@ def embeddings_factory(config: CorpusConfig) -> Any:
         return OpenAIEmbeddings(model=model, openai_api_key=api_key)
     else:
         raise NotImplementedError(f"Embedding function type {config.llm} not implemented")   
-   
-    
-def retriever_factory(config: CorpusConfig) -> Any:
-    
+
+def vectorstore_factory(config: CorpusConfig) -> Any:
     if config.vector_db == "chroma":
         vbconfig : ConfigEntries = config.get_vector_db_config()
         path = config.resolve_path_to_config(vbconfig.get("path", None))
@@ -52,11 +50,33 @@ def retriever_factory(config: CorpusConfig) -> Any:
         if path:
             vectordb = Chroma(persist_directory=path,
                    embedding_function=embedding)
-            return vectordb.as_retriever()
+            return vectordb
         else:
             raise NotImplementedError("ChromaDb: Service connection not implemented")
     else:
         raise NotImplementedError(f"VectorDb type {config.vector_db} not implemented")
+    
+def retriever_factory(config: CorpusConfig) -> Any:
+    return vectorstore_factory(config).as_retriever()
+    
+# def retriever_factory(config: CorpusConfig) -> Any:
+
+#     if config.vector_db == "chroma":
+#         vbconfig : ConfigEntries = config.get_vector_db_config()
+#         path = config.resolve_path_to_config(vbconfig.get("path", None))
+#         connection_string = vbconfig.get("connection-string", None)
+#         if path is None and connection_string is None: 
+#             raise ValueError("ChromaDb: Either path or connection must be provided") 
+        
+#         embedding = embeddings_factory(config)
+#         if path:
+#             vectordb = Chroma(persist_directory=path,
+#                    embedding_function=embedding)
+#             return vectordb.as_retriever()
+#         else:
+#             raise NotImplementedError("ChromaDb: Service connection not implemented")
+#     else:
+#         raise NotImplementedError(f"VectorDb type {config.vector_db} not implemented")
     
     
 def create_local_vectordb(config: CorpusConfig) -> None:

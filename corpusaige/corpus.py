@@ -10,7 +10,8 @@ through deep exploration and understanding of comprehensive document sets and so
 # Import necessary modules
 from pathlib import Path
 from typing import Protocol
-from corpusaige.interactions import StatefullInteraction, StatelessInteraction
+from corpusaige.documentset import DocumentSet
+from corpusaige.interactions import StatefullInteraction, StatelessInteraction, VectorRepository
 from .config.read import CorpusConfig
 
 class Corpus(Protocol):
@@ -53,3 +54,12 @@ class CorpusReader(Corpus):
         
     def toggle_sources(self):
         self.show_sources = not self.show_sources
+
+class CorpusData:
+    def __init__(self, config: CorpusConfig):
+        self.config = config
+        self.repository = VectorRepository(config) 
+    def add_docset(self, docset: DocumentSet)-> None:
+        self.repository.add_docset(docset)
+        #update the config file here. Add data-section
+        #self.config.add_data_section(docset)    

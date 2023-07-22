@@ -21,6 +21,7 @@ unstructured = "^0.8.1"
 autopep8 = "^2.0.2"
 prompt-toolkit = "^3.0.39"
 types-pygments = "^2.15.0.1"
+pytest = "^7.4.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"

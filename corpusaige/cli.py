@@ -12,14 +12,16 @@ import argparse
 import os
 import sys
 import traceback
+from typing import List
 
 from corpusaige.providers import create_local_vectordb
 
-from .corpus import Corpus, CorpusReader
+from .corpus import Corpus, CorpusReader, CorpusData
 from .repl import ChatRepl
 from .config.read import CorpusConfig, get_config
 from .config.create import prompt_user_for_init
 from corpusaige import corpus
+from .documentset import DocumentSet
 
 #print error with traceback if DEBUG is True
 DEBUG = True
@@ -37,15 +39,14 @@ def new_corpus(name: str, path: str):
     print(f"\nCorpus {name} created successfully in {new_path}.")
     print("Please add files to the corpus using the 'add' command.")
 
-
-
-def add_files(config: CorpusConfig, file_types, path_glob):
+def add_docset(config: CorpusConfig, name: str, doc_paths: List[str], doc_types: List[str], recursive: bool):
     """
     Adds files of the given type(s) and path/glob to the corpus.
     """
     # Implementation goes here
-    pass
-
+    docset = DocumentSet.initialize(name, doc_paths, doc_types, recursive)
+    CorpusData(config).add_docset(docset)
+   
 
 def shell(corpus: Corpus):
     """
@@ -65,12 +66,12 @@ def main():
         new_parser.add_argument('name', help='Name of the new corpus')
 
         # Add files command
-        add_parser = subparsers.add_parser('add', help='Add files to a corpus')
-        add_parser.add_argument('-t', '--file-types',
-                                nargs='+', help='File types to add')
-        add_parser.add_argument(
-            'path_glob', help='Path or glob pattern of files to add')
-
+        add_parser = subparsers.add_parser('add', help='Add a document set (i.e. files) to a corpus')
+        add_parser.add_argument('-r', '--recursive', action='store_true', help='Recursively add files')
+        add_parser.add_argument('-t', '--doc-types', nargs='+', required=True, help='Document (File) types to add')
+        add_parser.add_argument('-p', '--doc-paths', nargs='+', required=True, help='(root) Path containing documents to add')
+        add_parser.add_argument('-n', '--name', required=True, help='Name for document set')
+       
         # Shell command
         shell_parser = subparsers.add_parser('shell', help='Display the Corpusaige Shell')
 
@@ -88,7 +89,7 @@ def main():
             new_corpus(args.name, args.path)
         elif args.command == 'add':
             config = get_config(args.path)
-            add_files(config, args.file_types, args.path_glob)
+            add_docset(config, args.name, args.doc_paths, args.doc_types, args.recursive)
         elif args.command == 'shell':
             config = get_config(args.path)
             shell(CorpusReader(config, print_output=True))

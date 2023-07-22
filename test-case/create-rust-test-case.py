@@ -20,7 +20,7 @@ from langchain.document_loaders import DirectoryLoader
 
 def init_db():
     # Print number of md files in directory
-    book_loader = DirectoryLoader('./book/src/', glob="./*.md")
+    book_loader = DirectoryLoader('./test-case/book/src/', glob="./*.md")
     book = book_loader.load()
     print(f'Rust book: {len(book)} pages')
 

@@ -96,7 +96,6 @@ result contains: 'A trait in Rust is a language construct that defines a set of 
 """
 
 ```
-
 ## Usage of the shell
 
 The shell is a basic multi-line prompt which is immiately avalable to have a conversation (to "chat") with the configured LLM. Use Alt+Enter or Alt-Enter to send the prompt. 
@@ -126,7 +125,32 @@ ChromaDb is integrated for its efficient vector data storage capabilities, cruci
 ## Configuration
 Detailed configuration instructions go here.
 
-## Contributing
+
+## Development
+
+### Installation
+
+Clone the repository. Use the dependency and package manager [Poetry](https://python-poetry.org/) to install all the dependencies of vein.
+
+```bash
+poetry install
+```
+
+### Usage of the virtual environment
+[Activate the Python virtual environment](https://python-poetry.org/docs/basic-usage/#activating-the-virtual-environment) with
+
+```bash
+poetry shell
+```
+### Running tests
+
+Corpusaige uses [Pytest](https://docs.pytest.org/) as its primary testing infrastructure. This is installed automatically as part of the dependencies of the project. The tests can be executed by running pytest in the root of the Corpusaige directory:
+
+```bash
+pyshell
+```
+
+### Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
