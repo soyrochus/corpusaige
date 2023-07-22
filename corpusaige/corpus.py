@@ -48,3 +48,8 @@ class CorpusReader(Corpus):
     def send_prompt(self, prompt: str) -> str | None:
         return self.interaction.send_prompt(prompt, self.show_sources, self.print_output)
         
+    def toggle_debug(self):
+        self.debug_mode = not self.debug_mode
+        
+    def toggle_sources(self):
+        self.show_sources = not self.show_sources

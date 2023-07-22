@@ -65,11 +65,14 @@ class CorpusConfig:
             configs[key] = dict(value.items())
         return configs
 
-def get_config(config_path: str = "corpus.ini") -> CorpusConfig:
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-
+def get_config(config_path: str) -> CorpusConfig:
+   
     if os.path.isdir(config_path):
         config_path = os.path.join(config_path, "corpus.ini")
+    
+    config_path = os.path.abspath(config_path)
+    
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found: {config_path}")
 
     return CorpusConfig(config_path)

@@ -88,9 +88,9 @@ class ChatRepl:
 
     def handle_command(self, command: str):
         # Remove leading '/' and trim the command
-        command = command[1:].strip()
+        command = command[1:].strip().lower()
 
-        # Can't execute through generic involcation mechanism
+        # Can't execute through generic invocation mechanism
         # due to the Exception it uses, so do it manually
         if command == 'exit':
             self.do_exit()
@@ -110,7 +110,7 @@ class ChatRepl:
 
     def do_debug(self):
         """Toggle debug mode on or off."""
-        self.corpus.debug_mode = not self.corpus.debug_mode
+        self.corpus.toggle_debug()
         print(f"Debug mode: {'on' if self.corpus.debug_mode else 'off'}")
 
     def do_help(self):
@@ -121,9 +121,10 @@ class ChatRepl:
 
     def do_sources(self):
         """Toggle between showing sources or not."""
-        self.corpus.show_sources = not self.corpus.show_sources
+        self.corpus.toggle_sources()
         print(f"Show sources: {'on' if self.corpus.show_sources else 'off'}")
 
+    
     def do_exit(self):
         """Exit the shell."""
         raise EOFError()

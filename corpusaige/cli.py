@@ -29,12 +29,12 @@ def new_corpus(name: str, path: str):
     """
     Creates a new corpus using a wizzard
     """
-    new_path = os.path.join(path, name)
+    new_path = os.path.abspath(os.path.join(path, name))
     ensure_path_exists(new_path)
     config = prompt_user_for_init(name, new_path)
     create_local_vectordb(config)
  
-    print(f"\nCorpus {name} created successfully in {path}.")
+    print(f"\nCorpus {name} created successfully in {new_path}.")
     print("Please add files to the corpus using the 'add' command.")
 
 
@@ -75,7 +75,7 @@ def main():
         shell_parser = subparsers.add_parser('shell', help='Display the Corpusaige Shell')
 
         # Global optional parameter
-        parser.add_argument('-p', '--path', default='corpus.ini', help='Path to corpus (default: current dir)')
+        parser.add_argument('-p', '--path', default='.', help='Path to corpus (default: current dir)')
         
         args = parser.parse_args(sys.argv[1:])
 
