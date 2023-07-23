@@ -150,11 +150,11 @@ Available commands:
 ## Used as a library
 
 ```python
-from corpusaige.corpus import CorpusReader
+from corpusaige.corpus import StatefullCorpus
 from corpusaige.config import get_config
 
 config = get_config("../test-case")
-corpus = CorpusReader(config)
+corpus = StatefullCorpus(config)
 
 result = corpus.send_prompt("What is a trait in Rust?")
 
