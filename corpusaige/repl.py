@@ -117,33 +117,35 @@ class ChatRepl:
 
     def do_db(self, *args):
         """Perform database operations:
-                - db search <text> - search for text in the database
-                - db count         - count number of chunks in the database
-                - db list          - list all chunks in the database
+            - db search <text> - search for text in the database
+            - db ls            - list all documents in the database 
         """
         if not args:
             print("No subcommand provided for db.")
             return
 
         subcommand = args[0]
+        text = ' '.join(args[1:])
         if subcommand == 'search':
-            text = ' '.join(args[1:])
             print(f"Searching for {text} in the database...")
             results = self.corpus.store_search(text)
-            if results:
-                for res in results:
-                    print("\n\n")
-                    print(res)
-            else:
-                print("No results found.")
-        elif subcommand == 'count':
-            # Implement count logic here
-            pass
-        elif subcommand == 'list':
-            # Implement list logic here
-            pass
+            self.show_results(results)
+        elif subcommand == 'ls':
+            print(f"Listing documents from the database...")
+            #results = self.corpus.store_ls(text.strip() if text else None)
+            results = self.corpus.store_ls()
+            self.show_results(results, seperator = None)
         else:
             print(f"Unknown subcommand {subcommand} for db command.")
+
+    def show_results(self, results, seperator = "\n\n"):
+        if results:
+            for res in results:
+                if seperator:
+                    print(seperator)
+                print(res)
+        else:
+            print("No results found.")
 
     def do_debug(self):
         """Toggle debug mode on or off."""

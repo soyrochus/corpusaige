@@ -87,6 +87,10 @@ class StatefullInteraction(Interaction):
 class Repository(Protocol):
     def add_docset(self, docset: DocumentSet):
         pass
+    def search(self, search_str: str) -> List[str]:
+        pass
+    def ls(self) -> List[str]:
+        pass
     
 class VectorRepository(Repository):
     def __init__(self, config: CorpusConfig):
@@ -102,15 +106,17 @@ class VectorRepository(Repository):
         else:
             return f"./*.{entry.file_extension}"    
         
-    def add_docset(self, docset: DocumentSet):
+    def add_docset(self, doc_set: DocumentSet):
        
         chunks = None
-        for entry in docset.entries:
+        for entry in doc_set.entries:
             if entry.file_type == FileType.TEXT:
                 
                 text_splitter = RecursiveCharacterTextSplitter (chunk_size=1000, chunk_overlap=200)
                 loader = DirectoryLoader(entry.path, self.get_glob(entry))
                 docs = loader.load()
+                for doc in docs:
+                    doc.metadata['doc-set'] = doc_set.name
                 if chunks is None:
                     chunks = text_splitter.split_documents(docs)
                 else:
@@ -124,3 +130,15 @@ class VectorRepository(Repository):
         result = self.vectorstore.similarity_search(search_str)
         #return [doc.page_content for doc in result]
         return ["\n\n".join([doc.metadata['source'],doc.page_content]) for doc in result]
+    
+    #def ls(self, set_name: str | None) -> List[str]:
+    def ls(self) -> List[str]:
+        # Where clause not in version of Chroma in use
+        # if set_name:
+        #     result = self.vectorstore.get(where={'doc-set', set_name})
+        # else:
+        result = self.vectorstore.get()
+            
+        sources = [metadata['source'] for metadata in result['metadatas']]
+        #remove duplicates from list
+        return list(dict.fromkeys(sources))
