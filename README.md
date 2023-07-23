@@ -59,6 +59,8 @@ poetry add Corpusaige
 The Visual Studio Code plugin can be found under the name __Corpusaige__
 
 ## Usage
+
+## Command line
 ```bash
 python -m corpusaige --help
 #or
@@ -78,6 +80,71 @@ options:
   -p, --path     Path to corpus (default: current dir)
   -h, --help     show this help message and exit
 
+# (abbrev) help for commands new, add and shell
+
+usage: crpsg new [-h] name
+
+positional arguments:
+  name        Name of the new corpus
+
+# ..
+
+usage: crpsg add [-h] [-r] -t DOC_TYPES [DOC_TYPES ...] -p DOC_PATHS [DOC_PATHS ...] -n NAME
+
+options:
+  -h, --help            show this help message and exit
+  -r, --recursive       Recursively add files
+  -t DOC_TYPES [DOC_TYPES ...], --doc-types DOC_TYPES [DOC_TYPES ...]
+                        Document (File) types to add
+  -p DOC_PATHS [DOC_PATHS ...], --doc-paths DOC_PATHS [DOC_PATHS ...]
+                        (root) Path containing documents to add
+  -n NAME, --name NAME  Name for document set
+
+# ..
+usage: crpsg shell [-h]
+
+```
+### A new Corpus
+
+First, create a new Corpus with the folling options
+
+```bash
+crpsg -p /home/soyrochus/data new gutenberg 
+```
+This will create a new Corpus witht the name "gutenberg. The Corpus is basically a file with the name corpus.ini in aforementioned directory. It contains a series of parameters
+
+> __TODO__ incorporate description of the parameters  needed to create the Corpus as well as the text UI presented to the user for this very purpose
+
+In case the -p option is ommited, the current directoy will be used to create the corpus subdirectory. 
+
+### Adding documents to the Corpus
+
+A Corpus can contain multiple document sets. These are collections of documents grouped under the same name to 
+
+```bash
+crpsg -p gutenberg add -n "Philosophy" -p /home/soyrochus/tmp/gutenberg/Philo_txt -t text:{txt:md} -r
+```
+
+In this example the _Philosophy_ document set will consist of all text files with the *txt and *.md (mark-down) files contained in the mentioned directory and all of its subdirectories, due to the -r (recursive) option.
+
+## Usage of the shell
+
+The shell is a basic multi-line prompt which is immiately avalable to have a conversation (to "chat") with the configured LLM. Use Alt+Enter or Alt-Enter to send the prompt. 
+
+Instead of sending a prompt you can give a command. All commands start with the character "/". For example, use command /exit to quit the shell and use /help or /? to get full list commands.
+
+```bash
+Available commands:
+/clear      - Clear the screen.
+/db         - Perform database operations:
+            - db search <text> - search for text in the database
+            - db ls            - list all documents in the database 
+        
+/debug      - Toggle debug mode on or off.
+/exit       - Exit the shell.
+/help       - Show this help message.
+/sources    - Toggle between showing sources or not.
+
 ```
 
 ## Used as a library
@@ -96,20 +163,6 @@ result contains: 'A trait in Rust is a language construct that defines a set of 
 """
 
 ```
-## Usage of the shell
-
-The shell is a basic multi-line prompt which is immiately avalable to have a conversation (to "chat") with the configured LLM. Use Alt+Enter or Alt-Enter to send the prompt. 
-
-Instead of sending a prompt you can give a command. All commands start with the character "/". For example, use command /exit to quit the shell and use /help or /? to get full list commands.
-
-```bash
-Available commands:
-/clear      - Clear the screen.
-/exit       - Exit the shell.
-/help       - Show this help message.
-/sources    - Toggle between showing sources or not.
-```
-
 ## Dependencies
 ### Langchain
 Langchain is chosen as our main framework for Corpusaige because of its robustness in natural language processing and its compatibility with various language model APIs, aligning with our requirements.
