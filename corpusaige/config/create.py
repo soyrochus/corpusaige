@@ -9,6 +9,7 @@ through deep exploration and understanding of comprehensive document sets and so
 
 import os
 import sys
+from typing import Any
 from prompt_toolkit.shortcuts import radiolist_dialog
 from prompt_toolkit.styles import Style
 from prompt_toolkit import prompt
@@ -20,7 +21,7 @@ from corpusaige.config.read import CorpusConfig, get_config
 
 def radiolist_dialog_with_params(title, text, values) -> str:
     # Model is chosen from a radiolist dialog
-    model = radiolist_dialog(
+    model : Any = radiolist_dialog(
         title=title,
         text=text,
         ok_text="Select",

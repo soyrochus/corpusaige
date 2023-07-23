@@ -12,7 +12,7 @@ through deep exploration and understanding of comprehensive document sets and so
 from typing import Any, List, Protocol
 from corpusaige.config.read import CorpusConfig
 from corpusaige.documentset import DocumentSet, Entry, FileType
-from corpusaige.providers import llm_factory, retriever_factory, vectorstore_factory
+from corpusaige.providers import llm_factory, vectorstore_factory
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.document_loaders import DirectoryLoader
@@ -34,10 +34,11 @@ def process_llm_response(llm_response):
 class StatelessInteraction(Interaction):
     def __init__(self, config: CorpusConfig):
         # create the chain to answer questions
-        llm = llm_factory(config)
-        retriever = retriever_factory(config)
+        self.llm = llm_factory(config)
+        self.vectorstore = vectorstore_factory(config)
+        retriever = self.vectorstore.as_retriever()
         
-        self.qa_chain = RetrievalQA.from_chain_type(llm=llm,
+        self.qa_chain = RetrievalQA.from_chain_type(llm=self.llm,
                                                     chain_type="stuff",
                                                     retriever=retriever,
                                                     return_source_documents=True,
@@ -49,10 +50,14 @@ class StatelessInteraction(Interaction):
         return None
        
 class StatefullInteraction(Interaction):
-    def __init__(self, config: CorpusConfig):
+    def __init__(self, config: CorpusConfig, retriever = None):
         # create the chain to answer questions
         self.llm = llm_factory(config)
-        self.retriever = retriever_factory(config)
+        if retriever is None:
+            self.retriever = vectorstore_factory(config).as_retriever()
+        else:
+            self.retriever = retriever 
+        
         self.memory = ConversationBufferMemory(memory_key="chat_history", 
                                                input_key='question', 
                                                output_key='answer', 
@@ -87,7 +92,10 @@ class VectorRepository(Repository):
     def __init__(self, config: CorpusConfig):
         self.config = config
         self.vectorstore = vectorstore_factory(config)
-        
+    
+    def as_retriever(self):
+        return self.vectorstore.as_retriever()
+    
     def get_glob(self, entry: Entry) -> str:
         if entry.recursive:
             return f"./**/*.{entry.file_extension}"
@@ -112,4 +120,7 @@ class VectorRepository(Repository):
         self.vectorstore.add_documents(chunks)
         self.vectorstore.persist()
 
-   
+    def search(self, search_str: str) -> List[str]:
+        result = self.vectorstore.similarity_search(search_str)
+        #return [doc.page_content for doc in result]
+        return ["\n\n".join([doc.metadata['source'],doc.page_content]) for doc in result]

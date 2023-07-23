@@ -9,33 +9,38 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 from pathlib import Path
-from typing import Protocol
+from typing import List, Protocol
 from corpusaige.documentset import DocumentSet
-from corpusaige.interactions import StatefullInteraction, StatelessInteraction, VectorRepository
+from corpusaige.interactions import StatefullInteraction, VectorRepository
 from .config.read import CorpusConfig
 
 class Corpus(Protocol):
     name: str
     path: Path
+    debug_mode: bool = False
+    show_sources: bool = False
 
     def send_prompt(self, prompt: str) -> str | None:
         pass
 
-class MockCorpus(Corpus):
-
-    def __init__(self, name: str, path: Path):
-        self.name = name
-        self.path = path
-
-    def send_prompt(self, prompt: str) -> str | None:
-        print(f"MockCorpus: {self.name} - {self.path} - {prompt}")
-        return None
+    def add_docset(self, docset: DocumentSet)-> None:
+        pass
+      
+    def store_search(self, search_str: str) -> List[str]:
+        pass
+    
+    def toggle_debug(self):
+        pass
         
-class CorpusReader(Corpus):
+    def toggle_sources(self):
+        pass
+        
+class StatefullCorpus(Corpus):
 
     debug_mode: bool = False
     show_sources: bool = False
     print_output: bool = False
+    repository: VectorRepository
     
     def __init__(self, config: CorpusConfig, debug_mode: bool = False, show_sources: bool = False, print_output: bool = False):
         self.name = config.name
@@ -43,9 +48,9 @@ class CorpusReader(Corpus):
         self.debug_mode = debug_mode
         self.show_sources = show_sources
         self.print_output = print_output
-        self.interaction = StatefullInteraction(config)
-        #self.interaction = StatelessInteraction(config)
-
+        self.repository = VectorRepository(config)
+        self.interaction = StatefullInteraction(config, retriever = self.repository.as_retriever())
+  
     def send_prompt(self, prompt: str) -> str | None:
         return self.interaction.send_prompt(prompt, self.show_sources, self.print_output)
         
@@ -55,11 +60,12 @@ class CorpusReader(Corpus):
     def toggle_sources(self):
         self.show_sources = not self.show_sources
 
-class CorpusData:
-    def __init__(self, config: CorpusConfig):
-        self.config = config
-        self.repository = VectorRepository(config) 
     def add_docset(self, docset: DocumentSet)-> None:
         self.repository.add_docset(docset)
-        #update the config file here. Add data-section
-        #self.config.add_data_section(docset)    
+      
+    def store_search(self, search_str: str) -> List[str]:
+        return self.repository.search(search_str)
+    
+    
+   
+ 

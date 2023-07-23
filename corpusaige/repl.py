@@ -15,7 +15,6 @@ from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.lexers import PygmentsLexer
 from pygments.lexers import PythonLexer
 import pygments.lexers
-
 from .corpus import Corpus
 
 
@@ -90,23 +89,61 @@ class ChatRepl:
         # Remove leading '/' and trim the command
         command = command[1:].strip().lower()
 
+        # Split the command into main command and subcommands
+        command_parts = command.split()
+        main_command = command_parts[0]
+        subcommands = command_parts[1:]
+
         # Can't execute through generic invocation mechanism
         # due to the Exception it uses, so do it manually
-        if command == 'exit':
+        if main_command == 'exit':
             self.do_exit()
 
-        if command == '?':
-            command = 'help'
+        if main_command == '?':
+            main_command = 'help'
 
-        func = self.commands.get(command)
+        func = self.commands.get(main_command)
         if func is not None:
             try:
-                # Call the function
-                func()
+                # Call the function with subcommands as arguments
+                if main_command == 'db':
+                    func(*subcommands)
+                else:
+                    func()
             except Exception as e:
-                print(f"Error executing command {command}: {str(e)}")
+                print(f"Error executing command {main_command}: {str(e)}")
         else:
             print("Unknown command. Type /help or /? for assistance.")
+
+    def do_db(self, *args):
+        """Perform database operations:
+                - db search <text> - search for text in the database
+                - db count         - count number of chunks in the database
+                - db list          - list all chunks in the database
+        """
+        if not args:
+            print("No subcommand provided for db.")
+            return
+
+        subcommand = args[0]
+        if subcommand == 'search':
+            text = ' '.join(args[1:])
+            print(f"Searching for {text} in the database...")
+            results = self.corpus.store_search(text)
+            if results:
+                for res in results:
+                    print("\n\n")
+                    print(res)
+            else:
+                print("No results found.")
+        elif subcommand == 'count':
+            # Implement count logic here
+            pass
+        elif subcommand == 'list':
+            # Implement list logic here
+            pass
+        else:
+            print(f"Unknown subcommand {subcommand} for db command.")
 
     def do_debug(self):
         """Toggle debug mode on or off."""
@@ -124,7 +161,6 @@ class ChatRepl:
         self.corpus.toggle_sources()
         print(f"Show sources: {'on' if self.corpus.show_sources else 'off'}")
 
-    
     def do_exit(self):
         """Exit the shell."""
         raise EOFError()

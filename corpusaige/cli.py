@@ -16,7 +16,7 @@ from typing import List
 
 from corpusaige.providers import create_local_vectordb
 
-from .corpus import Corpus, CorpusReader, CorpusData
+from .corpus import Corpus, StatefullCorpus
 from .repl import ChatRepl
 from .config.read import CorpusConfig, get_config
 from .config.create import prompt_user_for_init
@@ -45,7 +45,7 @@ def add_docset(config: CorpusConfig, name: str, doc_paths: List[str], doc_types:
     """
     # Implementation goes here
     docset = DocumentSet.initialize(name, doc_paths, doc_types, recursive)
-    CorpusData(config).add_docset(docset)
+    StatefullCorpus(config).add_docset(docset)
    
 
 def shell(corpus: Corpus):
@@ -92,7 +92,7 @@ def main():
             add_docset(config, args.name, args.doc_paths, args.doc_types, args.recursive)
         elif args.command == 'shell':
             config = get_config(args.path)
-            shell(CorpusReader(config, print_output=True))
+            shell(StatefullCorpus(config, print_output=True))
 
     except(Exception) as error:
         if DEBUG:
