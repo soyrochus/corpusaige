@@ -109,12 +109,22 @@ class ChatRepl:
                 if main_command == 'db':
                     func(*subcommands)
                 else:
-                    func()
+                    func(*subcommands)
             except Exception as e:
                 print(f"Error executing command {main_command}: {str(e)}")
         else:
             print("Unknown command. Type /help or /? for assistance.")
 
+    def do_resultsnum(self, num=None):
+        """Gets or sets the number of results to return.
+              Usage: /resultsnum [num]
+        """
+        if num is None:
+            print(f"Number of results: {self.corpus.results_num}")
+        else:  
+            self.corpus.results_num = int(num)
+            print(f"Number of results set to {self.corpus.results_num}")
+        
     def do_db(self, *args):
         """Perform database operations:
             - db search <text> - search for text in the database

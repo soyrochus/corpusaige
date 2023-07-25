@@ -20,6 +20,7 @@ class Corpus(Protocol):
     path: Path
     debug_mode: bool = False
     show_sources: bool = False
+    results_num: int = 4
 
     def send_prompt(self, prompt: str) -> str | None:
         pass
