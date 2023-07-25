@@ -65,9 +65,13 @@ def prompt_user_for_init(name: str, corpus_path: str = './') -> CorpusConfig:
     if ai_provider.lower() == 'openai':
         api_key = prompt("Enter OpenAI API Key (empty allowed): ")
 
-        model = radiolist_dialog_with_params("Select Open AI model", "Select model", [(
-            "text-davinci-003", "text-davinci-003"), ("unspecified", "unspecified")])
-        config['openai'] = {'api-key': api_key, 'model': model}
+        llm_model = radiolist_dialog_with_params("Select Open AI llm-model", "Select llm-model", [(
+            "gpt-3.5-turbo", "gpt-3.5-turbo"), ("unspecified", "unspecified")])
+        
+        embedding_model = radiolist_dialog_with_params("Select Open AI model", "Select model", [(
+            "text-embedding-ada-002", "text-embedding-ada-002"), ("unspecified", "unspecified")])
+       
+        config['openai'] = {'api-key': api_key, 'llm-model': llm_model, 'embedding-model': embedding_model}
 
     # Chroma section
     if vector_db.lower() == 'chroma':

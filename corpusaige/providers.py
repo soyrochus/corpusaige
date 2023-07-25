@@ -11,7 +11,8 @@ through deep exploration and understanding of comprehensive document sets and so
 # Import necessary modules
 from corpusaige.config.read import ConfigEntries, CorpusConfig
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
+#from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
 from typing import Any
 
@@ -19,10 +20,11 @@ from typing import Any
 def llm_factory(config: CorpusConfig) -> Any:
     if config.llm == "openai":
         llmconfig: ConfigEntries = config.get_llm_config()
-        model = llmconfig.get("model", "")
+        llm_model = llmconfig.get("llm-model", "")
         api_key = llmconfig.get("api-key", "")
 
-        return OpenAI(model=model, openai_api_key=api_key)  # type: ignore
+        #return OpenAI(model=llm_model, openai_api_key=api_key)  # type: ignore
+        return ChatOpenAI(model=llm_model, openai_api_key=api_key)  # type: ignore
     else:
         raise NotImplementedError(f"LLM type {config.llm} not implemented")
 
@@ -32,13 +34,11 @@ def embeddings_factory(config: CorpusConfig) -> Any:
 
         llmconfig: ConfigEntries = config.get_llm_config()
         
-        model = 'text-embedding-ada-002'
-        #model = llmconfig.get("model", "")
+        embedding_model = llmconfig.get("embedding-model", "")
         api_key = llmconfig.get("api-key", "")
-        
 
         # type: ignore
-        return OpenAIEmbeddings(model=model, openai_api_key=api_key)
+        return OpenAIEmbeddings(model=embedding_model, openai_api_key=api_key)
     else:
         raise NotImplementedError(
             f"Embedding function type {config.llm} not implemented")
