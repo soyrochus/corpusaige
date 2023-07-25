@@ -65,8 +65,11 @@ def prompt_user_for_init(name: str, corpus_path: str = './') -> CorpusConfig:
     if ai_provider.lower() == 'openai':
         api_key = prompt("Enter OpenAI API Key (empty allowed): ")
 
+        #llm_model = radiolist_dialog_with_params("Select Open AI llm-model", "Select llm-model", [(
+        #    "gpt-3.5-turbo", "gpt-3.5-turbo"), ("unspecified", "unspecified")])
+        
         llm_model = radiolist_dialog_with_params("Select Open AI llm-model", "Select llm-model", [(
-            "gpt-3.5-turbo", "gpt-3.5-turbo"), ("unspecified", "unspecified")])
+            "gpt-4", "gpt-4"), ("unspecified", "unspecified")])
         
         embedding_model = radiolist_dialog_with_params("Select Open AI model", "Select model", [(
             "text-embedding-ada-002", "text-embedding-ada-002"), ("unspecified", "unspecified")])

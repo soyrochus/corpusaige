@@ -175,4 +175,4 @@ test-case/db
 test-case/corpus.ini
 test-case/test-book/
 test-case/test-gutenberg/
-
+test-case/cv/CV*.txt
