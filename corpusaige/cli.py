@@ -58,7 +58,7 @@ def main():
     
     try:
         parser = argparse.ArgumentParser(
-            prog='corpusaige', description='Corpusaige command line interface')
+            prog='crpsg (or python -m corpusaige)', description='Corpusaige command line interface')
         subparsers = parser.add_subparsers(dest='command')
 
         # New corpus command
