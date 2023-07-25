@@ -31,8 +31,11 @@ def embeddings_factory(config: CorpusConfig) -> Any:
     if config.llm == "openai":
 
         llmconfig: ConfigEntries = config.get_llm_config()
-        model = llmconfig.get("model", "")
+        
+        model = 'text-embedding-ada-002'
+        #model = llmconfig.get("model", "")
         api_key = llmconfig.get("api-key", "")
+        
 
         # type: ignore
         return OpenAIEmbeddings(model=model, openai_api_key=api_key)
