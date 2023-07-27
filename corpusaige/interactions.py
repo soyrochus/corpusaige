@@ -70,7 +70,9 @@ class StatefullInteraction(Interaction):
             return_source_documents=True)
             #verbose=True)
 
-    def send_prompt(self, prompt: str, show_sources = False, print_output = True) -> str | None:
+    def send_prompt(self, prompt: str, show_sources: bool = False, print_output:bool = True, results_num: int=4) -> str | None:
+        
+        self.retriever.search_kwargs['k'] = results_num
         llm_response = self.qa_chain({"question": prompt})
         if print_output:
             print(f"\n{llm_response['answer']}\n")
@@ -87,7 +89,7 @@ class StatefullInteraction(Interaction):
 class Repository(Protocol):
     def add_docset(self, docset: DocumentSet):
         pass
-    def search(self, search_str: str) -> List[str]:
+    def search(self, search_str: str, results_num:int) -> List[str]:
         pass
     def ls(self) -> List[str]:
         pass
@@ -126,8 +128,8 @@ class VectorRepository(Repository):
         self.vectorstore.add_documents(chunks)
         self.vectorstore.persist()
 
-    def search(self, search_str: str) -> List[str]:
-        result = self.vectorstore.similarity_search(search_str)
+    def search(self, search_str: str, results_num: int) -> List[str]:
+        result = self.vectorstore.similarity_search(search_str, k=results_num)
         #return [doc.page_content for doc in result]
         return ["\n\n".join([doc.metadata['source'],doc.page_content]) for doc in result]
     

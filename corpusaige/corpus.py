@@ -47,20 +47,25 @@ class StatefullCorpus(Corpus):
     debug_mode: bool = False
     show_sources: bool = False
     print_output: bool = False
+    results_num: int = 4
     repository: VectorRepository
 
-    def __init__(self, config: CorpusConfig, debug_mode: bool = False, show_sources: bool = False, print_output: bool = False):
+    def __init__(self, config: CorpusConfig, debug_mode: bool = False, 
+                                            show_sources: bool = False, 
+                                            print_output: bool = False, 
+                                            results_num: int = 4):
         self.name = config.name
         self.path = config.config_path
         self.debug_mode = debug_mode
         self.show_sources = show_sources
         self.print_output = print_output
+        self.results_num = results_num
         self.repository = VectorRepository(config)
         self.interaction = StatefullInteraction(
             config, retriever=self.repository.as_retriever())
 
     def send_prompt(self, prompt: str) -> str | None:
-        return self.interaction.send_prompt(prompt, self.show_sources, self.print_output)
+        return self.interaction.send_prompt(prompt, self.show_sources, self.print_output, self.results_num)
 
     def toggle_debug(self):
         self.debug_mode = not self.debug_mode
@@ -72,7 +77,7 @@ class StatefullCorpus(Corpus):
         self.repository.add_docset(docset)
 
     def store_search(self, search_str: str) -> List[str]:
-        return self.repository.search(search_str)
+        return self.repository.search(search_str, self.results_num)
 
     #def store_ls(self, docset_name=None) -> List[str]:
     def store_ls(self) -> List[str]:
