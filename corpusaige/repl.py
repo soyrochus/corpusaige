@@ -11,12 +11,46 @@ through deep exploration and understanding of comprehensive document sets and so
 import traceback
 from prompt_toolkit import PromptSession
 from prompt_toolkit.document import Document
+from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.lexers import PygmentsLexer
 from pygments.lexers import PythonLexer
 import pygments.lexers
+from prompt_toolkit.output import create_output
 from .corpus import Corpus
 
+
+def synonymcommand(*synonyms):
+    def decorator(func):
+        func.synonyms = synonyms
+        return func
+    return decorator
+
+def get_terminal_size():
+    output = create_output()
+    size = output.get_size()
+    return size.rows, size.columns
+
+def pprint(text, pause_page=True):
+    if pause_page:
+        lines_per_page = get_terminal_size()[0] - 1  # Subtract 1 for the input line
+        lines = text.split('\n')
+        for i in range(0, len(lines), lines_per_page):
+            print('\n'.join(lines[i:i+lines_per_page]))
+            if i + lines_per_page < len(lines):
+                input('Press any key for next page...')
+    else:
+        print(text)        
+            
+class CommandCompleter(Completer):
+    def __init__(self, commands):
+        self.commands = [f'/{n}' for n in list(commands.keys())]
+
+    def get_completions(self, document, complete_event):
+        word = document.get_word_before_cursor(WORD=True)
+        for command in self.commands:
+            if command.startswith(word):
+                yield Completion(command, start_position=-len(word))
 
 class ChatRepl:
     title: str
@@ -25,14 +59,18 @@ class ChatRepl:
 
     def __init__(self, corpus: Corpus):
         self.title = f"Session: {corpus.name} - path: {corpus.path}"
-        self.session = PromptSession()
         self.commands = self.get_commands()
+        self.all_commands = self.get_all_commands()
+        self.completer = CommandCompleter(self.commands)
         self.corpus = corpus
+        self.session = PromptSession(completer=self.completer)
+        self.pause_page = True
 
     def run(self):
-        print("Welcome to the Corpusaige shell")
+        print("Welcome to the Corpusaige shell\n")
         print("Use Alt+Enter or Alt-Enter to send command or prompt.")
-        print("Use command /exit to quit the shell. Use /help or /? to get full list commands.\n")
+        print("Use /exit or /quit to quit the shell.")
+        print("Use /help or /? to get full list commands.\nUse TAB to autocomplete commands.\n")
 
         print(self.title)
         while True:
@@ -47,7 +85,7 @@ class ChatRepl:
 
             except KeyboardInterrupt:
                 # Handle Ctrl+C gracefully
-                print("KeyboardInterrupt. Use /exit to quit the shell.")
+                print("KeyboardInterrupt. Use /exit or /quit to quit the shell.")
 
             except EOFError:
                 # Handle Ctrl+D gracefully
@@ -62,6 +100,18 @@ class ChatRepl:
                 commands[command] = getattr(self, name)
         return commands
 
+    def get_all_commands(self):
+        commands = self.get_commands()
+        synonyms = {}
+        
+        for name, func in commands.items():
+            if hasattr(func, 'synonyms'):
+                for synonym in func.synonyms:
+                    synonyms[synonym] = func
+        commands.update(synonyms)
+        return commands
+
+    
     def get_multiline_input(self):
         lines = []
         while True:
@@ -96,36 +146,74 @@ class ChatRepl:
 
         # Can't execute through generic invocation mechanism
         # due to the Exception it uses, so do it manually
-        if main_command == 'exit':
+        if main_command == 'exit' or main_command == 'quit':
             self.do_exit()
 
-        if main_command == '?':
-            main_command = 'help'
-
-        func = self.commands.get(main_command)
+        func = self.all_commands.get(main_command)
         if func is not None:
             try:
                 # Call the function with subcommands as arguments
-                if main_command == 'db':
+                #if main_command == 'db':
                     func(*subcommands)
-                else:
-                    func(*subcommands)
+                #else:
+                #    func(*subcommands)
             except Exception as e:
-                print(f"Error executing command {main_command}: {str(e)}")
+                if self.corpus.debug_mode:
+                    print(f"Error executing command {main_command}: \n\n{traceback.format_exc()}")
+                else:
+                    print(f"Error executing command {main_command}: {e}")
         else:
             print("Unknown command. Type /help or /? for assistance.")
 
-    def do_resultsnum(self, num=None):
-        """Gets or sets the number of results to return.
-              Usage: /resultsnum [num]
-        """
+    def do_contextsize(self, num=None):
+        """Gets or sets the number db results to sent to AI
+              Usage: /contextsize [num]"""
+  
         if num is None:
             print(f"Number of results: {self.corpus.results_num}")
         else:  
             self.corpus.results_num = int(num)
             print(f"Number of results set to {self.corpus.results_num}")
+
+    def do_ls(self):
+        """List documents in the corpus."""
+        raise NotImplementedError("/ls not implemented yet")
+    
+    def do_search(self, *args):
+        """- search for text in the corpus 
+           Usage: /search <text>
+        """
+        raise NotImplementedError("/search not implemented yet")
+    
+    def do_add(self, *args):
+        """Add document set to the corpus"""
+        raise NotImplementedError("/add not implemented yet")
         
-    def do_db(self, *args):
+    def do_update(self, *args):
+        """Update document set in the corpus"""
+        raise NotImplementedError("/update not implemented yet")
+    
+    def do_remove(self, *args):
+        """Remove document set from the corpus"""
+        raise NotImplementedError("/remove not implemented yet")
+    
+    def do_store(self, *args):
+        """Incorporate response from the LLM into the corpus"""
+        raise NotImplementedError("/store not implemented yet")
+    
+    def do_note(self, *args):
+        """Add note as document to the corpus"""
+        raise NotImplementedError("/note not implemented yet")
+    
+    def do_run(self, *args):
+        """Run a script"""
+        raise NotImplementedError("/run not implemented yet")
+    
+    def do_act(self, *args):
+        """Let de LLM perform an action (to be approved by the user)"""
+        raise NotImplementedError("/act not implemented yet")
+    
+    def do_cache(self, *args):
         """Perform database operations:
             - db search <text> - search for text in the database
             - db ls            - list all documents in the database 
@@ -139,40 +227,48 @@ class ChatRepl:
         if subcommand == 'search':
             print(f"Searching for {text} in the database...")
             results = self.corpus.store_search(text)
-            self.show_results(results)
+            self.print(list=results)
         elif subcommand == 'ls':
             print(f"Listing documents from the database...")
             #results = self.corpus.store_ls(text.strip() if text else None)
             results = self.corpus.store_ls()
-            self.show_results(results, seperator = None)
+            #self.show_results(results, seperator = None)
+            self.print(list=results, seperator = "\n")
         else:
             print(f"Unknown subcommand {subcommand} for db command.")
 
-    def show_results(self, results, seperator = "\n\n"):
-        if results:
-            for res in results:
-                if seperator:
-                    print(seperator)
-                print(res)
+    def print(self, text=None, *, list=None , seperator = ""):
+        if text is not None:
+            pprint(text, self.pause_page)
+        if len(list) > 0:
+            pprint(seperator.join(list), self.pause_page)
         else:
             print("No results found.")
 
-    def do_debug(self):
-        """Toggle debug mode on or off."""
+    @synonymcommand('debug')
+    def do_trace(self):
+        """Toggle trace mode on or off."""
         self.corpus.toggle_debug()
         print(f"Debug mode: {'on' if self.corpus.debug_mode else 'off'}")
 
+    @synonymcommand("?")
     def do_help(self):
         """Show this help message."""
         print("Available commands:")
         for command in self.commands:
-            print(f"/{command:<10} - {self.commands[command].__doc__}")
+            if hasattr(self.commands[command], 'synonyms'):
+                _end = f"; synonym(s): {' '.join(sorted(self.commands[command].synonyms))}\n"
+            else:
+                _end="\n"
+            print(f"/{command:<10} - {self.commands[command].__doc__}", end=_end)
+           
 
     def do_sources(self):
         """Toggle between showing sources or not."""
         self.corpus.toggle_sources()
         print(f"Show sources: {'on' if self.corpus.show_sources else 'off'}")
-
+   
+    @synonymcommand('quit')
     def do_exit(self):
         """Exit the shell."""
         raise EOFError()
@@ -180,3 +276,32 @@ class ChatRepl:
     def do_clear(self):
         """Clear the screen."""
         print("\033c", end="")
+
+    @synonymcommand("pause")
+    def do_pause_page(self):
+        """Toggle pause page on or off."""
+        self.pause_page = not self.pause_page
+        print(f"Pause page: {'on' if self.pause_page else 'off'}")
+
+""" /clear     - Clear the screen.
+/cache     - Perform cache (database) operations:
+    keys   <type>
+    get    <id>
+    delete <id>
+
+/search <text>  - search for text in the corpus 
+/ls <set>       - list documents in the corpus
+/add            - Add document set to the corpus
+/update         - Updated previously added document set
+/remove
+/store
+/annotate    
+/run 
+/act 
+/debug          - Toggle debug mode on or off.
+/exit           - Exit the shell.
+/help           - Show this help message.
+/contextsize    - Gets or sets the number db results to sent to AI
+                  Usage: /contextsize [num]
+        
+/sources """  
