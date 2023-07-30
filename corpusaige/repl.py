@@ -16,7 +16,10 @@ from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.lexers import PygmentsLexer
 from pygments.lexers import PythonLexer
 import pygments.lexers
+from ast import literal_eval
 from prompt_toolkit.output import create_output
+
+from corpusaige.documentset import DocumentSet
 from .corpus import Corpus
 
 
@@ -149,11 +152,11 @@ class PromptRepl:
 
     def handle_command(self, command: str):
         # Remove leading '/' and trim the command
-        command = command[1:].strip().lower()
+        command = command[1:].strip()
 
         # Split the command into main command and subcommands
         command_parts = command.split()
-        main_command = command_parts[0]
+        main_command = command_parts[0].lower()
         subcommands = command_parts[1:]
         cmdtext = ' '.join(subcommands)
 
@@ -214,10 +217,20 @@ class PromptRepl:
         results = self.corpus.store_search(cmdtext)
         self.print(list=results)
 
+    @detailed_help("""Usage: /add "name", "path", "filetype",<recursive - by default True>
+       /add "name", ["path1", "path2"], ["filetype1", "filetype2"],<recursive>""")
     def do_add(self, *args, cmdtext=None):
         """Add document set to the corpus"""
-        raise NotImplementedError("/add not implemented yet")
-
+        
+        ds = literal_eval(f"[{cmdtext}]")
+        name = ds[0]
+        paths = ds[1 ] if type(ds[1]) is list else [ds[1]]
+        ftypes = ds[2] if type(ds[2]) is list else [ds[2]]
+        recursive = ds[3] if len(ds) > 3 else False
+        docset = DocumentSet.initialize(name, paths, ftypes, recursive)
+        self.corpus.add_docset(docset)
+        print(f"Added document set {name} to the corpus.")
+        
     def do_update(self, *args, cmdtext=None):
         """Update document set in the corpus"""
         raise NotImplementedError("/update not implemented yet")
