@@ -23,7 +23,6 @@ def llm_factory(config: CorpusConfig) -> Any:
         llm_model = llmconfig.get("llm-model", "")
         api_key = llmconfig.get("api-key", "")
 
-        #return OpenAI(model=llm_model, openai_api_key=api_key)  # type: ignore
         return ChatOpenAI(model=llm_model, openai_api_key=api_key)  # type: ignore
     else:
         raise NotImplementedError(f"LLM type {config.llm} not implemented")
@@ -37,8 +36,7 @@ def embeddings_factory(config: CorpusConfig) -> Any:
         embedding_model = llmconfig.get("embedding-model", "")
         api_key = llmconfig.get("api-key", "")
 
-        # type: ignore
-        return OpenAIEmbeddings(model=embedding_model, openai_api_key=api_key)
+        return OpenAIEmbeddings(model=embedding_model, openai_api_key=api_key) # type: ignore
     else:
         raise NotImplementedError(
             f"Embedding function type {config.llm} not implemented")

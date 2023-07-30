@@ -17,7 +17,7 @@ from typing import List
 from corpusaige.providers import create_local_vectordb
 
 from .corpus import Corpus, StatefullCorpus
-from .repl import ChatRepl
+from .repl import PromptRepl
 from .config.read import CorpusConfig, get_config
 from .config.create import prompt_user_for_init
 from corpusaige import corpus
@@ -52,7 +52,7 @@ def shell(corpus: Corpus):
     """
     Displays the Corpusaige shell help message.
     """
-    ChatRepl(corpus).run()
+    PromptRepl(corpus).run()
 
 def main():
     
@@ -92,7 +92,7 @@ def main():
             add_docset(config, args.name, args.doc_paths, args.doc_types, args.recursive)
         elif args.command == 'shell':
             config = get_config(args.path)
-            shell(StatefullCorpus(config, print_output=True))
+            shell(StatefullCorpus(config))
 
     except(Exception) as error:
         if DEBUG:

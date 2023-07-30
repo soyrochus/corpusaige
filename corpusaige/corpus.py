@@ -18,9 +18,8 @@ from .config.read import CorpusConfig
 class Corpus(Protocol):
     name: str
     path: Path
-    debug_mode: bool = False
     show_sources: bool = False
-    results_num: int = 4
+    context_size: int = 4
 
     def send_prompt(self, prompt: str) -> str | None:
         pass
@@ -34,9 +33,6 @@ class Corpus(Protocol):
     #def store_ls(self, set_name: str) -> List[str]:
     def store_ls(self) -> List[str]:
         pass
-    
-    def toggle_debug(self):
-        pass
 
     def toggle_sources(self):
         pass
@@ -44,31 +40,20 @@ class Corpus(Protocol):
 
 class StatefullCorpus(Corpus):
 
-    debug_mode: bool = False
-    show_sources: bool = False
-    print_output: bool = False
-    results_num: int = 4
     repository: VectorRepository
 
-    def __init__(self, config: CorpusConfig, debug_mode: bool = False, 
-                                            show_sources: bool = False, 
-                                            print_output: bool = False, 
-                                            results_num: int = 4):
+    def __init__(self, config: CorpusConfig,show_sources: bool = False, 
+                                            context_size: int = 4):
         self.name = config.name
         self.path = config.config_path
-        self.debug_mode = debug_mode
         self.show_sources = show_sources
-        self.print_output = print_output
-        self.results_num = results_num
+        self.context_size = context_size
         self.repository = VectorRepository(config)
         self.interaction = StatefullInteraction(
             config, retriever=self.repository.as_retriever())
 
     def send_prompt(self, prompt: str) -> str | None:
-        return self.interaction.send_prompt(prompt, self.show_sources, self.print_output, self.results_num)
-
-    def toggle_debug(self):
-        self.debug_mode = not self.debug_mode
+        return self.interaction.send_prompt(prompt, self.show_sources, self.context_size)
 
     def toggle_sources(self):
         self.show_sources = not self.show_sources
@@ -77,7 +62,7 @@ class StatefullCorpus(Corpus):
         self.repository.add_docset(docset)
 
     def store_search(self, search_str: str) -> List[str]:
-        return self.repository.search(search_str, self.results_num)
+        return self.repository.search(search_str, self.context_size)
 
     #def store_ls(self, docset_name=None) -> List[str]:
     def store_ls(self) -> List[str]:

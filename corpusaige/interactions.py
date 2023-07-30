@@ -68,20 +68,16 @@ class StatefullInteraction(Interaction):
             retriever = self.retriever, 
             memory=self.memory, 
             return_source_documents=True)
-            #verbose=True)
 
-    def send_prompt(self, prompt: str, show_sources: bool = False, print_output:bool = True, results_num: int=4) -> str | None:
+    def send_prompt(self, prompt: str, show_sources: bool = False, results_num: int=4) -> str | None:
         
         self.retriever.search_kwargs['k'] = results_num
         llm_response = self.qa_chain({"question": prompt})
-        if print_output:
-            print(f"\n{llm_response['answer']}\n")
-            if show_sources:
-                print(f'\n\nSources: {llm_response["source_documents"][0]}')
-            return None
+      
+        if show_sources:
+            sources = [f"doc-set: {source.metadata['doc-set']}, source: {source.metadata['source']}"  for source in llm_response["source_documents"]]
+            sources_str = "\n | ".join(sources)
+            return f'{llm_response["answer"]}\n\nSources: {sources_str}'
         else:
-            if show_sources:
-                return f'llm_response["answer"]\n\nSources: {llm_response["source_documents"][0]}'
-            else:
-                return llm_response['answer']
+            return llm_response['answer']
      

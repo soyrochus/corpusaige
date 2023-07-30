@@ -62,7 +62,7 @@ class CommandCompleter(Completer):
                 yield Completion(command, start_position=-len(word))
 
 
-class ChatRepl:
+class PromptRepl:
     title: str
     session: PromptSession
     commands: dict
@@ -75,6 +75,8 @@ class ChatRepl:
         self.corpus = corpus
         self.session = PromptSession(completer=self.completer)
         self.pause_page = True
+        self.trace_mode = False
+        
 
     def run(self):
         print("Welcome to the Corpusaige shell\n")
@@ -137,10 +139,10 @@ class ChatRepl:
 
     def send_prompt(self, message: str) -> None:
         try:
-            #TODO - send chat to corpus and get response: refactor to corpus
-            self.corpus.send_prompt(message)
+            
+            pprint(self.corpus.send_prompt(message), self.pause_page)
         except Exception as e:
-            if not self.corpus.debug_mode:
+            if not self.trace_mode:
                 print(f"Error sending chat: {str(e)}")
             else:
                 print(f"Error sending chat:\n {traceback.format_exc()}")
@@ -165,7 +167,7 @@ class ChatRepl:
             try:
                 func(*subcommands, cmdtext=cmdtext)
             except Exception as e:
-                if self.corpus.debug_mode:
+                if self.trace_mode:
                     print(
                         f"Error executing command {main_command}: \n\n{traceback.format_exc()}")
                 else:
@@ -180,7 +182,13 @@ class ChatRepl:
             pprint(seperator.join(list), self.pause_page)
         else:
             print("No results found.")
-            
+    
+    def toggle_trace_mode(self):
+        if self.trace_mode:
+            self.trace_mode = False
+        else:
+            self.trace_mode = True  
+        
 #### Implemented commands 
             
     def do_contextsize(self, *args, cmdtext=None):
@@ -188,10 +196,10 @@ class ChatRepl:
               Usage: /contextsize [num]"""
         num = cmdtext.strip()
         if num is None:
-            print(f"Number of items in context: {self.corpus.results_num}")
+            print(f"Number of items in context: {self.corpus.context_size}")
         else:
-            self.corpus.results_num = int(num)
-            print(f"Number of items in context set to {self.corpus.results_num}")
+            self.corpus.context_size = int(num)
+            print(f"Number of items in context set to {self.corpus.context_size}")
 
     def do_ls(self, *args, cmdtext=None):
         """List documents in the corpus."""
@@ -246,8 +254,8 @@ Usage: /cache <command>
     @synonymcommand('debug')
     def do_trace(self, *args, cmdtext=None):
         """Toggle trace (debug) mode on or off."""
-        self.corpus.toggle_debug()
-        print(f"Trace (debug) mode: {'on' if self.corpus.debug_mode else 'off'}")
+        self.toggle_trace_mode()
+        print(f"Trace (debug) mode: {'on' if self.trace_mode else 'off'}")
 
     @synonymcommand("?")
     def do_help(self, *args, cmdtext=None):
