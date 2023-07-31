@@ -48,52 +48,57 @@ def add_docset(config: CorpusConfig, name: str, doc_paths: List[str], doc_types:
     StatefullCorpus(config).add_docset(docset)
    
 
-def shell(corpus: Corpus):
+def shell(config: CorpusConfig):
     """
-    Displays the Corpusaige shell help message.
+    Displays the Corpusaige shell for the given corpus.
     """
+    corpus = StatefullCorpus(config)
     PromptRepl(corpus).run()
 
+def cli_run():
+    parser = argparse.ArgumentParser(
+        prog='crpsg (or python -m corpusaige)', description='Corpusaige command line interface',
+        exit_on_error=False, add_help=True, allow_abbrev=True)
+    subparsers = parser.add_subparsers(dest='command')
+
+    # New corpus command
+    new_parser = subparsers.add_parser('new', help='Create a new corpus')
+    new_parser.add_argument('name', help='Name of the new corpus')
+
+    # Add files command
+    add_parser = subparsers.add_parser('add', help='Add a document set (i.e. files) to a corpus')
+    add_parser.add_argument('-r', '--recursive', action='store_true', help='Recursively add files')
+    add_parser.add_argument('-t', '--doc-types', nargs='+', required=True, help='Document (File) types to add')
+    add_parser.add_argument('-p', '--doc-paths', nargs='+', required=True, help='(root) Path containing documents to add')
+    add_parser.add_argument('-n', '--name', required=True, help='Name for document set')
+    
+    # Shell command
+    shell_parser = subparsers.add_parser('shell', help='Display the Corpusaige Shell')
+
+    # Global optional parameter
+    parser.add_argument('-p', '--path', default='.', help='Path to corpus (default: current dir)')
+    
+    args = parser.parse_args(sys.argv[1:])
+
+    # If no command is provided, print help message and exit
+    if args.command is None:
+        parser.print_help()
+        exit()
+
+    if args.command == 'new':
+        new_corpus(args.name, args.path)
+    elif args.command == 'add':
+        config = get_config(args.path)
+        add_docset(config, args.name, args.doc_paths, args.doc_types, args.recursive)
+    elif args.command == 'shell':
+        config = get_config(args.path)
+        shell(config)
+
+    
 def main():
     
     try:
-        parser = argparse.ArgumentParser(
-            prog='crpsg (or python -m corpusaige)', description='Corpusaige command line interface')
-        subparsers = parser.add_subparsers(dest='command')
-
-        # New corpus command
-        new_parser = subparsers.add_parser('new', help='Create a new corpus')
-        new_parser.add_argument('name', help='Name of the new corpus')
-
-        # Add files command
-        add_parser = subparsers.add_parser('add', help='Add a document set (i.e. files) to a corpus')
-        add_parser.add_argument('-r', '--recursive', action='store_true', help='Recursively add files')
-        add_parser.add_argument('-t', '--doc-types', nargs='+', required=True, help='Document (File) types to add')
-        add_parser.add_argument('-p', '--doc-paths', nargs='+', required=True, help='(root) Path containing documents to add')
-        add_parser.add_argument('-n', '--name', required=True, help='Name for document set')
-       
-        # Shell command
-        shell_parser = subparsers.add_parser('shell', help='Display the Corpusaige Shell')
-
-        # Global optional parameter
-        parser.add_argument('-p', '--path', default='.', help='Path to corpus (default: current dir)')
-        
-        args = parser.parse_args(sys.argv[1:])
-
-        # If no command is provided, print help message and exit
-        if args.command is None:
-            parser.print_help()
-            exit()
-   
-        if args.command == 'new':
-            new_corpus(args.name, args.path)
-        elif args.command == 'add':
-            config = get_config(args.path)
-            add_docset(config, args.name, args.doc_paths, args.doc_types, args.recursive)
-        elif args.command == 'shell':
-            config = get_config(args.path)
-            shell(StatefullCorpus(config))
-
+        cli_run()  
     except(Exception) as error:
         if DEBUG:
             #print error with traceback if DEBUG is True
