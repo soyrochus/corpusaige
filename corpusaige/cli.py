@@ -54,8 +54,7 @@ def shell(config: CorpusConfig):
     corpus = StatefullCorpus(config)
     corpus_path = corpus.path
 
-    global engine
-    engine, db_state_session = init_db(corpus.state_db_path)
+    _, db_state_session = init_db(corpus.state_db_path)
     PromptRepl(corpus, db_state_session).run()
 
 def cli_run():

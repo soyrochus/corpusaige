@@ -14,7 +14,9 @@ from sqlalchemy import func, ForeignKey, select
 from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase  
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-
+from datetime import datetime
+from typing import List
+from sqlalchemy.orm import Session
 
 class Base(DeclarativeBase):
     pass
@@ -53,3 +55,28 @@ class Conversation(Base):
 #     stmt = select(Conversation).join(Interaction).filter(Conversation.id == conversation_id)
 #     result = session.execute(stmt).one()
 #     return result.Conversation, result.Interaction
+
+def set_conversation_title(session: Session, conversation: Conversation, title: str) -> Conversation:
+    session.add(conversation)
+    conversation.title = f"{conversation.title}: {title}"
+    session.commit()
+    return conversation
+    
+def create_conversation(session: Session) -> Conversation:
+    conversation = Conversation(title=f"Conversation on {datetime.now()}")
+    session.add(conversation)
+    session.commit()
+    return conversation
+
+def add_question(session: Session, conversation: Conversation, question: str) -> Interaction:
+    session.add(conversation)
+    interaction = Interaction(conversation=conversation, human_question=question)
+    conversation.interactions.append(interaction)
+    session.commit()
+    return interaction
+
+def add_answer(session: Session, interaction: Interaction, answer: str) -> Interaction:
+    interaction.set_answer(answer)
+    session.add(interaction)
+    session.commit()
+    return interaction

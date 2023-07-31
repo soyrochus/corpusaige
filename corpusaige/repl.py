@@ -19,6 +19,8 @@ import pygments.lexers
 from ast import literal_eval
 from prompt_toolkit.output import create_output
 from sqlalchemy.orm.session import Session
+from corpusaige.data import conversations
+from corpusaige.data.conversations import Conversation
 from corpusaige.documentset import DocumentSet
 from .corpus import Corpus
 
@@ -92,6 +94,9 @@ class PromptRepl:
         print(self.title)
         while True:
             try:
+                
+                self.create_new_conversation()
+                
                 with patch_stdout():
                     user_input = self.get_multiline_input()
 
@@ -109,6 +114,9 @@ class PromptRepl:
                 print("Exiting the shell...")
                 break
 
+    def create_new_conversation(self):
+        self.current_conversation = conversations.create_conversation(self.state_session)
+        
     def get_commands(self):
         commands = {}
         for name in dir(self):
@@ -144,8 +152,20 @@ class PromptRepl:
 
     def send_prompt(self, message: str) -> None:
         try:
+            if len(self.current_conversation.interactions) == 0:
+                conversations.set_conversation_title(self.state_session, 
+                                                     self.current_conversation, 
+                                                     message[:40].strip())
             
-            pprint(self.corpus.send_prompt(message), self.pause_page)
+            interaction = conversations.add_question(self.state_session, 
+                                                     self.current_conversation, 
+                                                     message)
+            answer = self.corpus.send_prompt(message)
+            conversations.add_answer(self.state_session, 
+                                     interaction, 
+                                     answer)
+            pprint(answer, self.pause_page)
+            
         except Exception as e:
             if not self.trace_mode:
                 print(f"Error sending chat: {str(e)}")

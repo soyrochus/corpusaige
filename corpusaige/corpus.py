@@ -55,7 +55,7 @@ class StatefullCorpus(Corpus):
             config, retriever=self.repository.as_retriever())
 
     @property
-    def state_db_path(self) -> Path:
+    def state_db_path(self) -> str:
         return os.path.join(os.path.dirname(self.path), CORPUS_STATE_DB)
     
     def send_prompt(self, prompt: str) -> str | None:
