@@ -20,7 +20,7 @@ from .storage import VectorRepository
 
 class Interaction(Protocol):
 
-    def send_prompt(self, prompt: str) -> str | None:
+    def send_prompt(self, prompt: str) -> str:
         pass
 
 # Cite sources
@@ -44,11 +44,10 @@ class StatelessInteraction(Interaction):
                                                     return_source_documents=True,
                                                     verbose=True)
 
-    def send_prompt(self, prompt: str) -> str | None:
+    def send_prompt(self, prompt: str) -> str:
         llm_response = self.qa_chain(prompt)
-        process_llm_response(llm_response)
-        return None
-       
+        return process_llm_response(llm_response)
+    
 class StatefullInteraction(Interaction):
     def __init__(self, config: CorpusConfig, retriever = None):
         # create the chain to answer questions
@@ -69,7 +68,7 @@ class StatefullInteraction(Interaction):
             memory=self.memory, 
             return_source_documents=True)
 
-    def send_prompt(self, prompt: str, show_sources: bool = False, results_num: int=4) -> str | None:
+    def send_prompt(self, prompt: str, show_sources: bool = False, results_num: int=4) -> str:
         
         self.retriever.search_kwargs['k'] = results_num
         llm_response = self.qa_chain({"question": prompt})
