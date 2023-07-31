@@ -17,7 +17,8 @@ from prompt_toolkit.completion import WordCompleter
 import configparser
 
 from corpusaige.config.read import CorpusConfig, get_config
-
+from corpusaige.data.db import create_db
+from . import CORPUS_INI, CORPUS_STATE_DB
 
 def radiolist_dialog_with_params(title, text, values) -> str:
     # Model is chosen from a radiolist dialog
@@ -86,9 +87,13 @@ def prompt_user_for_init(name: str, corpus_path: str = './') -> CorpusConfig:
         config['chroma'] = {'type': type_, 'path': path}
 
     # write configuration to .ini file
-    config_file_path = os.path.join(corpus_path, 'corpus.ini')
+    config_file_path = os.path.join(corpus_path, CORPUS_INI)
     with open(config_file_path, 'w') as configfile:
         config.write(configfile)
 
+    #create db file in corpus
+    db_file_path = os.path.join(corpus_path, CORPUS_STATE_DB)
+    create_db(db_file_path)
+    
     return get_config(config_file_path)
     

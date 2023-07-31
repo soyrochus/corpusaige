@@ -18,7 +18,7 @@ from pygments.lexers import PythonLexer
 import pygments.lexers
 from ast import literal_eval
 from prompt_toolkit.output import create_output
-
+from sqlalchemy.orm.session import Session
 from corpusaige.documentset import DocumentSet
 from .corpus import Corpus
 
@@ -70,7 +70,8 @@ class PromptRepl:
     session: PromptSession
     commands: dict
 
-    def __init__(self, corpus: Corpus):
+    def __init__(self, corpus: Corpus, db_state_session: Session ):
+        
         self.title = f"Session: {corpus.name} - path: {corpus.path}"
         self.commands = self.get_commands()
         self.all_commands = self.get_all_commands()
@@ -80,6 +81,7 @@ class PromptRepl:
         self.pause_page = True
         self.trace_mode = False
         
+        self.state_session = db_state_session
 
     def run(self):
         print("Welcome to the Corpusaige shell\n")

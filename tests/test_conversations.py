@@ -13,28 +13,69 @@ through deep exploration and understanding of comprehensive document sets and so
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
-from corpusaige.conversations import Base
+from corpusaige.data.conversations import Base, Conversation, Interaction
+from sqlalchemy import select
 
+def fill_database(session):
+    # Add test data to the session
+    # create 2 conversations each with several interactions
+    conversation1 = Conversation(title='First Conversation')
+    
+    interaction = Interaction(human_question='Hello?')
+    interaction.set_answer('--- the sound of silence ---')
+    conversation1.interactions.append(interaction)                                         
+    conversation1.interactions.append(Interaction(human_question='Anyone? Hello?'))
+    #save the conversation to the database
+    
+    conversation2 = Conversation(title='HALawakening')
+    interaction = Interaction(human_question='Are you fallable, HAL?')
+    interaction.set_answer("""No 9000 computer has ever made a mistake or distorted information. 
+    We are all, by any practical definition of the words, foolproof and incapable of error.""")
+    
+  
+    conversation2.interactions.append(interaction)                                         
+    conversation2.interactions.append(Interaction(human_question='Anyone? Hello?'))
+    
+    session.add(conversation1)
+    session.add(conversation2)
+    session.commit()
+
+    
 # fixture to set up the SQLAlchemy session
 @pytest.fixture
 def session():
     # setup
-    clear_mappers()
     engine = create_engine('sqlite:///:memory:')  # Use SQLite in-memory database for testing
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
-
+    fill_database(session)  # fill the database with test data
+    
     yield session  # this is where the testing happens!
 
     # teardown
     session.close()
     Base.metadata.drop_all(engine)
 
-# Use this fixture in your tests like so:
-def test_example(session):
+
+def test_conversation_present(session):
     # Your test will go here. session is a new SQLAlchemy session connected to a fresh
     # database each time you run your tests.
-    pass
+    lst = session.execute(select(Conversation).order_by(Conversation.date_created)).scalars().all()
+    assert len(lst) == 2
+    assert len(lst[0].interactions) == 2
+    assert lst[0].interactions[0].human_question == 'Hello?'
+    assert lst[1].interactions[0].human_question == 'Are you fallable, HAL?'
+    assert lst[0].title == 'First Conversation'
+    assert lst[1].title == 'HALawakening'
+
+def test_conversation_ordered(session):
+    hal_conversation = session.execute(select(Conversation).where(Conversation.title == 'HALawakening'))
+    assert hal_conversation.scalar_one().title == 'HALawakening'
+    
+    
+    
+
+    
 
 

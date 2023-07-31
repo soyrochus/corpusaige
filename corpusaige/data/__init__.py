@@ -6,6 +6,3 @@ through deep exploration and understanding of comprehensive document sets and so
 @copyright: Copyright © 2023 Iwan van der Kleijn
 @license: MIT
 """
-
-CORPUS_INI = "corpus.ini"
-CORPUS_STATE_DB = "corpus-state.db"

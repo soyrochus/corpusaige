@@ -13,9 +13,8 @@ import os
 import sys
 import traceback
 from typing import List
-
+from corpusaige.data.db import init_db
 from corpusaige.providers import create_local_vectordb
-
 from .corpus import Corpus, StatefullCorpus
 from .repl import PromptRepl
 from .config.read import CorpusConfig, get_config
@@ -53,7 +52,11 @@ def shell(config: CorpusConfig):
     Displays the Corpusaige shell for the given corpus.
     """
     corpus = StatefullCorpus(config)
-    PromptRepl(corpus).run()
+    corpus_path = corpus.path
+
+    global engine
+    engine, db_state_session = init_db(corpus.state_db_path)
+    PromptRepl(corpus, db_state_session).run()
 
 def cli_run():
     parser = argparse.ArgumentParser(

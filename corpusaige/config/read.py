@@ -13,6 +13,8 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, TypeAlias
 
+from corpusaige.config import CORPUS_INI
+
 from ..exceptions import InvalidConfigSection
 
 ConfigEntries : TypeAlias = Dict[str,str]
@@ -68,7 +70,7 @@ class CorpusConfig:
 def get_config(config_path: str) -> CorpusConfig:
    
     if os.path.isdir(config_path):
-        config_path = os.path.join(config_path, "corpus.ini")
+        config_path = os.path.join(config_path, CORPUS_INI)
     
     config_path = os.path.abspath(config_path)
     

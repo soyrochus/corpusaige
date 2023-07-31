@@ -8,11 +8,13 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 # Import necessary modules
+import os
 from pathlib import Path
 from typing import List, Protocol
 from corpusaige.documentset import DocumentSet
 from corpusaige.interactions import StatefullInteraction, VectorRepository
 from .config.read import CorpusConfig
+from corpusaige.config import CORPUS_STATE_DB
 
 
 class Corpus(Protocol):
@@ -52,6 +54,10 @@ class StatefullCorpus(Corpus):
         self.interaction = StatefullInteraction(
             config, retriever=self.repository.as_retriever())
 
+    @property
+    def state_db_path(self) -> Path:
+        return os.path.join(os.path.dirname(self.path), CORPUS_STATE_DB)
+    
     def send_prompt(self, prompt: str) -> str | None:
         return self.interaction.send_prompt(prompt, self.show_sources, self.context_size)
 
