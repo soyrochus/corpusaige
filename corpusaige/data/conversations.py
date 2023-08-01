@@ -18,6 +18,7 @@ from datetime import datetime
 from typing import List
 from sqlalchemy.orm import Session
 
+
 class Base(DeclarativeBase):
     pass
 
@@ -52,7 +53,7 @@ def remove_whitespace(s):
     """Remove all whitespace characters apart from spaces from a string"""
     return s.translate(str.maketrans('', '', '\n\t\r\v\f'))
 
-def add_interaction(session: Session, conversation_id: int, question: str, answer: str) -> Interaction:
+def add_interaction(session: Session, conversation_id: int | None, question: str, answer: str) -> Tuple[int, int]:
     
     question_stripped = remove_whitespace(question[:50]).strip()
     if conversation_id is None:

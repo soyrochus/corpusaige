@@ -18,6 +18,7 @@ from pygments.lexers import PythonLexer
 import pygments.lexers
 from ast import literal_eval
 from prompt_toolkit.output import create_output
+from sqlalchemy import Engine
 from sqlalchemy.orm.session import Session
 from corpusaige.data import conversations
 from corpusaige.data.conversations import Conversation
@@ -79,7 +80,7 @@ class PromptRepl:
     session: PromptSession
     commands: dict
 
-    def __init__(self, corpus: Corpus, db_state_engine: Session ):
+    def __init__(self, corpus: Corpus, db_state_engine: Engine ):
         
         self.title = f"Session: {corpus.name} - path: {corpus.path}"
         self.commands = self.get_commands()
@@ -92,7 +93,7 @@ class PromptRepl:
         
         self.conversation_id: int | None = None
         self.interaction_id: int | None = None
-        self.db_state_engine = db_state_engine
+        self.db_state_engine : Engine = db_state_engine
         self._default_prompt = ""
         
     @property   
@@ -226,9 +227,9 @@ class PromptRepl:
         
 #### Implemented commands 
             
+    @detailed_help("Usage: /contextsize [num]")
     def do_contextsize(self, *args, cmdtext=None):
-        """Gets or sets the number db results to sent to AI
-              Usage: /contextsize [num]"""
+        """Gets or sets the number db results to sent to AI"""
         num = cmdtext.strip()
         if num is None:
             print(f"Number of items in context: {self.corpus.context_size}")
@@ -263,7 +264,7 @@ class PromptRepl:
         self.corpus.add_docset(docset)
         print(f"Added document set {name} to the corpus.")
     
-    @detailed_help("""Usage: /conversation      - List all conversations
+    @detailed_help("""Usage: /conversation           - List all conversations
        /conversation <id>      - List all interactions in a conversation
        /conversation show <id> - Show interaction
        /conversation load <id> - Load conversation answer into edit buffer ready for /store
@@ -276,33 +277,15 @@ class PromptRepl:
             case ():
                 self.show_conversations()
             case (id,) if is_valid_integer(id):
-                self.show_interactions(id)
+                self.show_interactions(int(id))
             case ('show', id) if is_valid_integer(id):
-                self.show_interaction(id)
+                self.show_interaction(int(id))
             case ('load',):
                 self.load_prompt_for_store()
             case ('load', id) if is_valid_integer(id):
-                self.load_prompt_for_store(id)
+                self.load_prompt_for_store(int(id))
             case _:
                 raise ValueError("Invalid command or arguments")
-        
-        # if args is None or len(args) == 0:
-        #     self.show_conversations() 
-        # elif len(args) == 1:
-        #     if args[0] == "load":
-        #         self.load_prompt_for_store()
-        #     else:
-        #         self.show_interactions(args[0])
-        
-        # elif len(args) == 2:
-        #     if args[0] == "show":
-        #         self.show_interaction(args[1])
-        #     elif args[0] == "load":
-        #         self.load_prompt_for_store(args[1])
-        #     else:
-        #         raise ValueError("Unknown command")
-        # else:
-        #     raise ValueError("Invalid arguments")
     
     def show_conversations(self):
         with Session(self.db_state_engine) as session:
@@ -310,15 +293,15 @@ class PromptRepl:
             for conv in convs:
                 print(f"{conv.id:>5} : {conv.title}")
     
-    def show_interactions(self, id:str):
-        if int(id) < 0:
+    def show_interactions(self, id:int):
+        if id < 0:
             raise ValueError("Invalid conversation id")
         with Session(self.db_state_engine) as session:
             conv = conversations.get_conversation_by_id(session, id)
             for interact in conv.interactions:
                 print(f"{interact.id:>5} : {interact.human_question[:120]}")
     
-    def show_interaction(self, id: str):
+    def show_interaction(self, id: int):
         if int(id) < 0:
             raise ValueError("Invalid interaction id")
         with Session(self.db_state_engine) as session:
@@ -343,12 +326,8 @@ class PromptRepl:
         raise NotImplementedError("/remove not implemented yet")
 
     def do_store(self, *args, cmdtext=None):
-        """Incorporate response from the LLM into the corpus"""
+        """Incorporate note or response from the LLM into the corpus"""
         raise NotImplementedError("/store not implemented yet")
-
-    def do_note(self, *args, cmdtext=None):
-        """Add note as document to the corpus"""
-        raise NotImplementedError("/note not implemented yet")
 
     def do_run(self, *args, cmdtext=None):
         """Run a script"""

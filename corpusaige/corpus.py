@@ -23,7 +23,7 @@ class Corpus(Protocol):
     show_sources: bool = False
     context_size: int = 4
 
-    def send_prompt(self, prompt: str) -> str | None:
+    def send_prompt(self, prompt: str) -> str:
         pass
 
     def add_docset(self, docset: DocumentSet) -> None:
@@ -58,7 +58,7 @@ class StatefullCorpus(Corpus):
     def state_db_path(self) -> str:
         return os.path.join(os.path.dirname(self.path), CORPUS_STATE_DB)
     
-    def send_prompt(self, prompt: str) -> str | None:
+    def send_prompt(self, prompt: str) -> str :
         return self.interaction.send_prompt(prompt, self.show_sources, self.context_size)
 
     def toggle_sources(self):
