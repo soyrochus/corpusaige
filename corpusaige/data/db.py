@@ -7,11 +7,11 @@ through deep exploration and understanding of comprehensive document sets and so
 @license: MIT
 """
 
-from sqlalchemy import create_engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from .conversations import Base
 
-def create_db(path):
+def create_db(path)-> Engine:
     # Connect to the database. If it doesn't exist, it will be created.
     engine = create_engine(f'sqlite:///{path}')
 
@@ -20,11 +20,8 @@ def create_db(path):
     
     return engine
 
-def init_db(path):
+def init_db(path)-> Engine:
     # Connect to the database
     engine = create_engine(f'sqlite:///{path}')
     
-    # Create a scoped session, which ensures that different threads use different sessions
-    session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-    
-    return engine, session
+    return engine

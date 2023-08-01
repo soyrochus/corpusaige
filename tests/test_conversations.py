@@ -13,6 +13,7 @@ through deep exploration and understanding of comprehensive document sets and so
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
+from corpusaige.data import conversations
 from corpusaige.data.conversations import Base, Conversation, Interaction
 from sqlalchemy import select
 
@@ -73,9 +74,12 @@ def test_conversation_ordered(session):
     hal_conversation = session.execute(select(Conversation).where(Conversation.title == 'HALawakening'))
     assert hal_conversation.scalar_one().title == 'HALawakening'
     
+def test_add_conversation(session):
     
-    
-
-    
+    conversation_id = conversations.add_interaction(session, None, 'Hola?', '¿Quienes? ¿Quienes?')
+    assert conversation_id == 3
+    lst = session.execute(select(Conversation).order_by(Conversation.date_created)).scalars().all()
+    assert lst[2].interactions[0].human_question == 'Hola?'
+    assert lst[2].interactions[0].ai_answer == '¿Quienes? ¿Quienes?'
 
 

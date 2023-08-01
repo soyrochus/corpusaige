@@ -10,7 +10,7 @@ through deep exploration and understanding of comprehensive document sets and so
 # Import necessary modules
 from datetime import datetime
 from typing import List, Optional, Tuple
-from sqlalchemy import func, ForeignKey, select
+from sqlalchemy import  func, ForeignKey, select
 from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase  
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -38,7 +38,6 @@ class Interaction(Base):
          self.ai_answer = answer
          self.date_answer = datetime.now()
         
-    
 class Conversation(Base):
     __tablename__ = "conversation"
     id : Mapped[int] = mapped_column(primary_key=True)
@@ -49,34 +48,17 @@ class Conversation(Base):
     def __repr__(self):
         return f"<Interaction(id={self.id!r})>"  
     
+
+def add_interaction(session: Session, conversation_id: int, question: str, answer: str) -> Interaction:
     
-# def get_conversations(session, conversation_id: int) -> Tuple[Conversation, List[Interaction]]:
-#     """Return a single conversation and all its interactions. Use the select syntax to join the tables."""
-#     stmt = select(Conversation).join(Interaction).filter(Conversation.id == conversation_id)
-#     result = session.execute(stmt).one()
-#     return result.Conversation, result.Interaction
-
-def set_conversation_title(session: Session, conversation: Conversation, title: str) -> Conversation:
-    session.add(conversation)
-    conversation.title = f"{conversation.title}: {title}"
-    session.commit()
-    return conversation
+    if conversation_id is None:
+        conversation = Conversation(title=f"{datetime.now().strftime('%Y-%m-%d %H:%M')}: {question[:30]}")
+        session.add(conversation)
+    else:
+        conversation = session.execute(select(Conversation).where(Conversation.id == conversation_id)).scalar_one()
     
-def create_conversation(session: Session) -> Conversation:
-    conversation = Conversation(title=f"Conversation on {datetime.now()}")
-    session.add(conversation)
+    conversation.interactions.append(Interaction(human_question=question, ai_answer=answer))
     session.commit()
-    return conversation
+    return conversation.id
 
-def add_question(session: Session, conversation: Conversation, question: str) -> Interaction:
-    session.add(conversation)
-    interaction = Interaction(conversation=conversation, human_question=question)
-    conversation.interactions.append(interaction)
-    session.commit()
-    return interaction
 
-def add_answer(session: Session, interaction: Interaction, answer: str) -> Interaction:
-    interaction.set_answer(answer)
-    session.add(interaction)
-    session.commit()
-    return interaction

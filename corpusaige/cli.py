@@ -54,8 +54,8 @@ def shell(config: CorpusConfig):
     corpus = StatefullCorpus(config)
     corpus_path = corpus.path
 
-    _, db_state_session = init_db(corpus.state_db_path)
-    PromptRepl(corpus, db_state_session).run()
+    db_state_engine = init_db(corpus.state_db_path)
+    PromptRepl(corpus, db_state_engine).run()
 
 def cli_run():
     parser = argparse.ArgumentParser(

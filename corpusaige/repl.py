@@ -72,7 +72,7 @@ class PromptRepl:
     session: PromptSession
     commands: dict
 
-    def __init__(self, corpus: Corpus, db_state_session: Session ):
+    def __init__(self, corpus: Corpus, db_state_engine: Session ):
         
         self.title = f"Session: {corpus.name} - path: {corpus.path}"
         self.commands = self.get_commands()
@@ -83,7 +83,8 @@ class PromptRepl:
         self.pause_page = True
         self.trace_mode = False
         
-        self.state_session = db_state_session
+        self.conversation_id: int | None = None
+        self.db_state_engine = db_state_engine
 
     def run(self):
         print("Welcome to the Corpusaige shell\n")
@@ -94,8 +95,6 @@ class PromptRepl:
         print(self.title)
         while True:
             try:
-                
-                self.create_new_conversation()
                 
                 with patch_stdout():
                     user_input = self.get_multiline_input()
@@ -113,9 +112,6 @@ class PromptRepl:
                 # Handle Ctrl+D gracefully
                 print("Exiting the shell...")
                 break
-
-    def create_new_conversation(self):
-        self.current_conversation = conversations.create_conversation(self.state_session)
         
     def get_commands(self):
         commands = {}
@@ -152,20 +148,12 @@ class PromptRepl:
 
     def send_prompt(self, message: str) -> None:
         try:
-            if len(self.current_conversation.interactions) == 0:
-                conversations.set_conversation_title(self.state_session, 
-                                                     self.current_conversation, 
-                                                     message[:40].strip())
-            
-            interaction = conversations.add_question(self.state_session, 
-                                                     self.current_conversation, 
-                                                     message)
-            answer = self.corpus.send_prompt(message)
-            conversations.add_answer(self.state_session, 
-                                     interaction, 
-                                     answer)
-            pprint(answer, self.pause_page)
-            
+          
+             with Session(self.db_state_engine) as session:
+                answer = self.corpus.send_prompt(message)
+                self.conversation_id = conversations.add_interaction(session, self.conversation_id, message, answer)
+                pprint(answer, self.pause_page)
+                
         except Exception as e:
             if not self.trace_mode:
                 print(f"Error sending chat: {str(e)}")
