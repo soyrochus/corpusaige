@@ -76,8 +76,9 @@ def test_conversation_ordered(session):
     
 def test_add_conversation(session):
     
-    conversation_id = conversations.add_interaction(session, None, 'Hola?', '¿Quienes? ¿Quienes?')
+    conversation_id, interaction_id = conversations.add_interaction(session, None, 'Hola?', '¿Quienes? ¿Quienes?')
     assert conversation_id == 3
+    assert interaction_id == 3
     lst = session.execute(select(Conversation).order_by(Conversation.date_created)).scalars().all()
     assert lst[2].interactions[0].human_question == 'Hola?'
     assert lst[2].interactions[0].ai_answer == '¿Quienes? ¿Quienes?'

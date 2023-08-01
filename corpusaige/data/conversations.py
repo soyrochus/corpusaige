@@ -48,18 +48,23 @@ class Conversation(Base):
     def __repr__(self):
         return f"<Interaction(id={self.id!r})>"  
     
+def remove_whitespace(s):
+    """Remove all whitespace characters apart from spaces from a string"""
+    return s.translate(str.maketrans('', '', '\n\t\r\v\f'))
 
 def add_interaction(session: Session, conversation_id: int, question: str, answer: str) -> Interaction:
     
+    question_stripped = remove_whitespace(question[:50]).strip()
     if conversation_id is None:
-        conversation = Conversation(title=f"{datetime.now().strftime('%Y-%m-%d %H:%M')}: {question[:50]}")
+        conversation = Conversation(title=f"{datetime.now().strftime('%Y-%m-%d %H:%M')}: {question_stripped}")
         session.add(conversation)
     else:
         conversation = session.execute(select(Conversation).where(Conversation.id == conversation_id)).scalar_one()
     
-    conversation.interactions.append(Interaction(human_question=question, ai_answer=answer))
+    interaction = Interaction(human_question=question, ai_answer=answer)
+    conversation.interactions.append(interaction)
     session.commit()
-    return conversation.id
+    return conversation.id, interaction.id
 
 def get_conversations(session):
     """Get all conversations from the database"""

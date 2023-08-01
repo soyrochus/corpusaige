@@ -55,6 +55,13 @@ def pprint(text, pause_page=True):
     else:
         print(text)
 
+def is_valid_integer(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
 
 class CommandCompleter(Completer):
     def __init__(self, commands):
@@ -84,8 +91,18 @@ class PromptRepl:
         self.trace_mode = False
         
         self.conversation_id: int | None = None
+        self.interaction_id: int | None = None
         self.db_state_engine = db_state_engine
-
+        self._default_prompt = ""
+        
+    @property   
+    def default_prompt(self)-> str:
+        return self._default_prompt
+    
+    @default_prompt.setter   
+    def default_prompt(self, text: str) -> None:
+        self._default_prompt = text
+    
     def run(self):
         print("Welcome to the Corpusaige shell\n")
         print("Use Alt+Enter or Alt-Enter to send command or prompt.")
@@ -97,16 +114,19 @@ class PromptRepl:
             try:
                 
                 with patch_stdout():
-                    user_input = self.get_multiline_input()
-
+                    user_input = self.get_multiline_input(self.default_prompt)
+                    self.default_prompt = ""
+                
                 if user_input.startswith('/'):
                     self.handle_command(user_input)
                 else:
-                    self.send_prompt(user_input)
+                    print("Sending prompt to GPT-4...")
+                    #self.send_prompt(user_input)
 
             except KeyboardInterrupt:
                 # Handle Ctrl+C gracefully
                 print("KeyboardInterrupt. Use /exit or /quit to quit the shell.")
+                self.default_prompt = ""
 
             except EOFError:
                 # Handle Ctrl+D gracefully
@@ -132,12 +152,13 @@ class PromptRepl:
         commands.update(synonyms)
         return commands
 
-    def get_multiline_input(self):
+    def get_multiline_input(self, default_prompt: str) -> str:
         lines = []
         while True:
             line = self.session.prompt('> ', lexer=PygmentsLexer(PythonLexer),
                                        multiline=True, is_password=False,
-                                       vi_mode=False, enable_history_search=True)
+                                       vi_mode=False, enable_history_search=True,
+                                       default=default_prompt)
             lines.append(line)
 
             # Break the loop if the input is complete
@@ -152,7 +173,7 @@ class PromptRepl:
             #refactoring needed. seperate db functions from repl
             with Session(self.db_state_engine) as session:
                 answer = self.corpus.send_prompt(message)
-                self.conversation_id = conversations.add_interaction(session, self.conversation_id, message, answer)
+                self.conversation_id, self.interaction_id = conversations.add_interaction(session, self.conversation_id, message, answer)
                 self.print(answer)
                 
         except Exception as e:
@@ -243,24 +264,45 @@ class PromptRepl:
         print(f"Added document set {name} to the corpus.")
     
     @detailed_help("""Usage: /conversation      - List all conversations
-       /conversation <id> - List all interactions in a conversation
+       /conversation <id>      - List all interactions in a conversation
        /conversation show <id> - Show interaction
-       /conversation load <id> - Load conversation into edit buffer""")
+       /conversation load <id> - Load conversation answer into edit buffer ready for /store
+       /conversation load      - Load last answer into edit buffer ready for /store""")
     @synonymcommand("history")
     def do_conversation(self, *args, cmdtext=None):
         """List conversations/interactiions with the AI"""
         
-        if args is None or len(args) == 0:
-            self.show_conversations() 
-        elif len(args) == 1:
-            self.show_interactions(args[0])
-        elif len(args) == 2:
-            if args[0] == "show":
-                self.show_interaction(args[1])
-            else:
-                raise ValueError("Unknown command")
-        else:
-            raise ValueError("Invalid arguments")
+        match args:
+            case ():
+                self.show_conversations()
+            case (id,) if is_valid_integer(id):
+                self.show_interactions(id)
+            case ('show', id) if is_valid_integer(id):
+                self.show_interaction(id)
+            case ('load',):
+                self.load_prompt_for_store()
+            case ('load', id) if is_valid_integer(id):
+                self.load_prompt_for_store(id)
+            case _:
+                raise ValueError("Invalid command or arguments")
+        
+        # if args is None or len(args) == 0:
+        #     self.show_conversations() 
+        # elif len(args) == 1:
+        #     if args[0] == "load":
+        #         self.load_prompt_for_store()
+        #     else:
+        #         self.show_interactions(args[0])
+        
+        # elif len(args) == 2:
+        #     if args[0] == "show":
+        #         self.show_interaction(args[1])
+        #     elif args[0] == "load":
+        #         self.load_prompt_for_store(args[1])
+        #     else:
+        #         raise ValueError("Unknown command")
+        # else:
+        #     raise ValueError("Invalid arguments")
     
     def show_conversations(self):
         with Session(self.db_state_engine) as session:
@@ -283,8 +325,14 @@ class PromptRepl:
             interact = conversations.get_interaction_by_id(session, id)
             self.print(list=[interact.human_question, interact.ai_answer], seperator="\n-----------------------------------------\n")
     
-    def load_interaction(self, id):
-        pass
+    def load_prompt_for_store(self, id=None):
+        if id is None and self.interaction_id is None:
+            raise ValueError("No interaction. Use /conversation load <id> to load an interaction")
+        elif id is None:
+            id = self.interaction_id
+        with Session(self.db_state_engine) as session:
+            conv = conversations.get_interaction_by_id(session, id)
+            self.default_prompt = f"/store {conv.ai_answer}"
     
     def do_update(self, *args, cmdtext=None):
         """Update document set in the corpus"""
