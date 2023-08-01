@@ -52,7 +52,7 @@ class Conversation(Base):
 def add_interaction(session: Session, conversation_id: int, question: str, answer: str) -> Interaction:
     
     if conversation_id is None:
-        conversation = Conversation(title=f"{datetime.now().strftime('%Y-%m-%d %H:%M')}: {question[:30]}")
+        conversation = Conversation(title=f"{datetime.now().strftime('%Y-%m-%d %H:%M')}: {question[:50]}")
         session.add(conversation)
     else:
         conversation = session.execute(select(Conversation).where(Conversation.id == conversation_id)).scalar_one()
@@ -61,4 +61,14 @@ def add_interaction(session: Session, conversation_id: int, question: str, answe
     session.commit()
     return conversation.id
 
+def get_conversations(session):
+    """Get all conversations from the database"""
+    return session.execute(select(Conversation).order_by(Conversation.date_created)).scalars().all()
 
+def get_conversation_by_id(session, id: int):
+    """Get a conversation by its id"""
+    return session.execute(select(Conversation).where(Conversation.id == id)).scalar_one()  
+
+def get_interaction_by_id(session, id: int):
+    """Get an interaction by its id"""
+    return session.execute(select(Interaction).where(Interaction.id == id)).scalar_one()    

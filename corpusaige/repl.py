@@ -149,10 +149,11 @@ class PromptRepl:
     def send_prompt(self, message: str) -> None:
         try:
           
-             with Session(self.db_state_engine) as session:
+            #refactoring needed. seperate db functions from repl
+            with Session(self.db_state_engine) as session:
                 answer = self.corpus.send_prompt(message)
                 self.conversation_id = conversations.add_interaction(session, self.conversation_id, message, answer)
-                pprint(answer, self.pause_page)
+                self.print(answer)
                 
         except Exception as e:
             if not self.trace_mode:
@@ -240,7 +241,51 @@ class PromptRepl:
         docset = DocumentSet.initialize(name, paths, ftypes, recursive)
         self.corpus.add_docset(docset)
         print(f"Added document set {name} to the corpus.")
+    
+    @detailed_help("""Usage: /conversation      - List all conversations
+       /conversation <id> - List all interactions in a conversation
+       /conversation show <id> - Show interaction
+       /conversation load <id> - Load conversation into edit buffer""")
+    @synonymcommand("history")
+    def do_conversation(self, *args, cmdtext=None):
+        """List conversations/interactiions with the AI"""
         
+        if args is None or len(args) == 0:
+            self.show_conversations() 
+        elif len(args) == 1:
+            self.show_interactions(args[0])
+        elif len(args) == 2:
+            if args[0] == "show":
+                self.show_interaction(args[1])
+            else:
+                raise ValueError("Unknown command")
+        else:
+            raise ValueError("Invalid arguments")
+    
+    def show_conversations(self):
+        with Session(self.db_state_engine) as session:
+            convs = conversations.get_conversations(session)
+            for conv in convs:
+                print(f"{conv.id:>5} : {conv.title}")
+    
+    def show_interactions(self, id:str):
+        if int(id) < 0:
+            raise ValueError("Invalid conversation id")
+        with Session(self.db_state_engine) as session:
+            conv = conversations.get_conversation_by_id(session, id)
+            for interact in conv.interactions:
+                print(f"{interact.id:>5} : {interact.human_question[:120]}")
+    
+    def show_interaction(self, id: str):
+        if int(id) < 0:
+            raise ValueError("Invalid interaction id")
+        with Session(self.db_state_engine) as session:
+            interact = conversations.get_interaction_by_id(session, id)
+            self.print(list=[interact.human_question, interact.ai_answer], seperator="\n-----------------------------------------\n")
+    
+    def load_interaction(self, id):
+        pass
+    
     def do_update(self, *args, cmdtext=None):
         """Update document set in the corpus"""
         raise NotImplementedError("/update not implemented yet")
@@ -291,7 +336,7 @@ Usage: /cache <command>
                 else:
                     _end = "\n"
                 print(
-                    f"/{command:<10} - {self.commands[command].__doc__}", end=_end)
+                    f"/{command:<12} - {self.commands[command].__doc__}", end=_end)
         else:
             command = args[0]
             if command in self.commands:
