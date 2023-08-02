@@ -1,0 +1,22 @@
+The chapters in "The Rust Programming Language" book are:
+
+1. Getting Started: This chapter explains how to install Rust, how to write a "Hello, world!" program, and how to use Cargo, Rust's package manager and build tool.
+2. Programming a Guessing Game: This chapter is a hands-on introduction to writing a program in Rust.
+3. Common Programming Concepts: This chapter covers Rust features that are similar to those of other programming languages.
+4. Understanding Ownership: This chapter is about Rust’s ownership system.
+5. Using Structs to Structure Related Data: This chapter discusses structs and methods.
+6. Enums and Pattern Matching: This chapter covers enums, match expressions, and the if let control flow construct.
+7. Managing Growing Projects with Packages, Crates, and Modules: This chapter is about Rust’s module system and privacy rules.
+8. Common Collections: This chapter discusses some common collection data structures.
+9. Error Handling: This chapter explores Rust’s error-handling philosophy and techniques.
+10. Generics, Traits, and Lifetimes: This chapter digs into these topics which give you the power to define code that applies to multiple types.
+11. Testing: This chapter is all about testing.
+12. An Implementation of a Subset of Functionality from the Grep Command Line Tool: A project chapter where a command line tool is built.
+13. Closures and Iterators: This chapter explores features of Rust that come from functional programming languages.
+14. More on Cargo and Best Practices for Sharing Your Libraries: This chapter examines Cargo in more depth.
+15. Smart Pointers and Traits: This chapter discusses smart pointers that the standard library provides and the traits that enable their functionality.
+16. Different Models of Concurrent Programming: This chapter discusses how Rust helps you to program in multiple threads fearlessly.
+17. Comparison of Rust Idioms to Object-Oriented Programming Principles: This chapter looks at how Rust idioms compare to object-oriented programming principles.
+18. A Reference on Patterns and Pattern Matching: This chapter is a reference on patterns and pattern matching.
+19. Advanced Topics: This chapter contains a smorgasbord of advanced topics of interest.
+20. Implementing a Low-Level Multithreaded Web Server: This is a project chapter where a web server is implemented.

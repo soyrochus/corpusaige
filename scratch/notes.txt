@@ -9,3 +9,6 @@ https://python.langchain.com/docs/modules/chains/popular/chat_vector_db
 
 
 https://github.com/PromtEngineer/localGPT
+
+Keywords and Vectors
+https://jina.ai/news/hype-and-hybrids-multimodal-search-means-more-than-keywords-and-vectors-2/

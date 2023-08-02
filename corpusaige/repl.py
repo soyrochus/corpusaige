@@ -174,8 +174,9 @@ class PromptRepl:
             #refactoring needed. seperate db functions from repl
             with Session(self.db_state_engine) as session:
                 answer = self.corpus.send_prompt(message)
-                self.conversation_id, self.interaction_id = conversations.add_interaction(session, self.conversation_id, message, answer)
                 self.print(answer)
+                self.conversation_id, self.interaction_id = conversations.add_interaction(session, self.conversation_id, message, answer)
+                
                 
         except Exception as e:
             if not self.trace_mode:

@@ -23,7 +23,7 @@ class FileType(Enum):
     def get_default_ext(cls, ft: 'FileType')-> str:
         map = {'TEXT': 'txt', 'MSWORD': 'docx', 'PDF': 'pdf', 'MSEXCEL': 'xlsx'}
         return map[ft.name]
-        
+     
     @classmethod
     def from_string(cls, s: str) -> 'FileType':
         try:
@@ -39,7 +39,39 @@ class FileType(Enum):
         file_extension = parts[1] if len(parts) > 1 else FileType.get_default_ext(file_type)
         return file_type, file_extension
 
-#
+    @classmethod 
+    def get_file_type(cls, ext:str)-> str | None:
+        map = {'.txt': FileType.TEXT, '.docx': FileType.MSWORD, '.pdf': FileType.PDF, '.xslx' : FileType.MSEXCEL}
+        return map.get(ext, None)
+        
+    @classmethod
+    def parse_type_from_path(cls, path: str) -> 'FileType':
+        #determine FileType from file extension
+        file_extension = os.path.splitext(path)[1]
+        fileType = cls.get_file_type(file_extension)
+        if fileType is None:
+            raise ValueError(f'Invalid file extension: {file_extension}')
+        return fileType
+class Document:
+    path:str
+    file_type: FileType
+    
+    def __init__(self, path: str, file_type: FileType):
+        self.path = path
+        self.file_type  = file_type
+        
+    @staticmethod
+    def initialize(path: str, delay_validation=False) -> 'Document':
+        
+        _path = os.path.abspath(path)
+        
+        if not delay_validation and not os.path.exists(_path):
+            raise ValueError(f'Invalid path: {_path}')
+        
+        _file_type = FileType.parse_type_from_path(_path)
+        
+        return Document(path,_file_type)
+    
 class Entry:
     def __init__(self, path: str, file_type: FileType, file_extension: str, recursive: bool):
         self.path = path
@@ -52,13 +84,14 @@ class Entry:
         
         _path = os.path.abspath(path)
         
-        if not delay_validation and not os.path.isdir(_path) and not os.path.exists(_path):
+        if not delay_validation and not os.path.isdir(_path):
             raise ValueError(f'Invalid path: {_path}')
         
         _file_type, _file_ext = FileType.parse_file_type_ext(file_type_ext)
         
         return Entry(path,_file_type, _file_ext, recursive)
-        
+    
+
 class DocumentSet:
     def __init__(self, name: str):
         self.name = name

@@ -11,7 +11,7 @@ through deep exploration and understanding of comprehensive document sets and so
 import os
 from pathlib import Path
 from typing import List, Protocol
-from corpusaige.documentset import DocumentSet
+from corpusaige.documentset import Document, DocumentSet
 from corpusaige.interactions import StatefullInteraction, VectorRepository
 from .config.read import CorpusConfig
 from corpusaige.config import CORPUS_STATE_DB
@@ -67,6 +67,9 @@ class StatefullCorpus(Corpus):
     def add_docset(self, docset: DocumentSet) -> None:
         self.repository.add_docset(docset)
 
+    def add_doc(self, doc: Document) -> None:
+        self.repository.add_doc(doc)
+        
     def store_search(self, search_str: str) -> List[str]:
         return self.repository.search(search_str, self.context_size)
 
