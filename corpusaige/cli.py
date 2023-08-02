@@ -18,7 +18,7 @@ from corpusaige.providers import create_local_vectordb
 from .corpus import Corpus, StatefullCorpus
 from .repl import PromptRepl
 from .config.read import CorpusConfig, get_config
-from .config.create import prompt_user_for_init
+from .config.create import ensure_dir_path_exists, prompt_user_for_init
 from corpusaige import corpus
 from .documentset import DocumentSet
 
@@ -31,7 +31,7 @@ def new_corpus(name: str, path: str):
     Creates a new corpus using a wizzard
     """
     new_path = os.path.abspath(os.path.join(path, name))
-    ensure_path_exists(new_path)
+    ensure_dir_path_exists(new_path)
     config = prompt_user_for_init(name, new_path)
     create_local_vectordb(config)
  
@@ -109,10 +109,3 @@ def main():
             print(error)
         exit(1)
         
-def ensure_path_exists(path):
-    """
-    Ensures that the directory at the given path exists.
-    If the directory does not exist, it is created.
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)

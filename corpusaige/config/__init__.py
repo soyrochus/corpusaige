@@ -9,3 +9,4 @@ through deep exploration and understanding of comprehensive document sets and so
 
 CORPUS_INI = "corpus.ini"
 CORPUS_STATE_DB = "corpus-state.db"
+CORPUS_ANNOTATIONS = "annotations"

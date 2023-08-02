@@ -18,7 +18,7 @@ import configparser
 
 from corpusaige.config.read import CorpusConfig, get_config
 from corpusaige.data.db import create_db
-from . import CORPUS_INI, CORPUS_STATE_DB
+from . import CORPUS_INI, CORPUS_STATE_DB, CORPUS_ANNOTATIONS
 
 def radiolist_dialog_with_params(title, text, values) -> str:
     # Model is chosen from a radiolist dialog
@@ -93,7 +93,18 @@ def prompt_user_for_init(name: str, corpus_path: str = './') -> CorpusConfig:
 
     #create db file in corpus
     db_file_path = os.path.join(corpus_path, CORPUS_STATE_DB)
+    annotations_path = os.path.join(corpus_path, CORPUS_ANNOTATIONS)
+    
     create_db(db_file_path)
+    ensure_dir_path_exists(annotations_path)
     
     return get_config(config_file_path)
     
+    
+def ensure_dir_path_exists(path):
+    """
+    Ensures that the directory at the given path exists.
+    If the directory does not exist, it is created.
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
