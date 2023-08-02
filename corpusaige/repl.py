@@ -121,8 +121,8 @@ class PromptRepl:
                 if user_input.startswith('/'):
                     self.handle_command(user_input)
                 else:
-                    print("Sending prompt to GPT-4...")
-                    #self.send_prompt(user_input)
+                    #print("Sending prompt to GPT-4...")
+                    self.send_prompt(user_input)
 
             except KeyboardInterrupt:
                 # Handle Ctrl+C gracefully
@@ -214,7 +214,7 @@ class PromptRepl:
     def print(self, text=None, *, list=None, seperator=""):
         if text is not None:
             pprint(text, self.pause_page)
-        if len(list) > 0:
+        elif len(list) > 0:
             pprint(seperator.join(list), self.pause_page)
         else:
             print("No results found.")
