@@ -17,6 +17,8 @@ from corpusaige.providers import vectorstore_factory
 class Repository(Protocol):
     def add_docset(self, docset: DocumentSet):
         pass
+    def add_doc(self, doc: DocumentSet):
+        pass
     def search(self, search_str: str, results_num:int) -> List[str]:
         pass
     def ls(self) -> List[str]:
@@ -35,7 +37,10 @@ class VectorRepository(Repository):
             return f"./**/*.{entry.file_extension}"
         else:
             return f"./*.{entry.file_extension}"    
-        
+    
+    def add_doc(self, doc: DocumentSet):
+        pass
+    
     def add_docset(self, doc_set: DocumentSet):
        
         chunks = None

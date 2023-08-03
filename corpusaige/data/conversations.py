@@ -12,15 +12,11 @@ from datetime import datetime
 from typing import List, Optional, Tuple
 from sqlalchemy import  func, ForeignKey, select
 from sqlalchemy import Integer, String, Text
-from sqlalchemy.orm import DeclarativeBase  
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from datetime import datetime
 from typing import List
 from sqlalchemy.orm import Session
-
-
-class Base(DeclarativeBase):
-    pass
+from .db import Base
 
 class Interaction(Base):
     __tablename__ = "interaction"
@@ -47,7 +43,7 @@ class Conversation(Base):
     interactions: Mapped[List["Interaction"]] = relationship("Interaction", back_populates="conversation")  # Corrected "interaction" to "conversation"
 
     def __repr__(self):
-        return f"<Interaction(id={self.id!r})>"  
+        return f"<Interaction(id={self.id!r}, {self.title})>"  
     
 def remove_whitespace(s):
     """Remove all whitespace characters apart from spaces from a string"""
@@ -67,14 +63,14 @@ def add_interaction(session: Session, conversation_id: int | None, question: str
     session.commit()
     return conversation.id, interaction.id
 
-def get_conversations(session):
+def get_conversations(session) -> List[Conversation]:
     """Get all conversations from the database"""
     return session.execute(select(Conversation).order_by(Conversation.date_created)).scalars().all()
 
-def get_conversation_by_id(session, id: int):
+def get_conversation_by_id(session, id: int) -> Conversation:
     """Get a conversation by its id"""
     return session.execute(select(Conversation).where(Conversation.id == id)).scalar_one()  
 
-def get_interaction_by_id(session, id: int):
+def get_interaction_by_id(session, id: int) -> Interaction:
     """Get an interaction by its id"""
     return session.execute(select(Interaction).where(Interaction.id == id)).scalar_one()    

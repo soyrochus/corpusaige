@@ -20,7 +20,7 @@ from ast import literal_eval
 from prompt_toolkit.output import create_output
 from sqlalchemy import Engine
 from sqlalchemy.orm.session import Session
-from corpusaige.data import conversations
+from corpusaige.data import annotations, conversations
 from corpusaige.data.conversations import Conversation
 from corpusaige.documentset import DocumentSet
 from .corpus import Corpus
@@ -318,6 +318,15 @@ class PromptRepl:
             conv = conversations.get_interaction_by_id(session, id)
             self.default_prompt = f"/store {conv.ai_answer}"
     
+    def do_store(self, *args, cmdtext=None):
+        """Incorporate note or response from the LLM into the corpus"""
+        if cmdtext is None or cmdtext.strip() == "":
+            print("No text to store.")
+        else:
+            ### TODO: What to do with interaction_id? What if /store text is not from the last interaction?   
+            with Session(self.db_state_engine) as session:
+                annotations.add_annotation(session, self.corpus.get_annotations_path(), "title", cmdtext, self.interaction_id)
+        
     def do_update(self, *args, cmdtext=None):
         """Update document set in the corpus"""
         raise NotImplementedError("/update not implemented yet")
@@ -326,9 +335,6 @@ class PromptRepl:
         """Remove document set from the corpus"""
         raise NotImplementedError("/remove not implemented yet")
 
-    def do_store(self, *args, cmdtext=None):
-        """Incorporate note or response from the LLM into the corpus"""
-        raise NotImplementedError("/store not implemented yet")
 
     def do_run(self, *args, cmdtext=None):
         """Run a script"""

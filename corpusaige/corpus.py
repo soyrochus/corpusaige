@@ -14,7 +14,7 @@ from typing import List, Protocol
 from corpusaige.documentset import Document, DocumentSet
 from corpusaige.interactions import StatefullInteraction, VectorRepository
 from .config.read import CorpusConfig
-from corpusaige.config import CORPUS_STATE_DB
+from corpusaige.config import CORPUS_STATE_DB, CORPUS_ANNOTATIONS
 
 
 class Corpus(Protocol):
@@ -29,6 +29,12 @@ class Corpus(Protocol):
     def add_docset(self, docset: DocumentSet) -> None:
         pass
 
+    def add_doc(self, doc: Document) -> None:
+        self.repository.add_doc(doc)
+        
+    def store_annotation(self, annotation: str) -> None:
+        pass
+    
     def store_search(self, search_str: str) -> List[str]:
         pass
 
@@ -39,6 +45,11 @@ class Corpus(Protocol):
     def toggle_sources(self):
         pass
 
+    def get_annotations_path(self) -> str:
+        pass
+    
+    def get_corpus_folder_path(self) -> str:
+        pass    
 
 class StatefullCorpus(Corpus):
 
@@ -67,6 +78,9 @@ class StatefullCorpus(Corpus):
     def add_docset(self, docset: DocumentSet) -> None:
         self.repository.add_docset(docset)
 
+    def store_annotation(self, annotation: str) -> None:
+        pass
+
     def add_doc(self, doc: Document) -> None:
         self.repository.add_doc(doc)
         
@@ -76,3 +90,9 @@ class StatefullCorpus(Corpus):
     #def store_ls(self, docset_name=None) -> List[str]:
     def store_ls(self) -> List[str]:
         return self.repository.ls()
+
+    def get_annotations_path(self) -> str:
+        return os.path.join(self.get_corpus_folder_path(), CORPUS_ANNOTATIONS)
+    
+    def get_corpus_folder_path(self) -> str:
+        return os.path.dirname(self.path)    

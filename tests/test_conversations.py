@@ -10,12 +10,14 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 
+import os
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
-from corpusaige.data import conversations
+from corpusaige.data import annotations, conversations
 from corpusaige.data.conversations import Base, Conversation, Interaction
 from sqlalchemy import select
+import tempfile
 
 def fill_database(session):
     # Add test data to the session
@@ -84,3 +86,14 @@ def test_add_conversation(session):
     assert lst[2].interactions[0].ai_answer == '¿Quienes? ¿Quienes?'
 
 
+def test_add_annotation(session):
+    #get temporary directory path
+    path = tempfile.gettempdir()
+    id = annotations.add_annotation(session, path,  'Title of the Annotation', 'This is the text of the annotation')
+    assert os.path.exists(os.path.join(path, 'Title of the Annotation.txt'))
+    
+    
+    annot = annotations.get_annotation_by_id(session, id)
+    assert annot.title == 'Title of the Annotation'
+    assert annot.text == 'This is the text of the annotation'
+    

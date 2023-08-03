@@ -9,7 +9,12 @@ through deep exploration and understanding of comprehensive document sets and so
 
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from .conversations import Base
+from sqlalchemy.orm import DeclarativeBase  
+
+
+class Base(DeclarativeBase):
+    pass
+
 
 def create_db(path)-> Engine:
     # Connect to the database. If it doesn't exist, it will be created.
@@ -25,3 +30,8 @@ def init_db(path)-> Engine:
     engine = create_engine(f'sqlite:///{path}')
     
     return engine
+
+
+if __name__ == "__main__":
+    import sys
+    create_db(sys.argv[1])
