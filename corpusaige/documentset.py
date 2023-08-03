@@ -40,7 +40,7 @@ class FileType(Enum):
         return file_type, file_extension
 
     @classmethod 
-    def get_file_type(cls, ext:str)-> str | None:
+    def get_file_type(cls, ext:str)-> 'FileType' | None:
         map = {'.txt': FileType.TEXT, '.docx': FileType.MSWORD, '.pdf': FileType.PDF, '.xslx' : FileType.MSEXCEL}
         return map.get(ext, None)
         

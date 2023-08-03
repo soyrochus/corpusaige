@@ -10,14 +10,14 @@ from typing import List, Protocol
 from corpusaige.config.read import CorpusConfig
 from langchain.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from corpusaige.documentset import DocumentSet, Entry, FileType
+from corpusaige.documentset import Document, DocumentSet, Entry, FileType
 from corpusaige.providers import vectorstore_factory
 
 
 class Repository(Protocol):
     def add_docset(self, docset: DocumentSet):
         pass
-    def add_doc(self, doc: DocumentSet):
+    def add_doc(self, doc: Document):
         pass
     def search(self, search_str: str, results_num:int) -> List[str]:
         pass
@@ -38,7 +38,7 @@ class VectorRepository(Repository):
         else:
             return f"./*.{entry.file_extension}"    
     
-    def add_doc(self, doc: DocumentSet):
+    def add_doc(self, doc: Document):
         pass
     
     def add_docset(self, doc_set: DocumentSet):

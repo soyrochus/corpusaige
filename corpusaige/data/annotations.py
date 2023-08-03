@@ -30,7 +30,7 @@ class Annotation(Base):
     def __repr__(self):
         return f"<Annotation(id={self.id!r}, text={self.title!r})>"
     
-    def export(self, path) -> dict:
+    def export(self, path) -> None:
         with open(os.path.join(path, f"{self.title}.txt"), "w") as f:
                 f.write(self.text)
                 f.close()

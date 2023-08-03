@@ -314,9 +314,9 @@ class PromptRepl:
             raise ValueError("No interaction. Use /conversation load <id> to load an interaction")
         elif id is None:
             id = self.interaction_id
-        with Session(self.db_state_engine) as session:
-            conv = conversations.get_interaction_by_id(session, id)
-            self.default_prompt = f"/store {conv.ai_answer}"
+            with Session(self.db_state_engine) as session:
+                conv = conversations.get_interaction_by_id(session, id)
+                self.default_prompt = f"/store {conv.ai_answer}"
     
     def do_store(self, *args, cmdtext=None):
         """Incorporate note or response from the LLM into the corpus"""

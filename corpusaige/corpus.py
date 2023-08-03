@@ -30,7 +30,7 @@ class Corpus(Protocol):
         pass
 
     def add_doc(self, doc: Document) -> None:
-        self.repository.add_doc(doc)
+        pass
         
     def store_annotation(self, annotation: str) -> None:
         pass
