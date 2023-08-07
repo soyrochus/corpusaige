@@ -32,7 +32,7 @@ class Corpus(Protocol):
     def add_doc(self, doc: Document) -> None:
         pass
         
-    def store_annotation(self, annotation: str) -> None:
+    def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
         pass
     
     def store_search(self, search_str: str) -> List[str]:
@@ -78,9 +78,6 @@ class StatefullCorpus(Corpus):
     def add_docset(self, docset: DocumentSet) -> None:
         self.repository.add_docset(docset)
 
-    def store_annotation(self, annotation: str) -> None:
-        pass
-
     def add_doc(self, doc: Document) -> None:
         self.repository.add_doc(doc)
         
@@ -96,3 +93,7 @@ class StatefullCorpus(Corpus):
     
     def get_corpus_folder_path(self) -> str:
         return os.path.dirname(self.path)    
+    
+    def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
+        path = os.path.join(self.get_annotations_path(),annotation_file)
+        self.add_doc(Document.initialize(path, annotation_docset_name))

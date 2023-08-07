@@ -1,0 +1,26 @@
+What are the chapters of the book "Rust the programming language"
+-----------------------------------------
+The chapters of the book "The Rust Programming Language" are:
+
+1. Getting Started: Installation, Hello, World!, Hello, Cargo!
+2. Programming a Guessing Game
+3. Common Programming Concepts: Variables and Mutability, Data Types, Functions, Comments, Control Flow
+4. Understanding Ownership: What is Ownership?, References and Borrowing, The Slice Type
+5. Using Structs to Structure Related Data: Defining and Instantiating Structs, An Example Program Using Structs, Method Syntax
+6. Enums and Pattern Matching: Defining an Enum, The match Control Flow Construct, Concise Control Flow with if let
+7. Managing Growing Projects with Packages, Crates, and Modules: Packages and Crates, Defining Modules to Control Scope and Privacy, Paths for Referring to an Item in the Module Tree, Bringing Paths Into Scope with the use Keyword, Separating Modules into Different Files
+8. Common Collections
+9. Error Handling
+10. Generics, Traits, and Lifetimes
+11. Testing
+12. Building a Command Line Program
+13. Closures and Iterators
+14. More about Cargo and Crates.io
+15. Smart Pointers
+16. Concurrency
+17. Object Oriented Programming features of Rust
+18. Patterns and Matching
+19. Advanced Features
+20. Building a Multithreaded Web Server
+
+It also includes several appendices with reference material.

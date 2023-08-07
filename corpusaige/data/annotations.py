@@ -21,7 +21,6 @@ class Annotation(Base):
     __tablename__ = 'annotation'
     
     id : Mapped[int] = mapped_column(primary_key=True)  
-    interaction_id = mapped_column(ForeignKey("interaction.id"))
     title: Mapped[str] 
     text: Mapped[str]
     date : Mapped[datetime]= mapped_column(insert_default=func.now()) #type: ignore
@@ -30,18 +29,20 @@ class Annotation(Base):
     def __repr__(self):
         return f"<Annotation(id={self.id!r}, text={self.title!r})>"
     
-    def export(self, path) -> None:
-        with open(os.path.join(path, f"{self.title}.txt"), "w") as f:
+    def export(self, path) -> (int, str):
+        fname = f"{self.title}.txt"
+        
+        with open(os.path.join(path, fname), "w") as f:
                 f.write(self.text)
                 f.close()
+        return self.id, fname
             
-def add_annotation(session: Session, export_path: str, title:str, text:str, interaction_id: int | None = None) ->  int:
-    annotation = Annotation(title=title, text=text, interaction_id=interaction_id)
+def add_annotation(session: Session, export_path: str, title:str, text:str) ->  (int, str):
+    annotation = Annotation(title=title, text=text)
     session.add(annotation)
     session.commit()
     
-    annotation.export(export_path)
-    return annotation.id
-
+    return annotation.export(export_path)
+    
 def get_annotation_by_id(session: Session, annotation_id: int) -> Annotation:
     return session.execute(select(Annotation).where(Annotation.id == annotation_id)).scalar_one()

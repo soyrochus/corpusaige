@@ -314,18 +314,21 @@ class PromptRepl:
             raise ValueError("No interaction. Use /conversation load <id> to load an interaction")
         elif id is None:
             id = self.interaction_id
-            with Session(self.db_state_engine) as session:
-                conv = conversations.get_interaction_by_id(session, id)
-                self.default_prompt = f"/store {conv.ai_answer}"
+        
+        with Session(self.db_state_engine) as session:
+            conv = conversations.get_interaction_by_id(session, id)
+            self.default_prompt = f"/store {conv.ai_answer}"
     
     def do_store(self, *args, cmdtext=None):
         """Incorporate note or response from the LLM into the corpus"""
         if cmdtext is None or cmdtext.strip() == "":
             print("No text to store.")
         else:
-            ### TODO: What to do with interaction_id? What if /store text is not from the last interaction?   
             with Session(self.db_state_engine) as session:
-                annotations.add_annotation(session, self.corpus.get_annotations_path(), "title", cmdtext, self.interaction_id)
+                annotation_id, stored_file = annotations.add_annotation(session, self.corpus.get_annotations_path(), "title", cmdtext)
+                self.corpus.store_annotation('Corpusaige annotations', stored_file)
+                self.default_prompt = ""
+                print(f"Stored annotation in: {stored_file} and vector db")
         
     def do_update(self, *args, cmdtext=None):
         """Update document set in the corpus"""

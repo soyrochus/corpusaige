@@ -8,7 +8,7 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 from typing import List, Protocol
 from corpusaige.config.read import CorpusConfig
-from langchain.document_loaders import DirectoryLoader
+from langchain.document_loaders import DirectoryLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from corpusaige.documentset import Document, DocumentSet, Entry, FileType
 from corpusaige.providers import vectorstore_factory
@@ -22,6 +22,8 @@ class Repository(Protocol):
     def search(self, search_str: str, results_num:int) -> List[str]:
         pass
     def ls(self) -> List[str]:
+        pass
+    def store_annotation(self, annotation_path: str) -> None:
         pass
     
 class VectorRepository(Repository):
@@ -38,8 +40,26 @@ class VectorRepository(Repository):
         else:
             return f"./*.{entry.file_extension}"    
     
-    def add_doc(self, doc: Document):
-        pass
+    def add_doc(self, doc: Document, doc_set_name: str = ""):
+        if doc.file_type == FileType.TEXT:
+                
+            text_splitter = RecursiveCharacterTextSplitter (chunk_size=1000, chunk_overlap=200)
+            # Load text data from a file using TextLoader
+            loader = TextLoader(doc.path)
+            res = loader.load()
+            document = None
+            if len(res) > 0:
+                document = res[0]
+                document.metadata['doc-set'] = doc_set_name
+            else:
+                raise ValueError(f"Could not load document from {doc.path}")
+            
+            chunks = text_splitter.split_documents([document])
+        else:
+            raise NotImplementedError(f'File type {doc.file_type} not supported yet.')
+
+        self.vectorstore.add_documents(chunks)
+        self.vectorstore.persist()
     
     def add_docset(self, doc_set: DocumentSet):
        
@@ -77,3 +97,4 @@ class VectorRepository(Repository):
         sources = [metadata['source'] for metadata in result['metadatas']]
         #remove duplicates from list
         return list(dict.fromkeys(sources))
+    
