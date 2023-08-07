@@ -27,7 +27,12 @@ sqlalchemy = "^2.0.19"
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"
 sphinx = "^7.0.1"
+ruff = "^0.0.282"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+# Never enforce `E501` (line length violations).
+ignore = ["E501"]

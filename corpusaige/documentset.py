@@ -6,12 +6,14 @@ through deep exploration and understanding of comprehensive document sets and so
 @copyright: Copyright © 2023 Iwan van der Kleijn
 @license: MIT
 """
+from __future__ import annotations  # hack to avoid error with pytest using OR operator in type hinting
 
 # Import necessary modules
 from enum import Enum
 import os
 from typing import List, Tuple, Union
 #from datetime import datetime
+
 
 class FileType(Enum):
     TEXT = 'Text'

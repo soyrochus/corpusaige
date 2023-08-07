@@ -13,7 +13,7 @@ through deep exploration and understanding of comprehensive document sets and so
 import os
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, clear_mappers
+from sqlalchemy.orm import sessionmaker
 from corpusaige.data import annotations, conversations
 from corpusaige.data.conversations import Base, Conversation, Interaction
 from sqlalchemy import select
