@@ -8,6 +8,7 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 # Import necessary modules
+import re
 import traceback
 from prompt_toolkit import PromptSession
 from prompt_toolkit.document import Document
@@ -20,10 +21,12 @@ from ast import literal_eval
 from prompt_toolkit.output import create_output
 from sqlalchemy import Engine
 from sqlalchemy.orm.session import Session
+from corpusaige.console_tools import spinner
 from corpusaige.data import annotations, conversations
 from corpusaige.data.conversations import Conversation
 from corpusaige.documentset import DocumentSet
 from .corpus import Corpus
+from prompt_toolkit import prompt
 
 
 def synonymcommand(*synonyms):
@@ -63,7 +66,9 @@ def is_valid_integer(s):
     except ValueError:
         return False
 
-
+def strip_invalid_file_chars(title: str) -> str:
+    title = re.sub(r'[\\/*?:"<>|]',"", title)
+    return title
 class CommandCompleter(Completer):
     def __init__(self, commands):
         self.commands = [f'/{n}' for n in list(commands.keys())]
@@ -121,8 +126,9 @@ class PromptRepl:
                 if user_input.startswith('/'):
                     self.handle_command(user_input)
                 else:
-                    #print("Sending prompt to GPT-4...")
-                    self.send_prompt(user_input)
+                    
+                    with spinner("Sending prompt..."):
+                        self.send_prompt(user_input)
 
             except KeyboardInterrupt:
                 # Handle Ctrl+C gracefully
@@ -324,12 +330,15 @@ class PromptRepl:
         if cmdtext is None or cmdtext.strip() == "":
             print("No text to store.")
         else:
-            with Session(self.db_state_engine) as session:
-                annotation_id, stored_file = annotations.add_annotation(session, self.corpus.get_annotations_path(), "title", cmdtext)
+            
+            title = prompt("Enter title for annotation: ")
+            title = strip_invalid_file_chars(title)
+            
+            with Session(self.db_state_engine) as session:    
+                annotation_id, stored_file = annotations.add_annotation(session, self.corpus.get_annotations_path(), title, cmdtext)
                 self.corpus.store_annotation('Corpusaige annotations', stored_file)
-                self.default_prompt = ""
                 print(f"Stored annotation in: {stored_file} and vector db")
-        
+
     def do_update(self, *args, cmdtext=None):
         """Update document set in the corpus"""
         raise NotImplementedError("/update not implemented yet")
