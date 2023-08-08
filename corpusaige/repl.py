@@ -325,8 +325,9 @@ class PromptRepl:
             conv = conversations.get_interaction_by_id(session, id)
             self.default_prompt = f"/store {conv.ai_answer}"
     
+    @synonymcommand("annotate")
     def do_store(self, *args, cmdtext=None):
-        """Incorporate note or response from the LLM into the corpus"""
+        """Incorporate annotation (from scratch or response from the LLM) into the corpus"""
         if cmdtext is None or cmdtext.strip() == "":
             print("No text to store.")
         else:
@@ -356,14 +357,14 @@ class PromptRepl:
         """Let de LLM perform an action (to be approved by the user)"""
         raise NotImplementedError("/act not implemented yet")
 
-    @detailed_help("""Operation on the cache:
-Usage: /cache <command>
-    - keys   <namespace> - get the keys of the given namespace
-    - get    <id>        - obtain the item with the given id
-    - delete <id>        - delete the item with the given id""")
-    def do_cache(self, *args, cmdtext=None):
-        """Perform operations on the cache (see /help cache for more info)"""
-        raise NotImplementedError("/cache not implemented yet")
+#     @detailed_help("""Operation on the cache:
+# Usage: /cache <command>
+#     - keys   <namespace> - get the keys of the given namespace
+#     - get    <id>        - obtain the item with the given id
+#     - delete <id>        - delete the item with the given id""")
+#     def do_cache(self, *args, cmdtext=None):
+#         """Perform operations on the cache (see /help cache for more info)"""
+#         raise NotImplementedError("/cache not implemented yet")
 
     @synonymcommand('debug')
     def do_trace(self, *args, cmdtext=None):
@@ -371,23 +372,27 @@ Usage: /cache <command>
         self.toggle_trace_mode()
         print(f"Trace (debug) mode: {'on' if self.trace_mode else 'off'}")
 
+    def get_help_for_command(self, command_name):
+        command = self.all_commands[command_name]
+        if hasattr(command, 'synonyms'):
+            _end = f"; synonym(s): {' '.join(sorted(command.synonyms))}"
+        else:
+            _end = ""
+        return f"/{command_name:<12} - {command.__doc__} {_end}"
+                
     @synonymcommand("?")
     def do_help(self, *args, cmdtext=None):
         """Show this help message."""
         if len(args) == 0:
             print("Available commands:")
             for command in self.commands:
-                if hasattr(self.commands[command], 'synonyms'):
-                    _end = f"; synonym(s): {' '.join(sorted(self.commands[command].synonyms))}\n"
-                else:
-                    _end = "\n"
-                print(
-                    f"/{command:<12} - {self.commands[command].__doc__}", end=_end)
+                print(self.get_help_for_command(command))
+    
         else:
             command = args[0]
-            if command in self.commands:
-                cmd = self.commands[command]
-                print(cmd.__doc__)
+            if command in self.all_commands:
+                cmd = self.all_commands[command]
+                print(self.get_help_for_command(command))
                 if hasattr(cmd, 'detailed_help'):
                     print(cmd.detailed_help)
             else:
