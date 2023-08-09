@@ -351,8 +351,16 @@ class PromptRepl:
 
     def do_run(self, *args, cmdtext=None):
         """Run a script"""
-        raise NotImplementedError("/run not implemented yet")
-
+        print(f"Running script {cmdtext}...")
+        #match on <<script_name>> <<*args>> 
+        match args:
+            case ():
+                ValueError("Invalid command or arguments")
+            case (script_name, *args) if script_name in self.corpus.scripts:
+                self.corpus.run_script(script_name, args)
+            case _:
+                ValueError("Invalid command or arguments")
+                
     def do_act(self, *args, cmdtext=None):
         """Let de LLM perform an action (to be approved by the user)"""
         raise NotImplementedError("/act not implemented yet")

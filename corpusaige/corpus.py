@@ -10,12 +10,13 @@ through deep exploration and understanding of comprehensive document sets and so
 # Import necessary modules
 import os
 from pathlib import Path
-from typing import List, Protocol
+import sys
+from typing import Any, List, Protocol
 from corpusaige.documentset import Document, DocumentSet
 from corpusaige.interactions import StatefullInteraction, VectorRepository
 from .config.read import CorpusConfig
-from corpusaige.config import CORPUS_STATE_DB, CORPUS_ANNOTATIONS
-
+from corpusaige.config import CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
+from importlib import import_module
 
 class Corpus(Protocol):
     name: str
@@ -50,6 +51,9 @@ class Corpus(Protocol):
     
     def get_corpus_folder_path(self) -> str:
         pass    
+    
+    def run_script(self, script_name: str, *args) -> Any:
+        pass
 
 class StatefullCorpus(Corpus):
 
@@ -64,6 +68,10 @@ class StatefullCorpus(Corpus):
         self.repository = VectorRepository(config)
         self.interaction = StatefullInteraction(
             config, retriever=self.repository.as_retriever())
+        
+        self.scripts = self._get_scripts()
+        #set import path to corpus scripts folder
+        sys.path.append(os.path.join(self.get_corpus_folder_path(), CORPUS_SCRIPTS))
 
     @property
     def state_db_path(self) -> str:
@@ -97,3 +105,20 @@ class StatefullCorpus(Corpus):
     def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
         path = os.path.join(self.get_annotations_path(),annotation_file)
         self.add_doc(Document.initialize(path, annotation_docset_name))
+        
+    
+    def run_script(self, script_name: str, *args: List[str]) -> Any:
+        
+        if script_name in self.scripts:
+            script = import_module(script_name)
+            return script.run(self, *args)
+        else:
+            raise ValueError(f"Script {script_name} not found in scripts directory")
+    
+    def _get_scripts(self):
+        scripts = []
+        for file in os.listdir(os.path.join(self.get_corpus_folder_path(), CORPUS_SCRIPTS)):
+            if file.endswith(".py"):
+                #append file name whthout extension to scripts list
+                scripts.append(os.path.splitext(file)[0])
+        return scripts

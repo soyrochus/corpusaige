@@ -15,9 +15,11 @@ through deep exploration and understanding of comprehensive document sets and so
 import configparser
 import os
 import pytest
+from corpusaige.config import CORPUS_SCRIPTS
 
 from corpusaige.config.create import create_corpus
 from corpusaige.config.read import get_config
+from corpusaige.corpus import StatefullCorpus
 
 
 corpus_ini_str = """[main]
@@ -36,6 +38,13 @@ type = local
 path = ./db
 
 """
+test_script_str = """# Test Script
+
+def run(corpus, *args):
+    return corpus.name
+    
+"""
+
 @pytest.fixture(scope="session")
 def corpus_dir(tmpdir_factory):
     corpus_dir_path = tmpdir_factory.mktemp("corpus")
@@ -43,6 +52,9 @@ def corpus_dir(tmpdir_factory):
     config_p.read_string(corpus_ini_str)
     config = create_corpus(corpus_dir_path, config_p)
     
+    with open(os.path.join(corpus_dir_path, CORPUS_SCRIPTS, 'simple_test_script.py'), 'w') as f:
+        f.write(test_script_str)
+        
     return corpus_dir_path
     
 def test_create_corpus(corpus_dir:str):
@@ -53,3 +65,8 @@ def test_create_corpus(corpus_dir:str):
     assert os.path.exists(os.path.join(corpus_dir, 'corpus-state.db'))
     assert os.path.exists(os.path.join(corpus_dir, 'annotations'))
     assert os.path.exists(os.path.join(corpus_dir, 'scripts'))
+
+def test_run_script(corpus_dir):
+    corpus = StatefullCorpus(get_config(corpus_dir))
+    
+    assert corpus.run_script('simple_test_script') == "Test Corpus"
