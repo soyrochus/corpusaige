@@ -18,7 +18,7 @@ import configparser
 
 from corpusaige.config.read import CorpusConfig, get_config
 from corpusaige.data.db import create_db
-from . import CORPUS_INI, CORPUS_STATE_DB, CORPUS_ANNOTATIONS
+from . import CORPUS_INI, CORPUS_SCRIPTS, CORPUS_STATE_DB, CORPUS_ANNOTATIONS
 
 def radiolist_dialog_with_params(title, text, values) -> str:
     # Model is chosen from a radiolist dialog
@@ -44,9 +44,9 @@ def radiolist_dialog_with_params(title, text, values) -> str:
     return model
 
 
-def prompt_user_for_init(name: str, corpus_path: str = './') -> CorpusConfig:
+def prompt_user_for_init(name: str, corpus_path: str = './') -> configparser.ConfigParser:
 
-    print(f"Creating new corpus {name} at {corpus_path}")
+    
     # create configparser object
     config = configparser.ConfigParser()
 
@@ -86,20 +86,25 @@ def prompt_user_for_init(name: str, corpus_path: str = './') -> CorpusConfig:
 
         config['chroma'] = {'type': type_, 'path': path}
 
+    return config
+    
+def create_corpus(corpus_dir_path: str, config_parser: configparser.ConfigParser) -> None:
+    
     # write configuration to .ini file
-    config_file_path = os.path.join(corpus_path, CORPUS_INI)
+    config_file_path = os.path.join(corpus_dir_path, CORPUS_INI)
     with open(config_file_path, 'w') as configfile:
-        config.write(configfile)
+        config_parser.write(configfile)
 
     #create db file in corpus
-    db_file_path = os.path.join(corpus_path, CORPUS_STATE_DB)
-    annotations_path = os.path.join(corpus_path, CORPUS_ANNOTATIONS)
+    db_file_path = os.path.join(corpus_dir_path, CORPUS_STATE_DB)
+    annotations_path = os.path.join(corpus_dir_path, CORPUS_ANNOTATIONS)
+    scripts_path = os.path.join(corpus_dir_path, CORPUS_SCRIPTS)
     
     create_db(db_file_path)
     ensure_dir_path_exists(annotations_path)
+    ensure_dir_path_exists(scripts_path)
     
     return get_config(config_file_path)
-    
     
 def ensure_dir_path_exists(path):
     """

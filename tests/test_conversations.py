@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -89,9 +88,8 @@ def test_add_conversation(session):
 def test_add_annotation(session):
     #get temporary directory path
     path = tempfile.gettempdir()
-    id = annotations.add_annotation(session, path,  'Title of the Annotation', 'This is the text of the annotation')
-    assert os.path.exists(os.path.join(path, 'Title of the Annotation.txt'))
-    
+    id, name = annotations.add_annotation(session, path,  'Title of the Annotation', 'This is the text of the annotation')
+    assert os.path.exists(os.path.join(path, name))
     
     annot = annotations.get_annotation_by_id(session, id)
     assert annot.title == 'Title of the Annotation'

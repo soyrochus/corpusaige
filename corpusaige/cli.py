@@ -18,7 +18,7 @@ from corpusaige.providers import create_local_vectordb
 from .corpus import Corpus, StatefullCorpus
 from .repl import PromptRepl
 from .config.read import CorpusConfig, get_config
-from .config.create import ensure_dir_path_exists, prompt_user_for_init
+from .config.create import ensure_dir_path_exists, prompt_user_for_init, create_corpus
 from corpusaige import corpus
 from .documentset import DocumentSet
 
@@ -30,12 +30,15 @@ def new_corpus(name: str, path: str):
     """
     Creates a new corpus using a wizzard
     """
-    new_path = os.path.abspath(os.path.join(path, name))
-    ensure_dir_path_exists(new_path)
-    config = prompt_user_for_init(name, new_path)
+    corpus_path = os.path.abspath(os.path.join(path, name))
+    ensure_dir_path_exists(corpus_path)
+    config_parser = prompt_user_for_init()
+    print(f"Creating new corpus {name} at {corpus_path}")
+    config = create_corpus(corpus_path, config_parser)
+    #TODO replace with more generic factory functions based on config
     create_local_vectordb(config)
  
-    print(f"\nCorpus {name} created successfully in {new_path}.")
+    print(f"\nCorpus {name} created successfully in {corpus_path}.")
     print("Please add files to the corpus using the 'add' command.")
 
 def add_docset(config: CorpusConfig, name: str, doc_paths: List[str], doc_types: List[str], recursive: bool):

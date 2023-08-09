@@ -7,6 +7,8 @@ through deep exploration and understanding of comprehensive document sets and so
 @license: MIT
 """
 
-CORPUS_INI = "corpus.ini"
-CORPUS_STATE_DB = "corpus-state.db"
-CORPUS_ANNOTATIONS = "annotations"
+CORPUS_INI = 'corpus.ini'
+CORPUS_STATE_DB = 'corpus-state.db'
+CORPUS_ANNOTATIONS = 'annotations'
+CORPUS_SCRIPTS = 'scripts'
+
