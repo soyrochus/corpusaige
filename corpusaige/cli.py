@@ -15,10 +15,10 @@ import traceback
 from typing import List
 from corpusaige.data.db import init_db
 from corpusaige.providers import create_local_vectordb
-from .corpus import Corpus, StatefullCorpus
+from .corpus import Corpus, StatefullCorpus, create_corpus, ensure_dir_path_exists
 from .repl import PromptRepl
 from .config.read import CorpusConfig, get_config
-from .config.create import ensure_dir_path_exists, prompt_user_for_init, create_corpus
+from .config.create import prompt_user_for_init
 from corpusaige import corpus
 from .documentset import DocumentSet
 

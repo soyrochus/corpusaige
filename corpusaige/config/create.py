@@ -88,28 +88,3 @@ def prompt_user_for_init(name: str, corpus_path: str = './') -> configparser.Con
 
     return config
     
-def create_corpus(corpus_dir_path: str, config_parser: configparser.ConfigParser) -> None:
-    
-    # write configuration to .ini file
-    config_file_path = os.path.join(corpus_dir_path, CORPUS_INI)
-    with open(config_file_path, 'w') as configfile:
-        config_parser.write(configfile)
-
-    #create db file in corpus
-    db_file_path = os.path.join(corpus_dir_path, CORPUS_STATE_DB)
-    annotations_path = os.path.join(corpus_dir_path, CORPUS_ANNOTATIONS)
-    scripts_path = os.path.join(corpus_dir_path, CORPUS_SCRIPTS)
-    
-    create_db(db_file_path)
-    ensure_dir_path_exists(annotations_path)
-    ensure_dir_path_exists(scripts_path)
-    
-    return get_config(config_file_path)
-    
-def ensure_dir_path_exists(path):
-    """
-    Ensures that the directory at the given path exists.
-    If the directory does not exist, it is created.
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)

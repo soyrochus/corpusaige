@@ -348,18 +348,19 @@ class PromptRepl:
         """Remove document set from the corpus"""
         raise NotImplementedError("/remove not implemented yet")
 
-
+    @detailed_help("""Usage: /run <script_name> <<*args>>
+Scripys can be added to the corpus by placing them in the scripts folder""")  
     def do_run(self, *args, cmdtext=None):
         """Run a script"""
         print(f"Running script {cmdtext}...")
         #match on <<script_name>> <<*args>> 
         match args:
             case ():
-                ValueError("Invalid command or arguments")
+                raise ValueError("Missing script name")
             case (script_name, *args) if script_name in self.corpus.scripts:
-                self.corpus.run_script(script_name, args)
+                self.corpus.run_script(script_name, *args)
             case _:
-                ValueError("Invalid command or arguments")
+                raise ValueError("Invalid script or arguments")
                 
     def do_act(self, *args, cmdtext=None):
         """Let de LLM perform an action (to be approved by the user)"""

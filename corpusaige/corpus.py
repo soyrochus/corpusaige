@@ -8,14 +8,16 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 # Import necessary modules
+from configparser import ConfigParser
 import os
 from pathlib import Path
 import sys
 from typing import Any, List, Protocol
+from corpusaige.data.db import create_db
 from corpusaige.documentset import Document, DocumentSet
 from corpusaige.interactions import StatefullInteraction, VectorRepository
-from .config.read import CorpusConfig
-from corpusaige.config import CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
+from .config.read import CorpusConfig, get_config
+from corpusaige.config import CORPUS_INI, CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
 from importlib import import_module
 
 class Corpus(Protocol):
@@ -122,3 +124,29 @@ class StatefullCorpus(Corpus):
                 #append file name whthout extension to scripts list
                 scripts.append(os.path.splitext(file)[0])
         return scripts
+    
+def create_corpus(corpus_dir_path: str, config_parser: ConfigParser) -> None:
+    
+    # write configuration to .ini file
+    config_file_path = os.path.join(corpus_dir_path, CORPUS_INI)
+    with open(config_file_path, 'w') as configfile:
+        config_parser.write(configfile)
+
+    #create db file in corpus
+    db_file_path = os.path.join(corpus_dir_path, CORPUS_STATE_DB)
+    annotations_path = os.path.join(corpus_dir_path, CORPUS_ANNOTATIONS)
+    scripts_path = os.path.join(corpus_dir_path, CORPUS_SCRIPTS)
+    
+    create_db(db_file_path)
+    ensure_dir_path_exists(annotations_path)
+    ensure_dir_path_exists(scripts_path)
+    
+    return get_config(config_file_path)
+    
+def ensure_dir_path_exists(path):
+    """
+    Ensures that the directory at the given path exists.
+    If the directory does not exist, it is created.
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)

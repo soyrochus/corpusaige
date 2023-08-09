@@ -17,9 +17,8 @@ import os
 import pytest
 from corpusaige.config import CORPUS_SCRIPTS
 
-from corpusaige.config.create import create_corpus
 from corpusaige.config.read import get_config
-from corpusaige.corpus import StatefullCorpus
+from corpusaige.corpus import StatefullCorpus, create_corpus
 
 
 corpus_ini_str = """[main]
