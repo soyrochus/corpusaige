@@ -8,7 +8,6 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm import DeclarativeBase  
 
 

@@ -11,20 +11,19 @@ from corpusaige.config.read import CorpusConfig
 from langchain.document_loaders import DirectoryLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from corpusaige.documentset import Document, DocumentSet, Entry, FileType
+from corpusaige.exceptions import InvalidParameters
 from corpusaige.providers import vectorstore_factory
 
 
 class Repository(Protocol):
     def add_docset(self, docset: DocumentSet):
-        pass
+        ...
     def add_doc(self, doc: Document):
-        pass
+        ...
     def search(self, search_str: str, results_num:int) -> List[str]:
-        pass
+        ...
     def ls(self) -> List[str]:
-        pass
-    def store_annotation(self, annotation_path: str) -> None:
-        pass
+        ...
     
 class VectorRepository(Repository):
     def __init__(self, config: CorpusConfig):
@@ -52,7 +51,7 @@ class VectorRepository(Repository):
                 document = res[0]
                 document.metadata['doc-set'] = doc_set_name
             else:
-                raise ValueError(f"Could not load document from {doc.path}")
+                raise InvalidParameters(f"Could not load document from {doc.path}")
             
             chunks = text_splitter.split_documents([document])
         else:

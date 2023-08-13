@@ -9,19 +9,17 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 
-from typing import Any, List, Protocol
+from typing import Protocol
 from corpusaige.config.read import CorpusConfig
-from corpusaige.documentset import DocumentSet, Entry, FileType
 from corpusaige.providers import llm_factory, vectorstore_factory
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 
-from .storage import VectorRepository
 
 class Interaction(Protocol):
 
     def send_prompt(self, prompt: str) -> str:
-        pass
+        ...
 
 # Cite sources
 

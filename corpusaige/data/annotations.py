@@ -8,11 +8,9 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 import os
-from sqlalchemy import ForeignKey, select, func
-from corpusaige.documentset import Document
-from sqlalchemy.orm import mapped_column, Mapped, relationship, Session
-from typing import List, Optional, Tuple
-from corpusaige.interactions import Interaction
+from sqlalchemy import select, func
+from sqlalchemy.orm import mapped_column, Mapped, Session
+from typing import Tuple
 from .db import Base
 from datetime import datetime
 
@@ -29,7 +27,7 @@ class Annotation(Base):
     def __repr__(self):
         return f"<Annotation(id={self.id!r}, text={self.title!r})>"
     
-    def export(self, path) -> (int, str):
+    def export(self, path:str) -> Tuple[int, str]:
         fname = f"{self.title}.txt"
         
         with open(os.path.join(path, fname), "w") as f:
@@ -37,7 +35,7 @@ class Annotation(Base):
                 f.close()
         return self.id, fname
             
-def add_annotation(session: Session, export_path: str, title:str, text:str) ->  (int, str):
+def add_annotation(session: Session, export_path: str, title:str, text:str) ->  Tuple[int, str]:
     annotation = Annotation(title=title, text=text)
     session.add(annotation)
     session.commit()

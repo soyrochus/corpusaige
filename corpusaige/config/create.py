@@ -7,18 +7,13 @@ through deep exploration and understanding of comprehensive document sets and so
 @license: MIT
 """
 
-import os
 import sys
 from typing import Any
 from prompt_toolkit.shortcuts import radiolist_dialog
 from prompt_toolkit.styles import Style
 from prompt_toolkit import prompt
-from prompt_toolkit.completion import WordCompleter
 import configparser
 
-from corpusaige.config.read import CorpusConfig, get_config
-from corpusaige.data.db import create_db
-from . import CORPUS_INI, CORPUS_SCRIPTS, CORPUS_STATE_DB, CORPUS_ANNOTATIONS
 
 def radiolist_dialog_with_params(title, text, values) -> str:
     # Model is chosen from a radiolist dialog
@@ -44,7 +39,7 @@ def radiolist_dialog_with_params(title, text, values) -> str:
     return model
 
 
-def prompt_user_for_init(name: str, corpus_path: str = './') -> configparser.ConfigParser:
+def prompt_user_for_init() -> configparser.ConfigParser:
 
     
     # create configparser object

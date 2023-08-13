@@ -15,11 +15,10 @@ import traceback
 from typing import List
 from corpusaige.data.db import init_db
 from corpusaige.providers import create_local_vectordb
-from .corpus import Corpus, StatefullCorpus, create_corpus, ensure_dir_path_exists
+from .corpus import StatefullCorpus, create_corpus, ensure_dir_path_exists
 from .repl import PromptRepl
 from .config.read import CorpusConfig, get_config
 from .config.create import prompt_user_for_init
-from corpusaige import corpus
 from .documentset import DocumentSet
 
 #print error with traceback if DEBUG is True
@@ -55,7 +54,6 @@ def shell(config: CorpusConfig):
     Displays the Corpusaige shell for the given corpus.
     """
     corpus = StatefullCorpus(config)
-    corpus_path = corpus.path
 
     db_state_engine = init_db(corpus.state_db_path)
     PromptRepl(corpus, db_state_engine).run()
@@ -78,7 +76,7 @@ def cli_run():
     add_parser.add_argument('-n', '--name', required=True, help='Name for document set')
     
     # Shell command
-    shell_parser = subparsers.add_parser('shell', help='Display the Corpusaige Shell')
+    subparsers.add_parser('shell', help='Display the Corpusaige Shell')
 
     # Global optional parameter
     parser.add_argument('-p', '--path', default='.', help='Path to corpus (default: current dir)')

@@ -12,6 +12,8 @@ from __future__ import annotations  # hack to avoid error with pytest using OR o
 from enum import Enum
 import os
 from typing import List, Tuple, Union
+
+from corpusaige.exceptions import InvalidParameters
 #from datetime import datetime
 
 
@@ -31,7 +33,7 @@ class FileType(Enum):
         try:
             return cls[s.upper()]
         except KeyError:
-            raise ValueError(f'Invalid FileType: {s}')
+            raise InvalidParameters(f'Invalid FileType: {s}')
 
     @classmethod
     def parse_file_type_ext(cls, file_type_ext: str) ->  Tuple['FileType', str]:
@@ -52,7 +54,7 @@ class FileType(Enum):
         file_extension = os.path.splitext(path)[1]
         fileType = cls.get_file_type(file_extension)
         if fileType is None:
-            raise ValueError(f'Invalid file extension: {file_extension}')
+            raise InvalidParameters(f'Invalid file extension: {file_extension}')
         return fileType
 class Document:
     path:str
@@ -68,7 +70,7 @@ class Document:
         _path = os.path.abspath(path)
         
         if not delay_validation and not os.path.exists(_path):
-            raise ValueError(f'Invalid path: {_path}')
+            raise InvalidParameters(f'Invalid path: {_path}')
         
         _file_type = FileType.parse_type_from_path(_path)
         
@@ -87,7 +89,7 @@ class Entry:
         _path = os.path.abspath(path)
         
         if not delay_validation and not os.path.isdir(_path):
-            raise ValueError(f'Invalid path: {_path}')
+            raise InvalidParameters(f'Invalid path: {_path}')
         
         _file_type, _file_ext = FileType.parse_file_type_ext(file_type_ext)
         

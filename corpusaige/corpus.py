@@ -15,7 +15,9 @@ import sys
 from typing import Any, List, Protocol
 from corpusaige.data.db import create_db
 from corpusaige.documentset import Document, DocumentSet
-from corpusaige.interactions import StatefullInteraction, VectorRepository
+from corpusaige.exceptions import InvalidParameters
+from corpusaige.interactions import StatefullInteraction
+from corpusaige.storage import VectorRepository
 from .config.read import CorpusConfig, get_config
 from corpusaige.config import CORPUS_INI, CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
 from importlib import import_module
@@ -27,35 +29,35 @@ class Corpus(Protocol):
     context_size: int = 4
 
     def send_prompt(self, prompt: str) -> str:
-        pass
+        ...
 
     def add_docset(self, docset: DocumentSet) -> None:
-        pass
+        ...
 
     def add_doc(self, doc: Document) -> None:
-        pass
+        ...
         
     def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
-        pass
+        ...
     
     def store_search(self, search_str: str) -> List[str]:
-        pass
+        ...
 
     #def store_ls(self, set_name: str) -> List[str]:
     def store_ls(self) -> List[str]:
-        pass
+        ...
 
     def toggle_sources(self):
-        pass
+        ...
 
     def get_annotations_path(self) -> str:
-        pass
+        ...
     
     def get_corpus_folder_path(self) -> str:
-        pass    
+        ...    
     
     def run_script(self, script_name: str, *args) -> Any:
-        pass
+        ...
 
 class StatefullCorpus(Corpus):
 
@@ -115,7 +117,7 @@ class StatefullCorpus(Corpus):
             script = import_module(script_name)
             return script.run(self, *args)
         else:
-            raise ValueError(f"Script {script_name} not found in scripts directory")
+            raise InvalidParameters(f"Script {script_name} not found in scripts directory")
     
     def _get_scripts(self):
         scripts = []
@@ -125,7 +127,7 @@ class StatefullCorpus(Corpus):
                 scripts.append(os.path.splitext(file)[0])
         return scripts
     
-def create_corpus(corpus_dir_path: str, config_parser: ConfigParser) -> None:
+def create_corpus(corpus_dir_path: str, config_parser: ConfigParser) -> CorpusConfig:
     
     # write configuration to .ini file
     config_file_path = os.path.join(corpus_dir_path, CORPUS_INI)

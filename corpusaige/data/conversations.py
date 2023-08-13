@@ -9,11 +9,9 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 from sqlalchemy import  func, ForeignKey, select
-from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from datetime import datetime
 from typing import List
 from sqlalchemy.orm import Session
 from .db import Base

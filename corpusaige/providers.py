@@ -16,6 +16,8 @@ from langchain.chat_models import ChatOpenAI
 from langchain.vectorstores import Chroma
 from typing import Any
 
+from corpusaige.exceptions import InvalidConfigEntry
+
 
 def llm_factory(config: CorpusConfig) -> Any:
     if config.llm == "openai":
@@ -49,7 +51,7 @@ def vectorstore_factory(config: CorpusConfig) -> Any:
             vbconfig.get("path", None))  # type: ignore
         connection_string = vbconfig.get("connection-string", None)
         if path is None and connection_string is None:
-            raise ValueError(
+            raise InvalidConfigEntry(
                 "ChromaDb: Either path or connection must be provided")
 
         embedding = embeddings_factory(config)

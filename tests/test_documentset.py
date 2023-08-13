@@ -14,13 +14,14 @@ import pytest
 from pathlib import Path
 
 from corpusaige.documentset import Document, DocumentSet, Entry, FileType
+from corpusaige.exceptions import InvalidParameters
 
 path = Path(__file__).parent.absolute()
 
 def test_from_string():
     assert FileType.from_string('text') == FileType.TEXT
     assert FileType.from_string('msword') == FileType.MSWORD
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidParameters):
         FileType.from_string('unknown')
 
 
@@ -38,7 +39,7 @@ def test_create_Entry():
     assert entry.recursive is True
     
 def test_valid_path():
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidParameters):
         Entry.create_Entry("q:/very/unlikely/to/exist", 'text', True, delay_validation=False)
     
     entry = Entry.create_Entry(path, 'text', True)
@@ -63,7 +64,7 @@ def test_add_entries():
 
 def test_Document_from_path():
     
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidParameters):
         doc = Document.initialize("q:/very/unlikely/to/exist.txt", delay_validation=False)
     
     doc = Document.initialize(os.path.join(path, 'assets/RustBookToC.txt'), delay_validation=False)

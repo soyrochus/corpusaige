@@ -11,20 +11,18 @@ through deep exploration and understanding of comprehensive document sets and so
 import re
 import traceback
 from prompt_toolkit import PromptSession
-from prompt_toolkit.document import Document
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.lexers import PygmentsLexer
 from pygments.lexers import PythonLexer
-import pygments.lexers
 from ast import literal_eval
 from prompt_toolkit.output import create_output
 from sqlalchemy import Engine
 from sqlalchemy.orm.session import Session
 from corpusaige.console_tools import spinner
 from corpusaige.data import annotations, conversations
-from corpusaige.data.conversations import Conversation
 from corpusaige.documentset import DocumentSet
+from corpusaige.exceptions import InvalidParameters
 from .corpus import Corpus
 from prompt_toolkit import prompt
 
@@ -246,7 +244,7 @@ class PromptRepl:
 
     def do_ls(self, *args, cmdtext=None):
         """List documents in the corpus."""
-        print(f"Listing documents from the corpus...")
+        print("Listing documents from the corpus...")
         results = self.corpus.store_ls()
         self.print(list=results, seperator="\n")
 
@@ -292,7 +290,7 @@ class PromptRepl:
             case ('load', id) if is_valid_integer(id):
                 self.load_prompt_for_store(int(id))
             case _:
-                raise ValueError("Invalid command or arguments")
+                raise InvalidParameters("Invalid command or arguments")
     
     def show_conversations(self):
         with Session(self.db_state_engine) as session:
@@ -302,7 +300,7 @@ class PromptRepl:
     
     def show_interactions(self, id:int):
         if id < 0:
-            raise ValueError("Invalid conversation id")
+            raise InvalidParameters("Invalid conversation id")
         with Session(self.db_state_engine) as session:
             conv = conversations.get_conversation_by_id(session, id)
             for interact in conv.interactions:
@@ -310,14 +308,14 @@ class PromptRepl:
     
     def show_interaction(self, id: int):
         if int(id) < 0:
-            raise ValueError("Invalid interaction id")
+            raise InvalidParameters("Invalid interaction id")
         with Session(self.db_state_engine) as session:
             interact = conversations.get_interaction_by_id(session, id)
             self.print(list=[interact.human_question, interact.ai_answer], seperator="\n-----------------------------------------\n")
     
     def load_prompt_for_store(self, id=None):
         if id is None and self.interaction_id is None:
-            raise ValueError("No interaction. Use /conversation load <id> to load an interaction")
+            raise InvalidParameters("No interaction. Use /conversation load <id> to load an interaction")
         elif id is None:
             id = self.interaction_id
         
@@ -356,24 +354,15 @@ Scripys can be added to the corpus by placing them in the scripts folder""")
         #match on <<script_name>> <<*args>> 
         match args:
             case ():
-                raise ValueError("Missing script name")
+                raise InvalidParameters("Missing script name")
             case (script_name, *args) if script_name in self.corpus.scripts:
                 self.corpus.run_script(script_name, *args)
             case _:
-                raise ValueError("Invalid script or arguments")
+                raise InvalidParameters("Invalid script or arguments")
                 
     def do_act(self, *args, cmdtext=None):
         """Let de LLM perform an action (to be approved by the user)"""
         raise NotImplementedError("/act not implemented yet")
-
-#     @detailed_help("""Operation on the cache:
-# Usage: /cache <command>
-#     - keys   <namespace> - get the keys of the given namespace
-#     - get    <id>        - obtain the item with the given id
-#     - delete <id>        - delete the item with the given id""")
-#     def do_cache(self, *args, cmdtext=None):
-#         """Perform operations on the cache (see /help cache for more info)"""
-#         raise NotImplementedError("/cache not implemented yet")
 
     @synonymcommand('debug')
     def do_trace(self, *args, cmdtext=None):
