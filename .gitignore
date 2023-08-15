@@ -176,3 +176,8 @@ test-case/corpus.ini
 test-case/test-book/
 test-case/test-gutenberg/
 test-case/cv/CV*.txt
+
+test-case/*.zip
+tests/assets/test-corpus/
+tests/assets/chromadb.zip
+tests/assets/test-corpus-backup.zip

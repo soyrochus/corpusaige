@@ -8,10 +8,13 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 # Import necessary modules
+import os
 from prompt_toolkit.patch_stdout import patch_stdout
 import threading
 import time
 from contextlib import contextmanager
+from pathlib import Path
+import zipfile
 
 @contextmanager
 def spinner(prompt=""):
@@ -40,3 +43,26 @@ def spinner(prompt=""):
 # Usage:
 #with spinner():
 #    time.sleep(10)  # Or do_long_running_task()
+
+def zip_dir(zip_path: Path, dest_file: Path) -> None:
+    """Zips a directory recursively into a specified zip file name.
+    
+    Args:
+        zip_path (Path): The path of the directory to zip.
+        dest_file (Path): The name of the resulting zip file.
+
+    Returns:
+        None
+    """
+    
+    # Create a zip file (overwrites existing one with the same name)
+    
+    with zipfile.ZipFile(dest_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        # Walk the directory
+        for root, _, files in os.walk(zip_path):
+            for file in files:
+                file_path = Path(root) / file
+                # Make the archive names relative to the input directory
+                arcname = file_path.relative_to(zip_path)
+                zipf.write(file_path, arcname)
+

@@ -7,15 +7,14 @@ through deep exploration and understanding of comprehensive document sets and so
 @license: MIT
 """
 
+from pathlib import Path
 from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import DeclarativeBase  
+from corpusaige.data import Base
+from corpusaige.data.conversations import Interaction, Conversation # noqa: F401 - ignore Not used
+from corpusaige.data.annotations import Annotation # noqa: F401 - ignore Not Used 
 
 
-class Base(DeclarativeBase):
-    pass
-
-
-def create_db(path)-> Engine:
+def create_db(path: Path)-> Engine:
     # Connect to the database. If it doesn't exist, it will be created.
     engine = create_engine(f'sqlite:///{path}')
 
@@ -24,7 +23,7 @@ def create_db(path)-> Engine:
     
     return engine
 
-def init_db(path)-> Engine:
+def init_db(path: Path)-> Engine:
     # Connect to the database
     engine = create_engine(f'sqlite:///{path}')
     
@@ -33,4 +32,4 @@ def init_db(path)-> Engine:
 
 if __name__ == "__main__":
     import sys
-    create_db(sys.argv[1])
+    create_db(Path(sys.argv[1]))

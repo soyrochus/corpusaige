@@ -14,7 +14,7 @@ from sqlalchemy import  func, ForeignKey, select
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import List
 from sqlalchemy.orm import Session
-from .db import Base
+from corpusaige.data import Base
 
 class Interaction(Base):
     __tablename__ = "interaction"

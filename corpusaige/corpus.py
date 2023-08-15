@@ -9,7 +9,6 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 from configparser import ConfigParser
-import os
 from pathlib import Path
 import sys
 from typing import Any, List, Protocol
@@ -50,10 +49,16 @@ class Corpus(Protocol):
     def toggle_sources(self):
         ...
 
-    def get_annotations_path(self) -> str:
+    @property
+    def state_db_path(self) -> Path:
         ...
     
-    def get_corpus_folder_path(self) -> str:
+    @property
+    def annotations_path(self) -> Path:
+        ...
+    
+    @property
+    def corpus_folder_path(self) -> Path:
         ...    
     
     def run_script(self, script_name: str, *args) -> Any:
@@ -75,11 +80,19 @@ class StatefullCorpus(Corpus):
         
         self.scripts = self._get_scripts()
         #set import path to corpus scripts folder
-        sys.path.append(os.path.join(self.get_corpus_folder_path(), CORPUS_SCRIPTS))
+        sys.path.append(str(self.corpus_folder_path / CORPUS_SCRIPTS))
 
     @property
-    def state_db_path(self) -> str:
-        return os.path.join(os.path.dirname(self.path), CORPUS_STATE_DB)
+    def state_db_path(self) -> Path:
+        return self.path.parent / CORPUS_STATE_DB
+    
+    @property
+    def annotations_path(self) -> Path:
+        return self.corpus_folder_path / CORPUS_ANNOTATIONS
+    
+    @property
+    def corpus_folder_path(self) -> Path:
+        return self.path.parent
     
     def send_prompt(self, prompt: str) -> str :
         return self.interaction.send_prompt(prompt, self.show_sources, self.context_size)
@@ -100,17 +113,10 @@ class StatefullCorpus(Corpus):
     def store_ls(self) -> List[str]:
         return self.repository.ls()
 
-    def get_annotations_path(self) -> str:
-        return os.path.join(self.get_corpus_folder_path(), CORPUS_ANNOTATIONS)
-    
-    def get_corpus_folder_path(self) -> str:
-        return os.path.dirname(self.path)    
-    
     def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
-        path = os.path.join(self.get_annotations_path(),annotation_file)
+        path = self.annotations_path / annotation_file
         self.add_doc(Document.initialize(path, annotation_docset_name))
         
-    
     def run_script(self, script_name: str, *args: List[str]) -> Any:
         
         if script_name in self.scripts:
@@ -121,23 +127,23 @@ class StatefullCorpus(Corpus):
     
     def _get_scripts(self):
         scripts = []
-        for file in os.listdir(os.path.join(self.get_corpus_folder_path(), CORPUS_SCRIPTS)):
-            if file.endswith(".py"):
+        for file in (self.corpus_folder_path / CORPUS_SCRIPTS).iterdir():
+            if file.suffix == '.py':
                 #append file name whthout extension to scripts list
-                scripts.append(os.path.splitext(file)[0])
+                scripts.append(file.stem)
         return scripts
     
-def create_corpus(corpus_dir_path: str, config_parser: ConfigParser) -> CorpusConfig:
+def create_corpus(corpus_dir_path: Path, config_parser: ConfigParser) -> CorpusConfig:
     
     # write configuration to .ini file
-    config_file_path = os.path.join(corpus_dir_path, CORPUS_INI)
+    config_file_path = corpus_dir_path /CORPUS_INI
     with open(config_file_path, 'w') as configfile:
         config_parser.write(configfile)
 
     #create db file in corpus
-    db_file_path = os.path.join(corpus_dir_path, CORPUS_STATE_DB)
-    annotations_path = os.path.join(corpus_dir_path, CORPUS_ANNOTATIONS)
-    scripts_path = os.path.join(corpus_dir_path, CORPUS_SCRIPTS)
+    db_file_path = corpus_dir_path / CORPUS_STATE_DB
+    annotations_path = corpus_dir_path / CORPUS_ANNOTATIONS
+    scripts_path = corpus_dir_path /CORPUS_SCRIPTS
     
     create_db(db_file_path)
     ensure_dir_path_exists(annotations_path)
@@ -145,10 +151,10 @@ def create_corpus(corpus_dir_path: str, config_parser: ConfigParser) -> CorpusCo
     
     return get_config(config_file_path)
     
-def ensure_dir_path_exists(path):
+def ensure_dir_path_exists(path: Path):
     """
     Ensures that the directory at the given path exists.
     If the directory does not exist, it is created.
     """
-    if not os.path.exists(path):
-        os.makedirs(path)
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)

@@ -14,6 +14,7 @@ through deep exploration and understanding of comprehensive document sets and so
 
 import configparser
 import os
+from pathlib import Path
 import pytest
 from corpusaige.config import CORPUS_SCRIPTS
 
@@ -46,24 +47,24 @@ def run(corpus, *args):
 
 @pytest.fixture(scope="session")
 def corpus_dir(tmpdir_factory):
-    corpus_dir_path = tmpdir_factory.mktemp("corpus")
+    corpus_dir_path = Path(tmpdir_factory.mktemp("corpus"))
     config_p = configparser.ConfigParser()
     config_p.read_string(corpus_ini_str)
     config = create_corpus(corpus_dir_path, config_p)
     
-    with open(os.path.join(corpus_dir_path, CORPUS_SCRIPTS, 'simple_test_script.py'), 'w') as f:
+    with open(corpus_dir_path / CORPUS_SCRIPTS / 'simple_test_script.py', 'w') as f:
         f.write(test_script_str)
         
     return corpus_dir_path
     
-def test_create_corpus(corpus_dir:str):
+def test_create_corpus(corpus_dir:Path):
     config = get_config(corpus_dir)
     assert config.main['name'] == "Test Corpus"
     assert config.main['llm'] == "openai"
     
-    assert os.path.exists(os.path.join(corpus_dir, 'corpus-state.db'))
-    assert os.path.exists(os.path.join(corpus_dir, 'annotations'))
-    assert os.path.exists(os.path.join(corpus_dir, 'scripts'))
+    assert (corpus_dir / 'corpus-state.db').exists()
+    assert (corpus_dir / corpus_dir / 'annotations').exists()
+    assert (corpus_dir / corpus_dir / 'scripts').exists()
 
 def test_run_script(corpus_dir):
     corpus = StatefullCorpus(get_config(corpus_dir))

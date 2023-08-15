@@ -11,7 +11,7 @@ import os
 from sqlalchemy import select, func
 from sqlalchemy.orm import mapped_column, Mapped, Session
 from typing import Tuple
-from .db import Base
+from corpusaige.data import Base
 from datetime import datetime
 
 

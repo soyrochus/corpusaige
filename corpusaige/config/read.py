@@ -9,7 +9,6 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 import configparser
-import os
 from pathlib import Path
 from typing import Dict, TypeAlias
 
@@ -19,8 +18,12 @@ from ..exceptions import InvalidConfigSection
 
 ConfigEntries : TypeAlias = Dict[str,str]
 class CorpusConfig:
-
-    def __init__(self, config_path: str):
+    config_path: Path
+    config: configparser.ConfigParser
+    
+    def __init__(self, config_path: Path | str):
+        if isinstance(config_path, str):
+            config_path = Path(config_path)
         self.config_path = Path(config_path).absolute()
         self.config = configparser.ConfigParser()
         self.config.read(self.config_path)
@@ -52,14 +55,16 @@ class CorpusConfig:
         else: 
             return dict(entries.items())
 
-    def resolve_path_to_config(self, path: str) -> str:
-        if os.path.exists(path):
-            return os.path.abspath(path)
+    def resolve_path_to_config(self, path: str | Path) -> Path:
+        if isinstance(path, str):
+            path = Path(path)   
+        if path.exists():
+            return path.absolute()
         else:
-            return os.path.abspath(os.path.join(self.get_config_dir(), path))
+            return (self.get_config_dir() / path).absolute()
     
-    def get_config_dir(self) -> str:
-        return os.path.dirname(self.config_path)
+    def get_config_dir(self) -> Path:
+        return self.config_path.parent
     
     def get_all_data_section_configs(self) -> Dict[str, ConfigEntries]:
         configs: dict[str, ConfigEntries] = {}
@@ -67,14 +72,17 @@ class CorpusConfig:
             configs[key] = dict(value.items())
         return configs
 
-def get_config(config_path: str) -> CorpusConfig:
+def get_config(config_path: str | Path) -> CorpusConfig:
    
-    if os.path.isdir(config_path):
-        config_path = os.path.join(config_path, CORPUS_INI)
+    if isinstance(config_path, str):
+        config_path = Path(config_path)
+        
+    if config_path.is_dir():
+        config_path = config_path / CORPUS_INI
     
-    config_path = os.path.abspath(config_path)
+    config_path = config_path.absolute()
     
-    if not os.path.exists(config_path):
+    if not config_path.exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
 
     return CorpusConfig(config_path)

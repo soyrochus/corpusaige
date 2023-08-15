@@ -44,7 +44,7 @@ class VectorRepository(Repository):
                 
             text_splitter = RecursiveCharacterTextSplitter (chunk_size=1000, chunk_overlap=200)
             # Load text data from a file using TextLoader
-            loader = TextLoader(doc.path)
+            loader = TextLoader(str(doc.path))
             res = loader.load()
             document = None
             if len(res) > 0:
@@ -67,7 +67,7 @@ class VectorRepository(Repository):
             if entry.file_type == FileType.TEXT:
                 
                 text_splitter = RecursiveCharacterTextSplitter (chunk_size=1000, chunk_overlap=200)
-                loader = DirectoryLoader(entry.path, self.get_glob(entry))
+                loader = DirectoryLoader(str(entry.path), self.get_glob(entry))
                 docs = loader.load()
                 for doc in docs:
                     doc.metadata['doc-set'] = doc_set.name

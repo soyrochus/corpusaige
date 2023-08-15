@@ -56,7 +56,7 @@ def vectorstore_factory(config: CorpusConfig) -> Any:
 
         embedding = embeddings_factory(config)
         if path:
-            vectordb = Chroma(persist_directory=path,
+            vectordb = Chroma(persist_directory=str(path),
                               embedding_function=embedding)
             return vectordb
         else:
@@ -75,7 +75,7 @@ def create_local_vectordb(config: CorpusConfig) -> None:
         vbconfig: ConfigEntries = config.get_vector_db_config()
         path = config.resolve_path_to_config(
             vbconfig.get("path", None))   # type: ignore
-        vectordb = Chroma(persist_directory=path)
+        vectordb = Chroma(persist_directory=str(path))
         vectordb.persist()
     else:
         raise NotImplementedError(

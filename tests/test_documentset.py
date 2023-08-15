@@ -40,7 +40,7 @@ def test_create_Entry():
     
 def test_valid_path():
     with pytest.raises(InvalidParameters):
-        Entry.create_Entry("q:/very/unlikely/to/exist", 'text', True, delay_validation=False)
+        Entry.create_Entry(Path("q:/very/unlikely/to/exist"), 'text', True, delay_validation=False)
     
     entry = Entry.create_Entry(path, 'text', True)
     assert entry.path == path
@@ -54,7 +54,7 @@ def test_add_entry():
 
 def test_add_entries():
     doc_set = DocumentSet('Test Set')
-    entries = [Entry.create_Entry(f'{path}{i}', 'text', True, delay_validation=True) for i in range(3)]
+    entries = [Entry.create_Entry(Path(f'{path}{i}'), 'text', True, delay_validation=True) for i in range(3)]
     doc_set.add_entries(entries)
     assert doc_set.entries == entries
 
@@ -65,9 +65,9 @@ def test_add_entries():
 def test_Document_from_path():
     
     with pytest.raises(InvalidParameters):
-        doc = Document.initialize("q:/very/unlikely/to/exist.txt", delay_validation=False)
+        doc = Document.initialize(Path("q:/very/unlikely/to/exist.txt"), delay_validation=False)
     
-    doc = Document.initialize(os.path.join(path, 'assets/RustBookToC.txt'), delay_validation=False)
+    doc = Document.initialize(path / 'assets/RustBookToC.txt', delay_validation=False)
     assert doc.file_type == FileType.TEXT
     lines = open(doc.path, 'r').readlines()   
     assert lines[0] == 'The chapters in "The Rust Programming Language" book are:\n'

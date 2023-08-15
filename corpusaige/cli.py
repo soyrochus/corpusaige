@@ -9,7 +9,7 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 import argparse
-import os
+from pathlib import Path
 import sys
 import traceback
 from typing import List
@@ -25,11 +25,11 @@ from .documentset import DocumentSet
 DEBUG = True
 #DEBUG = False
 
-def new_corpus(name: str, path: str):
+def new_corpus(name: str, path: Path):
     """
     Creates a new corpus using a wizzard
     """
-    corpus_path = os.path.abspath(os.path.join(path, name))
+    corpus_path = (path / name).absolute()
     ensure_dir_path_exists(corpus_path)
     config_parser = prompt_user_for_init()
     print(f"Creating new corpus {name} at {corpus_path}")
@@ -40,7 +40,7 @@ def new_corpus(name: str, path: str):
     print(f"\nCorpus {name} created successfully in {corpus_path}.")
     print("Please add files to the corpus using the 'add' command.")
 
-def add_docset(config: CorpusConfig, name: str, doc_paths: List[str], doc_types: List[str], recursive: bool):
+def add_docset(config: CorpusConfig, name: str, doc_paths: List[Path | str], doc_types: List[str], recursive: bool):
     """
     Adds files of the given type(s) and path/glob to the corpus.
     """

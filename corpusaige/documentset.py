@@ -10,7 +10,7 @@ from __future__ import annotations  # hack to avoid error with pytest using OR o
 
 # Import necessary modules
 from enum import Enum
-import os
+from pathlib import Path
 from typing import List, Tuple, Union
 
 from corpusaige.exceptions import InvalidParameters
@@ -49,46 +49,46 @@ class FileType(Enum):
         return map.get(ext, None)
         
     @classmethod
-    def parse_type_from_path(cls, path: str) -> 'FileType':
+    def parse_type_from_path(cls, path: Path) -> 'FileType':
         #determine FileType from file extension
-        file_extension = os.path.splitext(path)[1]
+        file_extension = path.suffix
         fileType = cls.get_file_type(file_extension)
         if fileType is None:
             raise InvalidParameters(f'Invalid file extension: {file_extension}')
         return fileType
 class Document:
-    path:str
+    path:Path
     file_type: FileType
     
-    def __init__(self, path: str, file_type: FileType):
+    def __init__(self, path: Path, file_type: FileType):
         self.path = path
         self.file_type  = file_type
         
     @staticmethod
-    def initialize(path: str, delay_validation=False) -> 'Document':
+    def initialize(path: Path, delay_validation=False) -> 'Document':
         
-        _path = os.path.abspath(path)
+        _path = path.absolute()
         
-        if not delay_validation and not os.path.exists(_path):
+        if not delay_validation and not _path.exists():
             raise InvalidParameters(f'Invalid path: {_path}')
         
         _file_type = FileType.parse_type_from_path(_path)
         
-        return Document(path,_file_type)
+        return Document(_path, _file_type)
     
 class Entry:
-    def __init__(self, path: str, file_type: FileType, file_extension: str, recursive: bool):
+    def __init__(self, path: Path, file_type: FileType, file_extension: str, recursive: bool):
         self.path = path
         self.file_type = file_type
         self.file_extension = file_extension
         self.recursive = recursive
         
     @staticmethod
-    def create_Entry(path: str, file_type_ext: str, recursive: bool, delay_validation=False) -> 'Entry':
+    def create_Entry(path: Path, file_type_ext: str, recursive: bool, delay_validation=False) -> 'Entry':
         
-        _path = os.path.abspath(path)
+        _path = path.absolute() 
         
-        if not delay_validation and not os.path.isdir(_path):
+        if not delay_validation and not _path.is_dir():
             raise InvalidParameters(f'Invalid path: {_path}')
         
         _file_type, _file_ext = FileType.parse_file_type_ext(file_type_ext)
@@ -111,9 +111,11 @@ class DocumentSet:
             self.add_entry(entries)
             
     @classmethod
-    def initialize(cls, name: str, doc_paths: List[str], doc_types: List[str], recursive: bool)-> 'DocumentSet':
+    def initialize(cls, name: str, doc_paths: List[str | Path], doc_types: List[str], recursive: bool)-> 'DocumentSet':
         docset = DocumentSet(name)
         for doc_path in doc_paths:
+            if isinstance(doc_path, str):
+                doc_path = Path(doc_path)
             for doc_type in doc_types:
                 docset.add_entry(Entry.create_Entry(doc_path, doc_type, recursive))
         return docset
