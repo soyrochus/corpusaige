@@ -114,8 +114,8 @@ class DocumentSet:
     def initialize(cls, name: str, doc_paths: List[str | Path], doc_types: List[str], recursive: bool)-> 'DocumentSet':
         docset = DocumentSet(name)
         for doc_path in doc_paths:
-            if isinstance(doc_path, str):
-                doc_path = Path(doc_path)
+            #if isinstance(doc_path, str):
+            doc_path = Path(doc_path)
             for doc_type in doc_types:
                 docset.add_entry(Entry.create_Entry(doc_path, doc_type, recursive))
         return docset

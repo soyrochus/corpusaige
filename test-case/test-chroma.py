@@ -55,7 +55,7 @@ def test_chroma():
     print(f"There are {db._collection.count()} docs in the collection")
     
 def test_write_corpusaige():
-    _test_path = os.path.join(path, 'test-single-file')
+    _test_path = path / 'test-single-file'
     config = get_config(_test_path)
     name="test-corpus"
     doc_paths = [_test_path]
@@ -65,7 +65,7 @@ def test_write_corpusaige():
     corpusdata.add_docset(docset)
     
 def test_read_corpusaige():
-    _test_path = os.path.join(path, 'test-single-file')
+    _test_path = path / 'test-single-file'
     config = get_config(_test_path)
     corpus = CorpusReader(config)
     corpus.send_prompt("What is the prelude?", show_sources=True, print_output=True)

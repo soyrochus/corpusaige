@@ -334,7 +334,7 @@ class PromptRepl:
             title = strip_invalid_file_chars(title)
             
             with Session(self.db_state_engine) as session:    
-                annotation_id, stored_file = annotations.add_annotation(session, self.corpus.get_annotations_path(), title, cmdtext)
+                annotation_id, stored_file = annotations.add_annotation(session, self.corpus.annotations_path, title, cmdtext)
                 self.corpus.store_annotation('Corpusaige annotations', stored_file)
                 print(f"Stored annotation in: {stored_file} and vector db")
 

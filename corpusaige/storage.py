@@ -18,6 +18,8 @@ from corpusaige.providers import vectorstore_factory
 class Repository(Protocol):
     def add_docset(self, docset: DocumentSet):
         ...
+    def remove_docset(self, docset_name: str):
+        ...
     def add_doc(self, doc: Document):
         ...
     def search(self, search_str: str, results_num:int) -> List[str]:
@@ -80,6 +82,9 @@ class VectorRepository(Repository):
         self.vectorstore.add_documents(chunks)
         self.vectorstore.persist()
 
+    def remove_docset(self, docset_name: str):
+        pass #self.vectorstore.remove_docset(docset_name)
+        
     def search(self, search_str: str, results_num: int) -> List[str]:
         result = self.vectorstore.similarity_search(search_str, k=results_num)
         #return [doc.page_content for doc in result]

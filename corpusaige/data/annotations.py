@@ -13,6 +13,7 @@ from sqlalchemy.orm import mapped_column, Mapped, Session
 from typing import Tuple
 from corpusaige.data import Base
 from datetime import datetime
+from pathlib import Path
 
 
 class Annotation(Base):
@@ -27,15 +28,15 @@ class Annotation(Base):
     def __repr__(self):
         return f"<Annotation(id={self.id!r}, text={self.title!r})>"
     
-    def export(self, path:str) -> Tuple[int, str]:
+    def export(self, path: Path) -> Tuple[int, str]:
         fname = f"{self.title}.txt"
         
-        with open(os.path.join(path, fname), "w") as f:
+        with open((path / fname), "w") as f:
                 f.write(self.text)
                 f.close()
         return self.id, fname
             
-def add_annotation(session: Session, export_path: str, title:str, text:str) ->  Tuple[int, str]:
+def add_annotation(session: Session, export_path: Path, title:str, text:str) ->  Tuple[int, str]:
     annotation = Annotation(title=title, text=text)
     session.add(annotation)
     session.commit()

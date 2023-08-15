@@ -17,6 +17,7 @@ from corpusaige.data import annotations, conversations
 from corpusaige.data.conversations import Base, Conversation, Interaction
 from sqlalchemy import select
 import tempfile
+from pathlib import Path
 
 def fill_database(session):
     # Add test data to the session
@@ -87,9 +88,9 @@ def test_add_conversation(session):
 
 def test_add_annotation(session):
     #get temporary directory path
-    path = tempfile.gettempdir()
+    path = Path(tempfile.gettempdir())
     id, name = annotations.add_annotation(session, path,  'Title of the Annotation', 'This is the text of the annotation')
-    assert os.path.exists(os.path.join(path, name))
+    assert (path / name).exists()
     
     annot = annotations.get_annotation_by_id(session, id)
     assert annot.title == 'Title of the Annotation'

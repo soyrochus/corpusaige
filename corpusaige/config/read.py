@@ -22,9 +22,10 @@ class CorpusConfig:
     config: configparser.ConfigParser
     
     def __init__(self, config_path: Path | str):
-        if isinstance(config_path, str):
-            config_path = Path(config_path)
-        self.config_path = Path(config_path).absolute()
+        #if isinstance(config_path, str):
+        config_path = Path(config_path)
+        #self.config_path = Path(config_path).absolute()
+        self.config_path = config_path.absolute()
         self.config = configparser.ConfigParser()
         self.config.read(self.config_path)
         
@@ -56,8 +57,8 @@ class CorpusConfig:
             return dict(entries.items())
 
     def resolve_path_to_config(self, path: str | Path) -> Path:
-        if isinstance(path, str):
-            path = Path(path)   
+        #if isinstance(path, str):
+        path = Path(path)   
         if path.exists():
             return path.absolute()
         else:
@@ -74,8 +75,8 @@ class CorpusConfig:
 
 def get_config(config_path: str | Path) -> CorpusConfig:
    
-    if isinstance(config_path, str):
-        config_path = Path(config_path)
+    #if isinstance(config_path, str):
+    config_path = Path(config_path)
         
     if config_path.is_dir():
         config_path = config_path / CORPUS_INI
