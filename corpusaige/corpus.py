@@ -33,6 +33,9 @@ class Corpus(Protocol):
     def add_docset(self, docset: DocumentSet) -> None:
         ...
 
+    def remove_docset(self, docset_name: str) -> None:
+        ...
+           
     def add_doc(self, doc: Document) -> None:
         ...
         
@@ -43,7 +46,7 @@ class Corpus(Protocol):
         ...
 
     #def store_ls(self, set_name: str) -> List[str]:
-    def store_ls(self) -> List[str]:
+    def ls_docs(self, all_docs: bool = False, doc_set:str = '') -> List[str]:
         ...
 
     def toggle_sources(self):
@@ -103,15 +106,18 @@ class StatefullCorpus(Corpus):
     def add_docset(self, docset: DocumentSet) -> None:
         self.repository.add_docset(docset)
 
+    def remove_docset(self, docset_name: str) -> None:
+        self.repository.remove_docset(docset_name)
+
     def add_doc(self, doc: Document) -> None:
         self.repository.add_doc(doc)
         
     def store_search(self, search_str: str) -> List[str]:
         return self.repository.search(search_str, self.context_size)
 
-    #def store_ls(self, docset_name=None) -> List[str]:
-    def store_ls(self) -> List[str]:
-        return self.repository.ls()
+    def ls_docs(self, all_docs: bool = False, doc_set:str = '') -> List[str]:
+        
+        return self.repository.ls(all_docs, doc_set)
 
     def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
         path = self.annotations_path / annotation_file

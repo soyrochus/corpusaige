@@ -83,8 +83,12 @@ class PromptRepl:
     session: PromptSession
     commands: dict
 
-    def __init__(self, corpus: Corpus, db_state_engine: Engine ):
+    def __init__(self, corpus: Corpus, db_state_engine: Engine, DEBUG=False ):
         
+        if DEBUG:
+            import builtins
+            builtins._shell = self  # type: ignore
+            
         self.title = f"Session: {corpus.name} - path: {corpus.path}"
         self.commands = self.get_commands()
         self.all_commands = self.get_all_commands()
@@ -242,10 +246,24 @@ class PromptRepl:
             self.corpus.context_size = int(num)
             print(f"Number of items in context set to {self.corpus.context_size}")
 
+    @detailed_help("""Usage: /ls          - List document sets in the corpus
+       /ls [docset] - List documents in the document set            
+       /ls    *     - List all documents in the corpus""")
+    @synonymcommand("dir")
     def do_ls(self, *args, cmdtext=None):
         """List documents in the corpus."""
-        print("Listing documents from the corpus...")
-        results = self.corpus.store_ls()
+        
+        match args:
+            case ():
+                print("Listing doc-sets from the corpus...")
+                results = self.corpus.ls_docs(all_docs=False, doc_set='')
+            case ('*',) :
+                print("Listing all documents from the corpus...")
+                results = self.corpus.ls_docs(all_docs=True, doc_set='')
+            case _:
+                print("Listing documents from the given doc-set...")
+                results = self.corpus.ls_docs(all_docs=False,doc_set=cmdtext)
+        
         self.print(list=results, seperator="\n")
 
     @detailed_help("Usage: /search <text>")
@@ -342,9 +360,15 @@ class PromptRepl:
         """Update document set in the corpus"""
         raise NotImplementedError("/update not implemented yet")
 
+    @detailed_help("""Usage: /remove <doc-set-name>""") 
+    @synonymcommand("del", "rm")
     def do_remove(self, *args, cmdtext=None):
         """Remove document set from the corpus"""
-        raise NotImplementedError("/remove not implemented yet")
+        if cmdtext is None or cmdtext.strip() == "":
+            raise InvalidParameters("No document set name specified")
+        else:
+            self.corpus.remove_docset(cmdtext)
+        
 
     @detailed_help("""Usage: /run <script_name> <<*args>>
 Scripys can be added to the corpus by placing them in the scripts folder""")  

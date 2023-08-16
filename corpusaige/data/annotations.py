@@ -7,7 +7,6 @@ through deep exploration and understanding of comprehensive document sets and so
 @license: MIT
 """
 
-import os
 from sqlalchemy import select, func
 from sqlalchemy.orm import mapped_column, Mapped, Session
 from typing import Tuple

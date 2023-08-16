@@ -24,9 +24,9 @@ class Repository(Protocol):
         ...
     def search(self, search_str: str, results_num:int) -> List[str]:
         ...
-    def ls(self) -> List[str]:
+    def ls(self, all_docs: bool = False, doc_set:str = '') -> List[str]:
         ...
-    
+        
 class VectorRepository(Repository):
     def __init__(self, config: CorpusConfig):
         self.config = config
@@ -83,22 +83,35 @@ class VectorRepository(Repository):
         self.vectorstore.persist()
 
     def remove_docset(self, docset_name: str):
-        pass #self.vectorstore.remove_docset(docset_name)
+        #verify that docset exists
+        if len(self.vectorstore.get(where={'doc-set': docset_name})['ids']) > 0:
+            #cannot use vectorstore.delete(), have to resort to direct access to the collection
+            self.vectorstore._collection.delete(where={'doc-set': docset_name})
+        else:
+            raise InvalidParameters(f"Could not find document set '{docset_name}'")
         
     def search(self, search_str: str, results_num: int) -> List[str]:
         result = self.vectorstore.similarity_search(search_str, k=results_num)
         #return [doc.page_content for doc in result]
         return ["\n\n".join([doc.metadata['source'],doc.page_content]) for doc in result]
     
-    #def ls(self, set_name: str | None) -> List[str]:
-    def ls(self) -> List[str]:
-        # Where clause not in version of Chroma in use
-        # if set_name:
-        #     result = self.vectorstore.get(where={'doc-set', set_name})
-        # else:
-        result = self.vectorstore.get()
+    def ls(self, all_docs: bool = False, doc_set:str = '') -> List[str]:
+        result = None
+        if all_docs:
+            result = self.vectorstore.get()
+            sources = [metadata['source'] for metadata in result['metadatas']]
+            #remove duplicates from list
+            return list(dict.fromkeys(sources))
+        elif not all_docs and not doc_set:
+            result = self.vectorstore.get()
+            doc_sets = [metadata['doc-set'] for metadata in result['metadatas']]
+            #remove duplicates from list
+            return list(dict.fromkeys(doc_sets))
+        else: 
+            result = self.vectorstore.get(where={'doc-set': doc_set})
+            sources = [metadata['source'] for metadata in result['metadatas']]
+            #remove duplicates from list
+            return list(dict.fromkeys(sources))
             
-        sources = [metadata['source'] for metadata in result['metadatas']]
-        #remove duplicates from list
-        return list(dict.fromkeys(sources))
-    
+        
+        
