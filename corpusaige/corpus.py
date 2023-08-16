@@ -109,8 +109,8 @@ class StatefullCorpus(Corpus):
     def remove_docset(self, docset_name: str) -> None:
         self.repository.remove_docset(docset_name)
 
-    def add_doc(self, doc: Document) -> None:
-        self.repository.add_doc(doc)
+    def add_doc(self, doc: Document, docset_name: str) -> None:
+        self.repository.add_doc(doc, docset_name)
         
     def store_search(self, search_str: str) -> List[str]:
         return self.repository.search(search_str, self.context_size)
@@ -121,7 +121,7 @@ class StatefullCorpus(Corpus):
 
     def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
         path = self.annotations_path / annotation_file
-        self.add_doc(Document.initialize(path, annotation_docset_name))
+        self.add_doc(Document.initialize(path),  annotation_docset_name)
         
     def run_script(self, script_name: str, *args: List[str]) -> Any:
         

@@ -263,7 +263,7 @@ class PromptRepl:
             case _:
                 print("Listing documents from the given doc-set...")
                 results = self.corpus.ls_docs(all_docs=False,doc_set=cmdtext)
-        
+        results.sort()
         self.print(list=results, seperator="\n")
 
     @detailed_help("Usage: /search <text>")
