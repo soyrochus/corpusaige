@@ -12,6 +12,7 @@ through deep exploration and understanding of comprehensive document sets and so
 from collections import deque
 import tkinter as tk
 from tkinter import scrolledtext, Menu, messagebox
+from tkinter import font
 
 from corpusaige.protocols import Printer
 from corpusaige.ui.repl import PromptRepl
@@ -45,6 +46,20 @@ class GuiApp(Printer):
             'input_bg': '#FFFFFF',
             'button_bg': '#CCCCCC'
         }
+        
+        # List fonts in order of preference.
+        import platform
+        match platform.system():
+            case "Windows":
+                font_family = 'Consolas'
+            case "Darwin": # MacOS
+                font_family = 'Menlo'
+            case "Linux":
+                font_family = 'Monospace'
+            case _:
+                font_family = 'Monospace'
+
+        self.text_font = font.Font(family=font_family, size=14)
 
         # Menu bar
         menubar = Menu(root)
@@ -93,11 +108,11 @@ class GuiApp(Printer):
         self.root.grid_columnconfigure(1, weight=1)
 
         # Output TextBox
-        self.output_box = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, state=tk.DISABLED)
+        self.output_box = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, state=tk.DISABLED, font=self.text_font)
         self.output_box.grid(row=0, column=0, columnspan=2, sticky='nsew')
 
         # Input TextBox
-        self.input_box = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, height=5)
+        self.input_box = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, height=5, font=self.text_font)
         self.input_box.grid(row=1, column=0, sticky='nsew')
         self.input_box.bind('<Alt-Return>', lambda event: self.send_message())
         self.input_box.bind('<Escape><Return>', lambda event: self.send_message())
