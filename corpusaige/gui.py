@@ -9,6 +9,7 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 
+from collections import deque
 import tkinter as tk
 from tkinter import scrolledtext, Menu, messagebox
 from corpusaige.config.read import get_config
@@ -80,9 +81,10 @@ class GuiApp(Printer):
     def on_first_show(self, event):
         self.root.unbind('<Map>')
         self.print("Welcome to the Corpusaige shell\n")
-        self.print("Use 'Send' button or press Alt+Enter or CTRL-Enter to send command or prompt.")
-        self.print("Use /exit or /quit to quit the shell.")
-        self.print("Use /help or /? to get full list commands.\n") #\nUse TAB to autocomplete commands.\n")
+        self.print("Use: - 'Send' button or press Alt+Enter or CTRL-Enter to send command or prompt.")
+        self.print("     - the CTRL-Up and CTRL-Down keys for command history")
+        self.print("     - /exit or /quit to quit the shell.")
+        self.print("     - /help or /? to get full list commands.\n") #\nUse TAB to autocomplete commands.\n")
 
         self.print(self.repl.title)
         
@@ -109,10 +111,24 @@ class GuiApp(Printer):
 
         #self.set_mode('dark')  # Default to dark mode
         self.set_mode('light')  # Default to light mode
+        
+        # Command history and index initialization
+        self.command_history = deque(maxlen=20)  # Let's say we keep the last 10 commands
+        self.command_index = -1
+
+        # Key bindings for command history navigation
+        self.input_box.bind('<Control-Up>', self.prev_command)
+        self.input_box.bind('<Control-Down>', self.next_command)
 
     def send_message(self):
         # Retrieve input, clear the input box, and append to output
         user_input = self.input_box.get("1.0", tk.END).strip()
+        
+        if user_input:  # Avoid adding empty strings to history
+            self.command_history.append(user_input)
+        self.command_index = -1
+        
+        
         self.print("Prompt: " + user_input)
         self.input_box.delete("1.0", tk.END)
 
@@ -131,6 +147,26 @@ class GuiApp(Printer):
         except EOFError:
                 print("Exiting the shell...")
                 self.root.quit()
+    
+    def prev_command(self, event=None):
+        """Navigate to the previous command in the history."""
+        if self.command_history and self.command_index < len(self.command_history) - 1:
+            self.command_index += 1
+            command = self.command_history[-(self.command_index + 1)]  # Get command from the end of the list
+            self.input_box.delete("1.0", tk.END)
+            self.input_box.insert(tk.END, command)
+
+    def next_command(self, event=None):
+        """Navigate to the next command in the history."""
+        if self.command_history and self.command_index > 0:
+            self.command_index -= 1
+            command = self.command_history[-(self.command_index + 1)]
+            self.input_box.delete("1.0", tk.END)
+            self.input_box.insert(tk.END, command)
+        elif self.command_history and self.command_index == 0:  # At the start of the history, clear the input box
+            self.command_index = -1
+            self.input_box.delete("1.0", tk.END)
+    
             
     def append_to_output(self, message):
         self.output_box.config(state=tk.NORMAL)
