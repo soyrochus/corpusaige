@@ -10,21 +10,18 @@ through deep exploration and understanding of comprehensive document sets and so
 # Import necessary modules
 import re
 import traceback
-from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.patch_stdout import patch_stdout
-from prompt_toolkit.lexers import PygmentsLexer
+
 from pygments.lexers import PythonLexer
 from ast import literal_eval
-from prompt_toolkit.output import create_output
 from sqlalchemy import Engine
 from sqlalchemy.orm.session import Session
 from corpusaige.console_tools import spinner
 from corpusaige.data import annotations, conversations
 from corpusaige.documentset import DocumentSet
 from corpusaige.exceptions import InvalidParameters
+from corpusaige.protocols import Printer
 from .corpus import Corpus
-from prompt_toolkit import prompt
+
 
 
 def synonymcommand(*synonyms):
@@ -39,23 +36,8 @@ def detailed_help(help_text):
         return func
     return decorator
 
-def get_terminal_size():
-    output = create_output()
-    size = output.get_size()
-    return size.rows, size.columns
 
 
-def pprint(text, pause_page=True):
-    if pause_page:
-        # Subtract 1 for the input line
-        lines_per_page = get_terminal_size()[0] - 1
-        lines = text.split('\n')
-        for i in range(0, len(lines), lines_per_page):
-            print('\n'.join(lines[i:i+lines_per_page]))
-            if i + lines_per_page < len(lines):
-                input('Press any key for next page...')
-    else:
-        print(text)
 
 def is_valid_integer(s):
     try:
@@ -64,37 +46,21 @@ def is_valid_integer(s):
     except ValueError:
         return False
 
-def strip_invalid_file_chars(title: str) -> str:
-    title = re.sub(r'[\\/*?:"<>|]',"", title)
-    return title
-class CommandCompleter(Completer):
-    def __init__(self, commands):
-        self.commands = [f'/{n}' for n in list(commands.keys())]
-
-    def get_completions(self, document, complete_event):
-        word = document.get_word_before_cursor(WORD=True)
-        for command in self.commands:
-            if command.startswith(word):
-                yield Completion(command, start_position=-len(word))
-
 
 class PromptRepl:
     title: str
-    session: PromptSession
     commands: dict
+    prn: Printer 
 
-    def __init__(self, corpus: Corpus, db_state_engine: Engine, DEBUG=False ):
+    def __init__(self, corpus: Corpus, db_state_engine: Engine):
         
-        if DEBUG:
-            import builtins
-            builtins._shell = self  # type: ignore
-            
+       
         self.title = f"Session: {corpus.name} - path: {corpus.path}"
         self.commands = self.get_commands()
         self.all_commands = self.get_all_commands()
-        self.completer = CommandCompleter(self.all_commands)
+        
         self.corpus = corpus
-        self.session = PromptSession(completer=self.completer)
+       
         self.pause_page = True
         self.trace_mode = False
         
@@ -102,7 +68,10 @@ class PromptRepl:
         self.interaction_id: int | None = None
         self.db_state_engine : Engine = db_state_engine
         self._default_prompt = ""
-        
+    
+    def set_printer(self, printer: Printer):
+        self.prn = printer
+    
     @property   
     def default_prompt(self)-> str:
         return self._default_prompt
@@ -111,36 +80,6 @@ class PromptRepl:
     def default_prompt(self, text: str) -> None:
         self._default_prompt = text
     
-    def run(self):
-        print("Welcome to the Corpusaige shell\n")
-        print("Use Alt+Enter or Alt-Enter to send command or prompt.")
-        print("Use /exit or /quit to quit the shell.")
-        print("Use /help or /? to get full list commands.\nUse TAB to autocomplete commands.\n")
-
-        print(self.title)
-        while True:
-            try:
-                
-                with patch_stdout():
-                    user_input = self.get_multiline_input(self.default_prompt)
-                    self.default_prompt = ""
-                
-                if user_input.startswith('/'):
-                    self.handle_command(user_input)
-                else:
-                    
-                    with spinner("Sending prompt..."):
-                        self.send_prompt(user_input)
-
-            except KeyboardInterrupt:
-                # Handle Ctrl+C gracefully
-                print("KeyboardInterrupt. Use /exit or /quit to quit the shell.")
-                self.default_prompt = ""
-
-            except EOFError:
-                # Handle Ctrl+D gracefully
-                print("Exiting the shell...")
-                break
         
     def get_commands(self):
         commands = {}
@@ -161,36 +100,21 @@ class PromptRepl:
         commands.update(synonyms)
         return commands
 
-    def get_multiline_input(self, default_prompt: str) -> str:
-        lines = []
-        while True:
-            line = self.session.prompt('> ', lexer=PygmentsLexer(PythonLexer),
-                                       multiline=True, is_password=False,
-                                       vi_mode=False, enable_history_search=True,
-                                       default=default_prompt)
-            lines.append(line)
-
-            # Break the loop if the input is complete
-            if not line.endswith('\\'):
-                break
-
-        return '\n'.join(lines)
-
     def send_prompt(self, message: str) -> None:
         try:
           
             #refactoring needed. seperate db functions from repl
             with Session(self.db_state_engine) as session:
                 answer = self.corpus.send_prompt(message)
-                self.print(answer)
+                self.prn.pprint(answer)
                 self.conversation_id, self.interaction_id = conversations.add_interaction(session, self.conversation_id, message, answer)
                 
                 
         except Exception as e:
             if not self.trace_mode:
-                print(f"Error sending chat: {str(e)}")
+                self.prn.print(f"Error sending chat: {str(e)}")
             else:
-                print(f"Error sending chat:\n {traceback.format_exc()}")
+                self.prn.print(f"Error sending chat:\n {traceback.format_exc()}")
 
     def handle_command(self, command: str):
         # Remove leading '/' and trim the command
@@ -220,13 +144,13 @@ class PromptRepl:
         else:
             print("Unknown command. Type /help or /? for assistance.")
 
-    def print(self, text=None, *, list=None, seperator=""):
+    def print_results(self, text=None, *, list=None, seperator=""):
         if text is not None:
-            pprint(text, self.pause_page)
+            self.prn.pprint(text, self.pause_page)
         elif len(list) > 0:
-            pprint(seperator.join(list), self.pause_page)
+            self.prn.pprint(seperator.join(list), self.pause_page)
         else:
-            print("No results found.")
+            self.prn.print("No results found.")
     
     def toggle_trace_mode(self):
         if self.trace_mode:
@@ -241,10 +165,10 @@ class PromptRepl:
         """Gets or sets the number db results to sent to AI"""
         num = cmdtext.strip()
         if num is None:
-            print(f"Number of items in context: {self.corpus.context_size}")
+            self.prn.print(f"Number of items in context: {self.corpus.context_size}")
         else:
             self.corpus.context_size = int(num)
-            print(f"Number of items in context set to {self.corpus.context_size}")
+            self.prn.print(f"Number of items in context set to {self.corpus.context_size}")
 
     @detailed_help("""Usage: /ls          - List document sets in the corpus
        /ls [docset] - List documents in the document set            
@@ -255,23 +179,23 @@ class PromptRepl:
         
         match args:
             case ():
-                print("Listing doc-sets from the corpus...")
+                self.prn.print("Listing doc-sets from the corpus...")
                 results = self.corpus.ls_docs(all_docs=False, doc_set='')
             case ('*',) :
-                print("Listing all documents from the corpus...")
+                self.prn.print("Listing all documents from the corpus...")
                 results = self.corpus.ls_docs(all_docs=True, doc_set='')
             case _:
-                print("Listing documents from the given doc-set...")
+                self.prn.print("Listing documents from the given doc-set...")
                 results = self.corpus.ls_docs(all_docs=False,doc_set=cmdtext)
         
-        self.print(list=results, seperator="\n")
+        self.print_results(list=results, seperator="\n")
 
     @detailed_help("Usage: /search <text>")
     def do_search(self, *args, cmdtext=None):
         """Search for text in the corpus (without sending to AI)"""
-        print(f"Searching for {cmdtext }...")
+        self.prn.print(f"Searching for {cmdtext }...")
         results = self.corpus.store_search(cmdtext)
-        self.print(list=results)
+        self.print_results(list=results)
 
     @detailed_help("""Usage: /add "name", "path", "filetype",<recursive - by default True>
        /add "name", ["path1", "path2"], ["filetype1", "filetype2"],<recursive>""")
@@ -285,7 +209,7 @@ class PromptRepl:
         recursive = ds[3] if len(ds) > 3 else False
         docset = DocumentSet.initialize(name, paths, ftypes, recursive)
         self.corpus.add_docset(docset)
-        print(f"Added document set {name} to the corpus.")
+        self.prn.print(f"Added document set {name} to the corpus.")
     
     @detailed_help("""Usage: /conversation           - List all conversations
        /conversation <id>      - List all interactions in a conversation
@@ -314,7 +238,7 @@ class PromptRepl:
         with Session(self.db_state_engine) as session:
             convs = conversations.get_conversations(session)
             for conv in convs:
-                print(f"{conv.id:>5} : {conv.title}")
+                self.prn.print(f"{conv.id:>5} : {conv.title}")
     
     def show_interactions(self, id:int):
         if id < 0:
@@ -322,14 +246,14 @@ class PromptRepl:
         with Session(self.db_state_engine) as session:
             conv = conversations.get_conversation_by_id(session, id)
             for interact in conv.interactions:
-                print(f"{interact.id:>5} : {interact.human_question[:120]}")
+                self.prn.print(f"{interact.id:>5} : {interact.human_question[:120]}")
     
     def show_interaction(self, id: int):
         if int(id) < 0:
             raise InvalidParameters("Invalid interaction id")
         with Session(self.db_state_engine) as session:
             interact = conversations.get_interaction_by_id(session, id)
-            self.print(list=[interact.human_question, interact.ai_answer], seperator="\n-----------------------------------------\n")
+            self.prn.pprint(list=[interact.human_question, interact.ai_answer], seperator="\n-----------------------------------------\n")
     
     def load_prompt_for_store(self, id=None):
         if id is None and self.interaction_id is None:
@@ -345,16 +269,18 @@ class PromptRepl:
     def do_store(self, *args, cmdtext=None):
         """Incorporate annotation (from scratch or response from the LLM) into the corpus"""
         if cmdtext is None or cmdtext.strip() == "":
-            print("No text to store.")
+            self.prn.print("No text to store.")
         else:
             
-            title = prompt("Enter title for annotation: ")
-            title = strip_invalid_file_chars(title)
+            raise NotImplementedError("/store not implemented yet")
+            #title = prompt("Enter title for annotation: ")
+            #title = strip_invalid_file_chars(title)
+            title= "Not implemented yet"
             
             with Session(self.db_state_engine) as session:    
                 annotation_id, stored_file = annotations.add_annotation(session, self.corpus.annotations_path, title, cmdtext)
                 self.corpus.store_annotation('Corpusaige annotations', stored_file)
-                print(f"Stored annotation in: {stored_file} and vector db")
+                self.prn.print(f"Stored annotation in: {stored_file} and vector db")
 
     def do_update(self, *args, cmdtext=None):
         """Update document set in the corpus"""
@@ -374,7 +300,7 @@ class PromptRepl:
 Scripys can be added to the corpus by placing them in the scripts folder""")  
     def do_run(self, *args, cmdtext=None):
         """Run a script"""
-        print(f"Running script {cmdtext}...")
+        self.prn.print(f"Running script {cmdtext}...")
         #match on <<script_name>> <<*args>> 
         match args:
             case ():
@@ -392,7 +318,7 @@ Scripys can be added to the corpus by placing them in the scripts folder""")
     def do_trace(self, *args, cmdtext=None):
         """Toggle trace (debug) mode on or off."""
         self.toggle_trace_mode()
-        print(f"Trace (debug) mode: {'on' if self.trace_mode else 'off'}")
+        self.prn.print(f"Trace (debug) mode: {'on' if self.trace_mode else 'off'}")
 
     def get_help_for_command(self, command_name):
         command = self.all_commands[command_name]
@@ -406,24 +332,24 @@ Scripys can be added to the corpus by placing them in the scripts folder""")
     def do_help(self, *args, cmdtext=None):
         """Show this help message."""
         if len(args) == 0:
-            print("Available commands:")
+            self.prn.print("Available commands:")
             for command in self.commands:
-                print(self.get_help_for_command(command))
+                self.prn.print(self.get_help_for_command(command))
     
         else:
             command = args[0]
             if command in self.all_commands:
                 cmd = self.all_commands[command]
-                print(self.get_help_for_command(command))
+                self.prn.print(self.get_help_for_command(command))
                 if hasattr(cmd, 'detailed_help'):
-                    print(cmd.detailed_help)
+                    self.prn.print(cmd.detailed_help)
             else:
-                print(f"Unknown command: {command}")
+                self.prn.print(f"Unknown command: {command}")
                 
     def do_sources(self, *args, cmdtext=None):
         """Toggle between showing sources or not."""
         self.corpus.toggle_sources()
-        print(f"Show sources: {'on' if self.corpus.show_sources else 'off'}")
+        self.prn.print(f"Show sources: {'on' if self.corpus.show_sources else 'off'}")
 
     @synonymcommand('quit')
     def do_exit(self, *args, cmdtext=None):
@@ -432,11 +358,11 @@ Scripys can be added to the corpus by placing them in the scripts folder""")
 
     def do_clear(self, *args, cmdtext=None):
         """Clear the screen."""
-        print("\033c", end="")
+        self.prn.print("\033c", end="")
 
     @synonymcommand("pause")
     def do_pause_page(self, *args, cmdtext=None):
         """Toggle pause page on or off."""
         self.pause_page = not self.pause_page
-        print(f"Pause page: {'on' if self.pause_page else 'off'}")
+        self.prn.print(f"Pause page: {'on' if self.pause_page else 'off'}")
 

@@ -15,6 +15,7 @@ import traceback
 from typing import List
 from corpusaige.data.db import init_db
 from corpusaige.providers import create_local_vectordb
+from corpusaige.shell import ShellRepl
 from .corpus import StatefullCorpus, create_corpus, ensure_dir_path_exists
 from .repl import PromptRepl
 from .config.read import CorpusConfig, get_config
@@ -56,7 +57,8 @@ def shell(config: CorpusConfig):
     corpus = StatefullCorpus(config)
 
     db_state_engine = init_db(corpus.state_db_path)
-    PromptRepl(corpus, db_state_engine, DEBUG).run()
+    prompt = PromptRepl(corpus, db_state_engine)
+    ShellRepl(prompt, DEBUG).run()
 
 def cli_run():
     parser = argparse.ArgumentParser(
