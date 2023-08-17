@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13" #"^3.11"
 jupyterlab = "^4.0.3"
 pandas = "^2.0.2"
 matplotlib = "^3.7.1"
@@ -28,6 +28,7 @@ sqlalchemy = "^2.0.19"
 mypy = "^1.4.1"
 sphinx = "^7.0.1"
 ruff = "^0.0.282"
+pyinstaller = "^5.13.0"
 
 [build-system]
 requires = ["poetry-core"]
