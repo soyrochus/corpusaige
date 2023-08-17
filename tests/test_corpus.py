@@ -66,7 +66,12 @@ def test_create_corpus(corpus_dir:Path):
     assert (corpus_dir / corpus_dir / 'annotations').exists()
     assert (corpus_dir / corpus_dir / 'scripts').exists()
 
+class DummyPrinter:
+
+    def print(self, *args, **kwargs):
+        print(*args, **kwargs)
+        
 def test_run_script(corpus_dir):
     corpus = StatefullCorpus(get_config(corpus_dir))
-    
+    corpus.printer = DummyPrinter()
     assert corpus.run_script('simple_test_script') == "Test Corpus"

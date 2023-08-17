@@ -143,7 +143,7 @@ class StatefullCorpus(Corpus):
         if script_name in self.scripts:
             script = import_module(script_name)
             #connect 'print' function in script to printer.print redirecting output to active app
-            script.print = self.printer.print
+            script.print = self.printer.print #type: ignore 
             return script.run(self, *args)
         else:
             raise InvalidParameters(f"Script {script_name} not found in scripts directory")

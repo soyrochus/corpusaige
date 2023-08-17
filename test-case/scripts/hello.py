@@ -13,4 +13,4 @@ def run(corpus: Corpus, *args: list[str]) -> None:
     else:
         print(f"Hello {corpus.name}")
 
-
+    return "Done"

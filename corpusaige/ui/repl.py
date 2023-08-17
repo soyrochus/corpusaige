@@ -307,7 +307,9 @@ Scripys can be added to the corpus by placing them in the scripts folder""")
             case ():
                 raise InvalidParameters("Missing script name")
             case (script_name, *args) if script_name in self.corpus.scripts:
-                self.corpus.run_script(script_name, *args)
+                result = self.corpus.run_script(script_name, *args)
+                if result is not None:
+                    self.prn.print(result)
             case _:
                 raise InvalidParameters("Invalid script or arguments")
                 

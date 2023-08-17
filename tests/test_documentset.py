@@ -62,6 +62,8 @@ def test_add_entries():
     doc_set.add_entries(single_entry)
     assert single_entry in doc_set.entries
 
+
+        
 def test_Document_from_path():
     
     with pytest.raises(InvalidParameters):
