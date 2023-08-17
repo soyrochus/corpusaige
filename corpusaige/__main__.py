@@ -8,7 +8,7 @@ through deep exploration and understanding of comprehensive document sets and so
 @license: MIT
 """
 
-from .cli import main
+from corpusaige.ui.cli import main
 
 if __name__ == "__main__":
     main()

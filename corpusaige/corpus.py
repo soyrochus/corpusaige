@@ -36,7 +36,7 @@ class Corpus(Protocol):
     def remove_docset(self, docset_name: str) -> None:
         ...
            
-    def add_doc(self, doc: Document) -> None:
+    def add_doc(self, doc: Document, docset_name: str) -> None:
         ...
         
     def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
@@ -71,8 +71,13 @@ class StatefullCorpus(Corpus):
 
     repository: VectorRepository
 
-    def __init__(self, config: CorpusConfig,show_sources: bool = False, 
+    def __init__(self, config: str | CorpusConfig,show_sources: bool = False, 
                                             context_size: int = 4):
+       
+        #if config is a string, get the config from the file
+        if isinstance(config, str):
+            config = get_config(config)
+        
         self.name = config.name
         self.path = config.config_path
         self.show_sources = show_sources

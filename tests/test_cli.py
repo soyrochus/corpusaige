@@ -12,14 +12,14 @@ import os
 import pytest
 from unittest import mock
 import sys
-from corpusaige.cli import cli_run  
+from corpusaige.ui.cli import cli_run  
 
 APP_NAME = 'corpusaige.py'
 
-@mock.patch('corpusaige.cli.get_config') # Mock the get_config function where it is used in the cli module, NOT where it is defined
-@mock.patch('corpusaige.cli.new_corpus')
-@mock.patch('corpusaige.cli.add_docset')
-@mock.patch('corpusaige.cli.shell')
+@mock.patch('corpusaige.ui.cli.get_config') # Mock the get_config function where it is used in the cli module, NOT where it is defined
+@mock.patch('corpusaige.ui.cli.new_corpus')
+@mock.patch('corpusaige.ui.cli.add_docset')
+@mock.patch('corpusaige.ui.cli.shell')
 def test_cli_run(mock_shell, mock_add_docset, mock_new_corpus, mock_get_config):
     sys.argv = [APP_NAME, 'new', 'Test_Name']
     cli_run()

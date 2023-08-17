@@ -12,7 +12,7 @@ through deep exploration and understanding of comprehensive document sets and so
 import configparser
 from pathlib import Path
 from corpusaige.config.read import get_config
-from corpusaige.console_tools import zip_dir
+from corpusaige.ui.console_tools import zip_dir
 from corpusaige.corpus import StatefullCorpus
 from corpusaige.documentset import DocumentSet
 

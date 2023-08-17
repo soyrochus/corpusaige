@@ -12,12 +12,9 @@ through deep exploration and understanding of comprehensive document sets and so
 from collections import deque
 import tkinter as tk
 from tkinter import scrolledtext, Menu, messagebox
-from corpusaige.config.read import get_config
-from corpusaige.corpus import StatefullCorpus
-from corpusaige.data.db import init_db
 
 from corpusaige.protocols import Printer
-from corpusaige.repl import PromptRepl
+from corpusaige.ui.repl import PromptRepl
 
 class GuiApp(Printer):
     root: tk.Tk
@@ -25,7 +22,7 @@ class GuiApp(Printer):
    
     def __init__(self, root: tk.Tk, repl: PromptRepl,  DEBUG=False ):
         self.root = root
-        self.root.title = 'Corpusaige GuiRepl' 
+        self.root.title('Corpusaige GuiRepl') 
         self.root.bind('<Map>', self.on_first_show)
         
         

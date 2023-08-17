@@ -7,18 +7,16 @@ through deep exploration and understanding of comprehensive document sets and so
 @license: MIT
 """
 import re
-import traceback
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.lexers import PygmentsLexer
 from pygments.lexers import PythonLexer
 from prompt_toolkit.output import create_output
-from prompt_toolkit import prompt
-from corpusaige.console_tools import spinner
+from corpusaige.ui.console_tools import spinner
 from corpusaige.protocols import Printer
 
-from corpusaige.repl import PromptRepl
+from corpusaige.ui.repl import PromptRepl
 
 def strip_invalid_file_chars(title: str) -> str:
     title = re.sub(r'[\\/*?:"<>|]',"", title)

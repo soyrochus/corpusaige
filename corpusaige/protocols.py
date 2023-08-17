@@ -22,7 +22,7 @@ class Printer(Protocol):
         """Print text to the screen"""
         ...
         
-    def clear():
+    def clear(self):
         """Clear the screen"""
         ...
         

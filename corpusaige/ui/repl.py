@@ -8,19 +8,16 @@ through deep exploration and understanding of comprehensive document sets and so
 """
 
 # Import necessary modules
-import re
 import traceback
 
-from pygments.lexers import PythonLexer
 from ast import literal_eval
 from sqlalchemy import Engine
 from sqlalchemy.orm.session import Session
-from corpusaige.console_tools import spinner
 from corpusaige.data import annotations, conversations
 from corpusaige.documentset import DocumentSet
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.protocols import Printer
-from .corpus import Corpus
+from ..corpus import Corpus
 
 
 
@@ -256,7 +253,7 @@ class PromptRepl:
             raise InvalidParameters("Invalid interaction id")
         with Session(self.db_state_engine) as session:
             interact = conversations.get_interaction_by_id(session, id)
-            self.prn.pprint(list=[interact.human_question, interact.ai_answer], seperator="\n-----------------------------------------\n")
+            self.print_results(list=[interact.human_question, interact.ai_answer], seperator="\n-----------------------------------------\n")
     
     def load_prompt_for_store(self, id=None):
         if id is None and self.interaction_id is None:
