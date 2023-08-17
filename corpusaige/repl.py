@@ -358,7 +358,8 @@ Scripys can be added to the corpus by placing them in the scripts folder""")
 
     def do_clear(self, *args, cmdtext=None):
         """Clear the screen."""
-        self.prn.print("\033c", end="")
+        #self.prn.print("\033c", end="")
+        self.prn.clear()
 
     @synonymcommand("pause")
     def do_pause_page(self, *args, cmdtext=None):

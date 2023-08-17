@@ -21,3 +21,11 @@ class Printer(Protocol):
     def print(self, text:str):
         """Print text to the screen"""
         ...
+        
+    def clear():
+        """Clear the screen"""
+        ...
+        
+
+# class Reader(Protocol):
+#    ...

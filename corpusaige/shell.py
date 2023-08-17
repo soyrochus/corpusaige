@@ -53,10 +53,14 @@ class ShellRepl(Printer):
             import builtins
             builtins._shell = self  # type: ignore
     
+        #back reference to the PromptRepl. Any output from the PromptRepl will be printed 
+        # to the screen by the ShellRepl
         self.repl = repl
+        self.repl.set_printer(self)
+         
         self.completer = CommandCompleter(self.repl.all_commands)
         self.session = PromptSession(completer=self.completer)
-        self.repl.set_printer(self)
+       
     
     def pprint(self, text:str, pause_page: bool =True):
         if pause_page:
@@ -72,6 +76,10 @@ class ShellRepl(Printer):
             
     def print(self, text:str):
         print(text)
+    
+    def clear(self):
+        """Clear the screen"""
+        self.print("\033c", end="")
     
     def run(self):
         print("Welcome to the Corpusaige shell\n")
@@ -92,7 +100,7 @@ class ShellRepl(Printer):
                 else:
                     
                     with spinner("Sending prompt..."):
-                        self.send_prompt(user_input)
+                        self.repl.send_prompt(user_input)
 
             except KeyboardInterrupt:
                 # Handle Ctrl+C gracefully

@@ -11,12 +11,28 @@ through deep exploration and understanding of comprehensive document sets and so
 
 import tkinter as tk
 from tkinter import scrolledtext, Menu, messagebox
+from corpusaige.config.read import get_config
+from corpusaige.corpus import StatefullCorpus
+from corpusaige.data.db import init_db
 
-class GuiRepl:
-    def __init__(self, root):
+from corpusaige.protocols import Printer
+from corpusaige.repl import PromptRepl
+
+class GuiRepl(Printer):
+    root: tk.Tk
+    repl: PromptRepl
+   
+    def __init__(self, root: tk.Tk, repl: PromptRepl,  DEBUG=False ):
         self.root = root
-        self.root.title('Corpusaige GuiRepl')
-
+        self.root.title = 'Corpusaige GuiRepl' 
+        self.root.bind('<Map>', self.on_first_show)
+        
+        
+        #back reference to the PromptRepl. Any output from the PromptRepl will be printed 
+        # to the screen by the GuiRepl
+        self.repl = repl
+        self.repl.set_printer(self)
+        
         # Colors
         self.dark_mode_colors = {
             'bg': '#2E3B4E',
@@ -31,11 +47,6 @@ class GuiRepl:
             'input_bg': '#FFFFFF',
             'button_bg': '#CCCCCC'
         }
-
-        # Start with dark mode
-        #self.current_colors = self.dark_mode_colors
-        # Start with light mode
-        #self.current_colors = self.light_mode_colors
 
         # Menu bar
         menubar = Menu(root)
@@ -66,6 +77,15 @@ class GuiRepl:
         
         self.setup_widgets()
 
+    def on_first_show(self, event):
+        self.root.unbind('<Map>')
+        self.print("Welcome to the Corpusaige shell\n")
+        self.print("Use Alt+Enter or Alt-Enter to send command or prompt.")
+        self.print("Use /exit or /quit to quit the shell.")
+        self.print("Use /help or /? to get full list commands.\n") #\nUse TAB to autocomplete commands.\n")
+
+        self.print(self.repl.title)
+        
     def setup_widgets(self):
         # Configure the weights of rows and columns to make resizing smooth
         self.root.grid_rowconfigure(0, weight=4)  # 4/5 of the size
@@ -92,14 +112,26 @@ class GuiRepl:
 
     def send_message(self):
         # Retrieve input, clear the input box, and append to output
-        message = self.input_box.get("1.0", tk.END).strip()
-        self.append_to_output("You: " + message)
+        user_input = self.input_box.get("1.0", tk.END).strip()
+        self.print("Prompt: " + user_input)
         self.input_box.delete("1.0", tk.END)
 
         # Handle the input message (here, we just echo it for simplicity)
-        response = "OpenAI: " + message
-        self.append_to_output(response)
-
+        self.print( "Result: ")
+        
+        #user_input = self.get_multiline_input(self.repl.default_prompt)
+        self.repl.default_prompt = ""
+    
+        try:    
+            if user_input.startswith('/'):
+                self.repl.handle_command(user_input)
+            else:
+                #with spinner("Sending prompt..."):
+                self.repl.send_prompt(user_input)
+        except EOFError:
+                print("Exiting the shell...")
+                self.root.quit()
+            
     def append_to_output(self, message):
         self.output_box.config(state=tk.NORMAL)
         self.output_box.insert(tk.END, message + '\n')
@@ -125,9 +157,39 @@ class GuiRepl:
         self.send_button.configure(bg=self.current_colors['button_bg'], fg=self.current_colors['fg'])
 
     def show_about(self):
-        messagebox.showinfo("About", "Corpusaige Copyright Notice")
+        messagebox.showinfo("About", """Copyright © 2023
+Licensed under
+the MIT License""")
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    gui = GuiRepl(root)
-    root.mainloop()
+    def pprint(self, text:str, pause_page: bool =True):
+        # if pause_page:
+        #     # Subtract 1 for the input line
+        #     lines_per_page = get_terminal_size()[0] - 1
+        #     lines = text.split('\n')
+        #     for i in range(0, len(lines), lines_per_page):
+        #         print('\n'.join(lines[i:i+lines_per_page]))
+        #         if i + lines_per_page < len(lines):
+        #             input('Press any key for next page...')
+        # else:
+        self.print(text)
+            
+    def print(self, text:str):
+        self.append_to_output(text)
+    
+    def clear(self):
+        """Clear the screen"""
+        self.clear_contents()
+        
+    def run(self):
+        
+        self.root.mainloop()
+
+# if __name__ == "__main__":
+#     root = tk.Tk()
+   
+#     config = get_config('.')
+#     corpus = StatefullCorpus(config)
+
+#     db_state_engine = init_db(corpus.state_db_path)
+#     prompt = PromptRepl(corpus, db_state_engine)
+#     GuiRepl(root, prompt, True).run()

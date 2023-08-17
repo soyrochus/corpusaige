@@ -11,9 +11,11 @@ through deep exploration and understanding of comprehensive document sets and so
 import argparse
 from pathlib import Path
 import sys
+import tkinter as tk
 import traceback
 from typing import List
 from corpusaige.data.db import init_db
+from corpusaige.gui import GuiRepl
 from corpusaige.providers import create_local_vectordb
 from corpusaige.shell import ShellRepl
 from .corpus import StatefullCorpus, create_corpus, ensure_dir_path_exists
@@ -59,6 +61,18 @@ def shell(config: CorpusConfig):
     db_state_engine = init_db(corpus.state_db_path)
     prompt = PromptRepl(corpus, db_state_engine)
     ShellRepl(prompt, DEBUG).run()
+    
+def gui(config: CorpusConfig):
+    """
+    Displays the Corpusaige gui for the given corpus.
+    """
+
+    root = tk.Tk()
+    corpus = StatefullCorpus(config)
+    db_state_engine = init_db(corpus.state_db_path)
+    
+    prompt = PromptRepl(corpus, db_state_engine)
+    GuiRepl(root, prompt, True).run()
 
 def cli_run():
     parser = argparse.ArgumentParser(
@@ -78,28 +92,35 @@ def cli_run():
     add_parser.add_argument('-n', '--name', required=True, help='Name for document set')
     
     # Shell command
-    subparsers.add_parser('shell', help='Display the Corpusaige Shell')
+    subparsers.add_parser('shell', help='Display the Corpusaige Shell (console)')
+
+     # Gui command
+    subparsers.add_parser('gui', help='Display the Corpusaige Gui')
+
 
     # Global optional parameter
     parser.add_argument('-p', '--path', default='.', help='Path to corpus (default: current dir)')
     
     args = parser.parse_args(sys.argv[1:])
 
-    # If no command is provided, print help message and exit
-    if args.command is None:
-        parser.print_help()
-        exit()
-
-    if args.command == 'new':
-        new_corpus(args.name, args.path)
-    elif args.command == 'add':
-        config = get_config(args.path)
-        add_docset(config, args.name, args.doc_paths, args.doc_types, args.recursive)
-    elif args.command == 'shell':
-        config = get_config(args.path)
-        shell(config)
-
-    
+    # Execute the command
+    match args.command:
+        case 'new':
+            new_corpus(args.name, args.path)
+        case 'add':
+            config = get_config(args.path)
+            add_docset(config, args.name, args.doc_paths, args.doc_types, args.recursive)
+        case 'shell':
+            config = get_config(args.path)
+            shell(config)
+        case 'gui':
+            config = get_config(args.path)
+            gui(config)
+        case _:
+            # If no command is provided, print help message and exit
+            parser.print_help()
+            exit()
+        
 def main():
     
     try:
