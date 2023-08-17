@@ -16,6 +16,7 @@ from corpusaige.data.db import create_db
 from corpusaige.documentset import Document, DocumentSet
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.interactions import StatefullInteraction
+from corpusaige.protocols import Printer
 from corpusaige.storage import VectorRepository
 from .config.read import CorpusConfig, get_config
 from corpusaige.config import CORPUS_INI, CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
@@ -64,12 +65,18 @@ class Corpus(Protocol):
     def corpus_folder_path(self) -> Path:
         ...    
     
+    def set_printer(self, printer: Printer):
+       ...
+        
     def run_script(self, script_name: str, *args) -> Any:
         ...
 
 class StatefullCorpus(Corpus):
 
+    name : str
+    path : Path
     repository: VectorRepository
+    printer: Printer
 
     def __init__(self, config: str | CorpusConfig,show_sources: bool = False, 
                                             context_size: int = 4):
@@ -127,11 +134,16 @@ class StatefullCorpus(Corpus):
     def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
         path = self.annotations_path / annotation_file
         self.add_doc(Document.initialize(path),  annotation_docset_name)
+     
+    def set_printer(self, printer: Printer):
+        self.printer = printer
         
     def run_script(self, script_name: str, *args: List[str]) -> Any:
         
         if script_name in self.scripts:
             script = import_module(script_name)
+            #connect 'print' function in script to printer.print redirecting output to active app
+            script.print = self.printer.print
             return script.run(self, *args)
         else:
             raise InvalidParameters(f"Script {script_name} not found in scripts directory")

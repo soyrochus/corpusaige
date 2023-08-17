@@ -1,7 +1,10 @@
 # test script
 
 
-def run(corpus, *args):
+from corpusaige.corpus import Corpus
+
+
+def run(corpus: Corpus, *args: list[str]) -> None:
     if len(args) > 0:
         if args[0] == "stop":
             raise Exception("STOP!!!!")

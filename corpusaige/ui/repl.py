@@ -68,6 +68,7 @@ class PromptRepl:
     
     def set_printer(self, printer: Printer):
         self.prn = printer
+        self.corpus.set_printer(printer)
     
     @property   
     def default_prompt(self)-> str:
