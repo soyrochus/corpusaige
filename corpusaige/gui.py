@@ -18,7 +18,7 @@ from corpusaige.data.db import init_db
 from corpusaige.protocols import Printer
 from corpusaige.repl import PromptRepl
 
-class GuiRepl(Printer):
+class GuiApp(Printer):
     root: tk.Tk
     repl: PromptRepl
    

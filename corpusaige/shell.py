@@ -40,8 +40,8 @@ def get_terminal_size():
     size = output.get_size()
     return size.rows, size.columns
 
-class ShellRepl(Printer):
-    """Repl class for the shell interface - utilizing PromptRepl through composition"""
+class ShellApp(Printer):
+    """ShellApp class for the shell interface - utilizing PromptRepl through composition"""
    
     completer : CommandCompleter
     session : PromptSession
