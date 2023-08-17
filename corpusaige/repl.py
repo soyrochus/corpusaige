@@ -137,12 +137,12 @@ class PromptRepl:
                 func(*subcommands, cmdtext=cmdtext)
             except Exception as e:
                 if self.trace_mode:
-                    print(
+                    self.prn.print(
                         f"Error executing command {main_command}: \n\n{traceback.format_exc()}")
                 else:
-                    print(f"Error executing command {main_command}: {e}")
+                    self.prn.print(f"Error executing command {main_command}: {e}")
         else:
-            print("Unknown command. Type /help or /? for assistance.")
+            self.prn.print("Unknown command. Type /help or /? for assistance.")
 
     def print_results(self, text=None, *, list=None, seperator=""):
         if text is not None:

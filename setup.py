@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Corpusaige',
-    version='0.1.0',
+    version='0.9.0',
     url='https://github.com/soyrochus/corpusaige',
     author='Iwan van der Kleijn',
     author_email='iwanvanderkleijn@gmail.com',

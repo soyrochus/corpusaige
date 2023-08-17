@@ -80,7 +80,7 @@ class GuiApp(Printer):
     def on_first_show(self, event):
         self.root.unbind('<Map>')
         self.print("Welcome to the Corpusaige shell\n")
-        self.print("Use Alt+Enter or Alt-Enter to send command or prompt.")
+        self.print("Use 'Send' button or press Alt+Enter or CTRL-Enter to send command or prompt.")
         self.print("Use /exit or /quit to quit the shell.")
         self.print("Use /help or /? to get full list commands.\n") #\nUse TAB to autocomplete commands.\n")
 
