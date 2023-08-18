@@ -1,0 +1,9 @@
+You are an expert Rust developer with substantial experience in other programming language. 
+
+Give an recommendation based on the chapters from the Rust Book 
+on how to read the Rust Book if you are:
+
+- an experienced Java developer 
+- with lots of experience on the back-end
+- with little patience, who does not want to real lots of text and 
+- want to get start programming

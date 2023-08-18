@@ -12,7 +12,9 @@ from configparser import ConfigParser
 from pathlib import Path
 import sys
 from typing import Any, List, Protocol
-from corpusaige.data.db import create_db
+
+from sqlalchemy import Engine
+from corpusaige.data.db import create_db, init_db
 from corpusaige.documentset import Document, DocumentSet
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.interactions import StatefullInteraction
@@ -26,7 +28,7 @@ class Corpus(Protocol):
     name: str
     path: Path
     show_sources: bool = False
-    context_size: int = 4
+    context_size: int = 15
 
     def send_prompt(self, prompt: str) -> str:
         ...
@@ -94,12 +96,17 @@ class StatefullCorpus(Corpus):
             config, retriever=self.repository.as_retriever())
         
         self.scripts = self._get_scripts()
+        self._db_state_engine = init_db(self.state_db_path)
         #set import path to corpus scripts folder
         sys.path.append(str(self.corpus_folder_path / CORPUS_SCRIPTS))
 
     @property
     def state_db_path(self) -> Path:
         return self.path.parent / CORPUS_STATE_DB
+    
+    @property
+    def state_db_engine(self) -> Engine:
+        return self._db_state_engine
     
     @property
     def annotations_path(self) -> Path:

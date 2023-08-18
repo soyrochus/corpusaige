@@ -15,6 +15,8 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 import zipfile
+import sys
+import select
 
 @contextmanager
 def spinner(prompt=""):
@@ -65,4 +67,12 @@ def zip_dir(zip_path: Path, dest_file: Path) -> None:
                 # Make the archive names relative to the input directory
                 arcname = file_path.relative_to(zip_path)
                 zipf.write(file_path, arcname)
+
+
+
+def is_data_available(timeout):
+    # select.select() will block for `timeout` seconds or until there's something to read from stdin.
+    # If timeout is set to 0, it will not block and return immediately.
+    readable, _, _ = select.select([sys.stdin], [], [], timeout)
+    return bool(readable)
 

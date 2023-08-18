@@ -49,9 +49,9 @@ class PromptRepl:
     commands: dict
     prn: Printer 
 
-    def __init__(self, corpus: Corpus, db_state_engine: Engine):
+    def __init__(self, corpus: Corpus):
         
-       
+        
         self.title = f"Session: {corpus.name} - path: {corpus.path}"
         self.commands = self.get_commands()
         self.all_commands = self.get_all_commands()
@@ -63,7 +63,8 @@ class PromptRepl:
         
         self.conversation_id: int | None = None
         self.interaction_id: int | None = None
-        self.db_state_engine : Engine = db_state_engine
+        #TODO Refactoring to remove db_state_engine from repl
+        self.db_state_engine : Engine = corpus.state_db_engine
         self._default_prompt = ""
     
     def set_printer(self, printer: Printer):
