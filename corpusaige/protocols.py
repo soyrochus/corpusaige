@@ -13,7 +13,7 @@ through deep exploration and understanding of comprehensive document sets and so
 from typing import Protocol
 
 
-class Printer(Protocol):
+class Output(Protocol):
     def pprint(self, text:str, pause_page: bool =True):
         """Print text to the screen, optionally pausing after each page"""
         ...
@@ -27,5 +27,8 @@ class Printer(Protocol):
         ...
         
 
-# class Reader(Protocol):
-#    ...
+class Input(Protocol):
+    
+    def prompt(self, prompt: str) -> str:
+        """Prompt for input"""
+        ...

@@ -14,10 +14,11 @@ import tkinter as tk
 from tkinter import scrolledtext, Menu, messagebox
 from tkinter import font
 
-from corpusaige.protocols import Printer
+from corpusaige.protocols import Input, Output
 from corpusaige.ui.repl import PromptRepl
+from tkinter import simpledialog
 
-class GuiApp(Printer):
+class GuiApp(Input, Output):
     root: tk.Tk
     repl: PromptRepl
    
@@ -27,10 +28,10 @@ class GuiApp(Printer):
         self.root.bind('<Map>', self.on_first_show)
         
         
-        #back reference to the PromptRepl. Any output from the PromptRepl will be printed 
-        # to the screen by the GuiRepl
-        self.repl = repl
-        self.repl.set_printer(self)
+        # Double back reference to the PromptRepl. Any output from the PromptRepl will be printed 
+        # to the screen by the GuiApp and input can be obtained from GuiApp
+        self.repl = repl 
+        self.repl.set_input_output(self, self)
         
         # Colors
         self.dark_mode_colors = {
@@ -143,13 +144,11 @@ class GuiApp(Printer):
         
         self.print("Prompt: " + user_input)
         self.input_box.delete("1.0", tk.END)
+        #self.input_box
 
         # Handle the input message (here, we just echo it for simplicity)
         self.print( "Result: ")
-        
-        #user_input = self.get_multiline_input(self.repl.default_prompt)
-        self.repl.default_prompt = ""
-    
+ 
         try:    
             if user_input.startswith('/'):
                 self.repl.handle_command(user_input)
@@ -159,6 +158,8 @@ class GuiApp(Printer):
         except EOFError:
                 print("Exiting the shell...")
                 self.root.quit()
+        
+        self.input_box.insert(tk.END, self.repl.prepared_prompt)
     
     def prev_command(self, event=None):
         """Navigate to the previous command in the history."""
@@ -220,14 +221,22 @@ the MIT License""")
         #             input('Press any key for next page...')
         # else:
         self.print(text)
-            
+        
     def print(self, text:str):
         self.append_to_output(text)
     
     def clear(self):
         """Clear the screen"""
         self.clear_contents()
-        
+    
+    def prompt(self, prompt: str) -> str:
+        """Prompt for input"""
+        answer = simpledialog.askstring("", prompt) 
+        if answer is not None:
+            return answer
+        else:
+            return ""
+    
     def run(self):
         
         self.root.mainloop()

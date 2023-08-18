@@ -11,7 +11,7 @@ through deep exploration and understanding of comprehensive document sets and so
 from datetime import datetime
 from typing import Optional, Tuple
 from sqlalchemy import  func, ForeignKey, select
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.orm import mapped_column, Mapped, relationship, joinedload
 from typing import List
 from sqlalchemy.orm import Session
 from corpusaige.data import Base
@@ -67,7 +67,7 @@ def get_conversations(session) -> List[Conversation]:
 
 def get_conversation_by_id(session, id: int) -> Conversation:
     """Get a conversation by its id"""
-    return session.execute(select(Conversation).where(Conversation.id == id)).scalar_one()  
+    return session.execute(select(Conversation).options(joinedload(Conversation.interactions)).where(Conversation.id == id)).unique().scalar_one()
 
 def get_interaction_by_id(session, id: int) -> Interaction:
     """Get an interaction by its id"""

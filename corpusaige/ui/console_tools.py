@@ -9,6 +9,7 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 import os
+import re
 from prompt_toolkit.patch_stdout import patch_stdout
 import threading
 import time
@@ -76,3 +77,7 @@ def is_data_available(timeout):
     readable, _, _ = select.select([sys.stdin], [], [], timeout)
     return bool(readable)
 
+
+def strip_invalid_file_chars(title: str) -> str:
+    title = re.sub(r'[\\/*?:"<>|]',"", title)
+    return title

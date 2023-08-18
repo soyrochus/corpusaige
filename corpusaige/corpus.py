@@ -14,15 +14,19 @@ import sys
 from typing import Any, List, Protocol
 
 from sqlalchemy import Engine
+from sqlalchemy.orm.session import Session
+from corpusaige.data import annotations, conversations
 from corpusaige.data.db import create_db, init_db
 from corpusaige.documentset import Document, DocumentSet
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.interactions import StatefullInteraction
-from corpusaige.protocols import Printer
+from corpusaige.protocols import Output
 from corpusaige.storage import VectorRepository
 from .config.read import CorpusConfig, get_config
 from corpusaige.config import CORPUS_INI, CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
 from importlib import import_module
+
+from corpusaige.data.conversations import Conversation, Interaction
 
 class Corpus(Protocol):
     name: str
@@ -42,7 +46,8 @@ class Corpus(Protocol):
     def add_doc(self, doc: Document, docset_name: str) -> None:
         ...
         
-    def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
+    #def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
+    def add_annotation(self, annotation_docset_name: str, title: str, cmdtext: str)-> None:
         ...
     
     def store_search(self, search_str: str) -> List[str]:
@@ -52,6 +57,15 @@ class Corpus(Protocol):
     def ls_docs(self, all_docs: bool = False, doc_set:str = '') -> List[str]:
         ...
 
+    def get_conversations(self) -> List[Conversation]:
+        ...
+    
+    def get_conversation(self, conversation_id: int) -> Conversation:
+        ...
+
+    def get_interaction(self, interaction_id: int) -> Interaction:
+        ...
+         
     def toggle_sources(self):
         ...
 
@@ -67,21 +81,33 @@ class Corpus(Protocol):
     def corpus_folder_path(self) -> Path:
         ...    
     
-    def set_printer(self, printer: Printer):
+    def set_output(self, printer: Output):
        ...
         
     def run_script(self, script_name: str, *args) -> Any:
         ...
 
+
+class BasicConsoleOutput(Output):
+    def pprint(self, text:str, pause_page: bool =True):
+       print(text)
+            
+    def print(self, text:str):
+        print(text)
+    
+    def clear(self):
+       pass
 class StatefullCorpus(Corpus):
 
     name : str
     path : Path
     repository: VectorRepository
-    printer: Printer
+    out: Output
+    last_conversation_id: int | None
+    last_interaction_id: int | None
 
     def __init__(self, config: str | CorpusConfig,show_sources: bool = False, 
-                                            context_size: int = 4):
+                                            context_size: int = 15):
        
         #if config is a string, get the config from the file
         if isinstance(config, str):
@@ -94,6 +120,11 @@ class StatefullCorpus(Corpus):
         self.repository = VectorRepository(config)
         self.interaction = StatefullInteraction(
             config, retriever=self.repository.as_retriever())
+        
+        self.out = BasicConsoleOutput()
+        
+        self.last_conversation_id = None
+        self.last_interaction_id = None
         
         self.scripts = self._get_scripts()
         self._db_state_engine = init_db(self.state_db_path)
@@ -117,7 +148,12 @@ class StatefullCorpus(Corpus):
         return self.path.parent
     
     def send_prompt(self, prompt: str) -> str :
-        return self.interaction.send_prompt(prompt, self.show_sources, self.context_size)
+        
+        with Session(self.state_db_engine) as session:
+            answer = self.interaction.send_prompt(prompt, self.show_sources, self.context_size)
+            self.last_conversation_id, self.last_interaction_id = conversations.add_interaction(session, self.last_conversation_id, prompt, answer)
+    
+        return answer
 
     def toggle_sources(self):
         self.show_sources = not self.show_sources
@@ -138,19 +174,39 @@ class StatefullCorpus(Corpus):
         
         return self.repository.ls(all_docs, doc_set)
 
-    def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
-        path = self.annotations_path / annotation_file
-        self.add_doc(Document.initialize(path),  annotation_docset_name)
-     
-    def set_printer(self, printer: Printer):
-        self.printer = printer
+    def get_conversations(self) -> List[Conversation]:
+        with Session(self.state_db_engine) as session:
+            return conversations.get_conversations(session)
+    
+    def get_conversation(self, conversation_id: int) -> Conversation:
+        with Session(self.state_db_engine) as session:
+            return conversations.get_conversation_by_id(session, conversation_id)
+
+    def get_interaction(self, interaction_id: int) -> Interaction:
+        with Session(self.state_db_engine) as session:
+            return conversations.get_interaction_by_id(session, interaction_id)
+       
+    # def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
+    #     path = self.annotations_path / annotation_file
+    #     self.add_doc(Document.initialize(path),  annotation_docset_name)
+    
+    def add_annotation(self, annotation_docset_name: str, title: str, cmdtext: str)-> None:
+        
+        with Session(self.state_db_engine) as session:    
+            annotation_id, stored_file = annotations.add_annotation(session, self.annotations_path, title, cmdtext)
+            path = self.annotations_path / stored_file
+            self.add_doc(Document.initialize(path), annotation_docset_name)
+    
+    
+    def set_output(self, output: Output):
+        self.out = output
         
     def run_script(self, script_name: str, *args: List[str]) -> Any:
         
         if script_name in self.scripts:
             script = import_module(script_name)
             #connect 'print' function in script to printer.print redirecting output to active app
-            script.print = self.printer.print #type: ignore 
+            script.print = self.out.print #type: ignore 
             return script.run(self, *args)
         else:
             raise InvalidParameters(f"Script {script_name} not found in scripts directory")

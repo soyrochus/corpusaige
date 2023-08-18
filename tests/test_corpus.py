@@ -73,5 +73,5 @@ class DummyPrinter:
         
 def test_run_script(corpus_dir):
     corpus = StatefullCorpus(get_config(corpus_dir))
-    corpus.printer = DummyPrinter()
+    corpus.out = DummyPrinter()
     assert corpus.run_script('simple_test_script') == "Test Corpus"

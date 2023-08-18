@@ -6,21 +6,18 @@ through deep exploration and understanding of comprehensive document sets and so
 @copyright: Copyright © 2023 Iwan van der Kleijn
 @license: MIT
 """
-import re
 from prompt_toolkit import PromptSession
+import prompt_toolkit
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.lexers import PygmentsLexer
 from pygments.lexers import PythonLexer
 from prompt_toolkit.output import create_output
 from corpusaige.ui.console_tools import spinner
-from corpusaige.protocols import Printer
+from corpusaige.protocols import Input, Output
 
 from corpusaige.ui.repl import PromptRepl
 
-def strip_invalid_file_chars(title: str) -> str:
-    title = re.sub(r'[\\/*?:"<>|]',"", title)
-    return title
 
 class CommandCompleter(Completer):
     
@@ -38,7 +35,7 @@ def get_terminal_size():
     size = output.get_size()
     return size.rows, size.columns
 
-class ShellApp(Printer):
+class ShellApp(Input, Output):
     """ShellApp class for the shell interface - utilizing PromptRepl through composition"""
    
     completer : CommandCompleter
@@ -51,10 +48,10 @@ class ShellApp(Printer):
             import builtins
             builtins._shell = self  # type: ignore
     
-        #back reference to the PromptRepl. Any output from the PromptRepl will be printed 
-        # to the screen by the ShellRepl
+        # Double back reference to the PromptRepl. Any output from the PromptRepl will be printed 
+        # to the screen by the ShellRepl and input can be obtained from ShellApp
         self.repl = repl
-        self.repl.set_printer(self)
+        self.repl.set_input_output(self, self)
          
         self.completer = CommandCompleter(self.repl.all_commands)
         self.session = PromptSession(completer=self.completer)
@@ -79,6 +76,10 @@ class ShellApp(Printer):
         """Clear the screen"""
         self.print("\033c", end="")
     
+    def prompt(self, prompt: str) -> str:
+        """Prompt for input"""
+        return prompt_toolkit.prompt(prompt)
+    
     def run(self):
         print("Welcome to the Corpusaige shell\n")
         print("Use: - Alt+Enter or Alt-Enter to send command or prompt.")
@@ -91,8 +92,7 @@ class ShellApp(Printer):
             try:
                 
                 with patch_stdout():
-                    user_input = self.get_multiline_input(self.repl.default_prompt)
-                    self.default_prompt = ""
+                    user_input = self.get_multiline_input(self.repl.prepared_prompt)
                 
                 if user_input.startswith('/'):
                     self.repl.handle_command(user_input)
@@ -104,7 +104,6 @@ class ShellApp(Printer):
             except KeyboardInterrupt:
                 # Handle Ctrl+C gracefully
                 print("KeyboardInterrupt. Use /exit or /quit to quit the shell.")
-                self.repl.default_prompt = ""
 
             except EOFError:
                 # Handle Ctrl+D gracefully

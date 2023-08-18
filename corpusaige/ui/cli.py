@@ -14,7 +14,6 @@ import sys
 import tkinter as tk
 import traceback
 from typing import List
-from corpusaige.data.db import init_db
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.ui.console_tools import is_data_available
 from corpusaige.ui.gui import GuiApp
@@ -80,7 +79,7 @@ def remove(config: CorpusConfig, docset_name: str, force: bool):
     if force or input(f"Are you sure you want to remove {docset_name}? (y/n)").lower() == "y":
         corpus.remove_docset(docset_name)
     else:
-        print(f"Remove cancelled.")    
+        print("Remove cancelled.")    
 
 def prompt(config: CorpusConfig, read: bool, line: str):
     """Send prompt (not repl command) to corpus/AI."""
