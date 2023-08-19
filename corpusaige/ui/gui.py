@@ -214,17 +214,15 @@ class GuiApp(Input, Output):
 Licensed under
 the MIT License""")
 
-    def pprint(self, text:str, pause_page: bool =True):
-        # if pause_page:
-        #     # Subtract 1 for the input line
-        #     lines_per_page = get_terminal_size()[0] - 1
-        #     lines = text.split('\n')
-        #     for i in range(0, len(lines), lines_per_page):
-        #         print('\n'.join(lines[i:i+lines_per_page]))
-        #         if i + lines_per_page < len(lines):
-        #             input('Press any key for next page...')
-        # else:
-        self.print(text)
+    @property
+    def paged_printing(self)-> bool:
+        """Paged printing of text to the screen if needed/possible"""
+        return False
+    
+    @paged_printing.setter
+    def paged_printing(self, paging: bool)-> None:
+        """Paged printing of text to the screen if needed/possible"""
+        raise NotImplementedError("Paged printing not necessary (and therefore not implemented) in GUI")
         
     def print(self, text:str):
         self.append_to_output(text)

@@ -52,7 +52,6 @@ class PromptRepl:
         
         self.corpus = corpus
        
-        self.pause_page = True
         self.trace_mode = False
         
         self.conversation_id: int | None = None
@@ -99,7 +98,7 @@ class PromptRepl:
         try:
           
             answer = self.corpus.send_prompt(message)
-            self.out.pprint(answer)    
+            self.out.print(answer)    
                 
         except Exception as e:
             if not self.trace_mode:
@@ -137,9 +136,9 @@ class PromptRepl:
 
     def print_results(self, text=None, *, list=None, seperator=""):
         if text is not None:
-            self.out.pprint(text, self.pause_page)
+            self.out.print(text)
         elif len(list) > 0:
-            self.out.pprint(seperator.join(list), self.pause_page)
+            self.out.print(seperator.join(list))
         else:
             self.out.print("No results found.")
     
@@ -354,8 +353,11 @@ Scripys can be added to the corpus by placing them in the scripts folder""")
         self.out.clear()
 
     @synonymcommand("pause")
-    def do_pause_page(self, *args, cmdtext=None):
-        """Toggle pause page on or off."""
-        self.pause_page = not self.pause_page
-        self.out.print(f"Pause page: {'on' if self.pause_page else 'off'}")
+    @detailed_help("""Usage: /paged_printing 
+       Enable or disable (toggle) paged printing of text to the screen if needed/possible""")
+    def do_paged_printing(self, *args, cmdtext=None):
+        """Toggle paged printing on or off."""
+        
+        self.out.paged_printing = not self.out.paged_printing
+        self.out.print(f"Paged printing: {'on' if self.out.paged_printing else 'off'}")
 

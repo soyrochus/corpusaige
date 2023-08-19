@@ -14,10 +14,15 @@ from typing import Protocol
 
 
 class Output(Protocol):
-    def pprint(self, text:str, pause_page: bool =True):
-        """Print text to the screen, optionally pausing after each page"""
+   
+    @property
+    def paged_printing(self)-> bool:
+        """Paged printing of text to the screen if needed/possible"""
+        ... 
+    @paged_printing.setter
+    def paged_printing(self, paging: bool)-> None:
+        """Paged printing of text to the screen if needed/possible"""
         ...
-            
     def print(self, text:str):
         """Print text to the screen"""
         ...

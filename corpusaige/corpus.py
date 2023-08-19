@@ -89,9 +89,14 @@ class Corpus(Protocol):
 
 
 class BasicConsoleOutput(Output):
-    def pprint(self, text:str, pause_page: bool =True):
-       print(text)
-            
+    @property
+    def paged_printing(self)-> bool:
+        return False
+    
+    @paged_printing.setter
+    def paged_printing(self, paging: bool)-> None:
+        pass
+    
     def print(self, text:str):
         print(text)
     

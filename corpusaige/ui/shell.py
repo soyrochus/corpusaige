@@ -41,6 +41,7 @@ class ShellApp(Input, Output):
     completer : CommandCompleter
     session : PromptSession
     repl: PromptRepl
+    _paged_printing: bool = False
     
     def __init__(self, repl: PromptRepl,  DEBUG=False ):
         
@@ -55,10 +56,20 @@ class ShellApp(Input, Output):
          
         self.completer = CommandCompleter(self.repl.all_commands)
         self.session = PromptSession(completer=self.completer)
-       
+        self._paged_printing = False
+        
+    @property
+    def paged_printing(self)-> bool:
+        """Paged printing of text to the screen if needed/possible"""
+        return self._paged_printing 
     
-    def pprint(self, text:str, pause_page: bool =True):
-        if pause_page:
+    @paged_printing.setter
+    def paged_printing(self, paging: bool)-> None:
+        """Paged printing of text to the screen if needed/possible"""
+        self._paged_printing = paging
+    
+    def print(self, text:str):
+        if self._paged_printing:
             # Subtract 1 for the input line
             lines_per_page = get_terminal_size()[0] - 1
             lines = text.split('\n')
@@ -68,9 +79,6 @@ class ShellApp(Input, Output):
                     input('Press any key for next page...')
         else:
             self.print(text)
-            
-    def print(self, text:str):
-        print(text)
     
     def clear(self):
         """Clear the screen"""
@@ -95,9 +103,8 @@ class ShellApp(Input, Output):
                     user_input = self.get_multiline_input(self.repl.prepared_prompt)
                 
                 if user_input.startswith('/'):
-                    with spinner("Executing..."):
-                        
-                        self.repl.handle_command(user_input)
+                    # No spinner here as it screws up the paged printing
+                    self.repl.handle_command(user_input)
                 else:
                     
                     with spinner("Sending prompt..."):
