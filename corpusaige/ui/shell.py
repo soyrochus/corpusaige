@@ -95,7 +95,9 @@ class ShellApp(Input, Output):
                     user_input = self.get_multiline_input(self.repl.prepared_prompt)
                 
                 if user_input.startswith('/'):
-                    self.repl.handle_command(user_input)
+                    with spinner("Executing..."):
+                        
+                        self.repl.handle_command(user_input)
                 else:
                     
                     with spinner("Sending prompt..."):

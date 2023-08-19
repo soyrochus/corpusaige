@@ -2,14 +2,15 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 
-def exec_task_with_progress(root, task):
+def exec_task_with_progress(root, title, task):
     def task_wrapper():
         task()
         popup.quit()
 
     # Create the popup
     popup = tk.Toplevel()
-    popup.title('Processing...')
+    popup.title(title)
+    #popup.title('Processing...')
     
     # Make the popup always stay on top of other windows
     popup.attributes('-topmost', True)

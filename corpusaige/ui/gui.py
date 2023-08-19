@@ -152,9 +152,12 @@ class GuiApp(Input, Output):
  
         try:    
             if user_input.startswith('/'):
-                self.repl.handle_command(user_input)
+                
+                exec_task_with_progress(self.root, "Executing...", lambda: self.repl.handle_command(user_input))
+            
             else:
-                exec_task_with_progress(self.root, lambda: self.repl.send_prompt(user_input))
+                
+                exec_task_with_progress(self.root,"Sending prompt...", lambda: self.repl.send_prompt(user_input))
                 
         except EOFError:
                 print("Exiting the shell...")
