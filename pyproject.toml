@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Corpusaige"
-version = "0.9.0"
+version = "0.10.0"
 description = "Corpusaige is a Python tool (and utility library) enabling AI-powered systems analysis through deep exploration and understanding of comprehensive document sets and source code."
 authors = ["Iwan van der Kleijn <iwanvanderkleijn@gmail.com>"]
 license = "MIT"
@@ -23,6 +23,7 @@ types-pygments = "^2.15.0.1"
 pytest = "^7.4.0"
 chromadb = "^0.4.3"
 sqlalchemy = "^2.0.19"
+toml = "^0.10.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"

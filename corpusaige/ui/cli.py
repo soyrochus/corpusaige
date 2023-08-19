@@ -24,10 +24,13 @@ from .repl import PromptRepl
 from ..config.read import CorpusConfig, get_config
 from ..config.create import prompt_user_for_init
 from ..documentset import DocumentSet
+from ..app_meta_data import AppMetaData
 
 #print error with traceback if DEBUG is True
 DEBUG = True
 #DEBUG = False
+
+
 
 def new_corpus(name: str, path: Path):
     """
@@ -101,6 +104,9 @@ def prompt(config: CorpusConfig, read: bool, line: str):
     
     
 def cli_run():
+    
+    app_meta_data = AppMetaData()
+    
     parser = argparse.ArgumentParser(
         prog='crpsg (or python -m corpusaige)', description='Corpusaige command line interface',
         exit_on_error=False, add_help=True, allow_abbrev=True)
@@ -136,6 +142,8 @@ def cli_run():
     # Global optional parameter
     parser.add_argument('-p', '--path', default='.', help='Path to corpus (default: current dir)')
     
+    parser.add_argument('-v', '--version', action='version', version=f'{app_meta_data.name} {app_meta_data.version}')
+  
     args = parser.parse_args(sys.argv[1:])
 
     # Execute the command
