@@ -15,6 +15,7 @@ from tkinter import scrolledtext, Menu, messagebox
 from tkinter import font
 
 from corpusaige.protocols import Input, Output
+from corpusaige.ui.gui_tools import exec_task_with_progress
 from corpusaige.ui.repl import PromptRepl
 from tkinter import simpledialog
 
@@ -153,8 +154,8 @@ class GuiApp(Input, Output):
             if user_input.startswith('/'):
                 self.repl.handle_command(user_input)
             else:
-                #with spinner("Sending prompt..."):
-                self.repl.send_prompt(user_input)
+                exec_task_with_progress(self.root, lambda: self.repl.send_prompt(user_input))
+                
         except EOFError:
                 print("Exiting the shell...")
                 self.root.quit()
@@ -240,13 +241,3 @@ the MIT License""")
     def run(self):
         
         self.root.mainloop()
-
-# if __name__ == "__main__":
-#     root = tk.Tk()
-   
-#     config = get_config('.')
-#     corpus = StatefullCorpus(config)
-
-#     db_state_engine = init_db(corpus.state_db_path)
-#     prompt = PromptRepl(corpus, db_state_engine)
-#     GuiRepl(root, prompt, True).run()
