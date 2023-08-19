@@ -9,7 +9,6 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 
-import os
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

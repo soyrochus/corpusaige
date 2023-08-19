@@ -9,7 +9,6 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 
-import os
 import pytest
 from pathlib import Path
 

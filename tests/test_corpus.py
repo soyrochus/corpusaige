@@ -13,7 +13,6 @@ through deep exploration and understanding of comprehensive document sets and so
 
 
 import configparser
-import os
 from pathlib import Path
 import pytest
 from corpusaige.config import CORPUS_SCRIPTS
@@ -50,7 +49,7 @@ def corpus_dir(tmpdir_factory):
     corpus_dir_path = Path(tmpdir_factory.mktemp("corpus"))
     config_p = configparser.ConfigParser()
     config_p.read_string(corpus_ini_str)
-    config = create_corpus(corpus_dir_path, config_p)
+    create_corpus(corpus_dir_path, config_p)
     
     with open(corpus_dir_path / CORPUS_SCRIPTS / 'simple_test_script.py', 'w') as f:
         f.write(test_script_str)

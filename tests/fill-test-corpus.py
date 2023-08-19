@@ -9,7 +9,6 @@ through deep exploration and understanding of comprehensive document sets and so
 
 # Import necessary modules
 
-import configparser
 from pathlib import Path
 from corpusaige.config.read import get_config
 from corpusaige.ui.console_tools import zip_dir
