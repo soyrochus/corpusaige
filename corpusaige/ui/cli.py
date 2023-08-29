@@ -86,6 +86,10 @@ def remove(config: CorpusConfig, docset_name: str, force: bool):
 
 def prompt(config: CorpusConfig, read: bool, line: str):
     """Send prompt (not repl command) to corpus/AI."""
+    "if chosed 'read' and on Windows, raise exception"
+    if read and sys.platform == "win32":
+        raise InvalidParameters("Cannot use --read on Windows")
+    
     if read and line:
         raise InvalidParameters("Cannot use both --read and --line")
     elif not read and not line:
