@@ -153,7 +153,9 @@ class GuiApp(Input, Output):
         try:    
             if user_input.startswith('/'):
                 
-                exec_task_with_progress(self.root, "Executing...", lambda: self.repl.handle_command(user_input))
+                #No spinner here as it interferes with the user input
+                self.repl.handle_command(user_input)
+                #exec_task_with_progress(self.root, "Executing...", lambda: self.repl.handle_command(user_input))
             
             else:
                 

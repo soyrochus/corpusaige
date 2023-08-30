@@ -191,9 +191,6 @@ class StatefullCorpus(Corpus):
         with Session(self.state_db_engine) as session:
             return conversations.get_interaction_by_id(session, interaction_id)
        
-    # def store_annotation(self, annotation_docset_name: str, annotation_file: str) -> None:
-    #     path = self.annotations_path / annotation_file
-    #     self.add_doc(Document.initialize(path),  annotation_docset_name)
     
     def add_annotation(self, annotation_docset_name: str, title: str, cmdtext: str)-> None:
         
