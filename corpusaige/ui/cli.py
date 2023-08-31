@@ -32,11 +32,11 @@ DEBUG = True
 
 
 
-def new_corpus(name: str, path: Path):
+def new_corpus(name: str, path: str):
     """
     Creates a new corpus using a wizzard
     """
-    corpus_path = (path / name).absolute()
+    corpus_path = (Path(path) / Path(name)).absolute()
     ensure_dir_path_exists(corpus_path)
     config_parser = prompt_user_for_init()
     print(f"Creating new corpus {name} at {corpus_path}")

@@ -78,7 +78,7 @@ class ShellApp(Input, Output):
                 if i + lines_per_page < len(lines):
                     input('Press any key for next page...')
         else:
-            self.print(text)
+            print(text)
     
     def clear(self):
         """Clear the screen"""
