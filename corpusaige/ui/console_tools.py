@@ -81,3 +81,7 @@ def is_data_available(timeout):
 def strip_invalid_file_chars(title: str) -> str:
     title = re.sub(r'[\\/*?:"<>|]',"", title)
     return title
+
+def is_empty_str(s: str) -> bool:
+    """Verifies if a string is empty, just whitespace or None."""
+    return s is None or s.strip() == ""

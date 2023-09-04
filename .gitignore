@@ -182,3 +182,8 @@ tests/assets/test-corpus/
 tests/assets/chromadb.zip
 tests/assets/test-corpus-backup.zip
 playground.py
+
+demo/
+test-case/cv/test-cv-copus/
+tests/assets/test-corpus1/
+tests/assets/test-corpus2/

@@ -26,7 +26,7 @@ def put(session, key: str, data: Any) -> None:
     kv_item = _get_kv_item(session, key)
 
     if kv_item:
-        kv_item.value = serialized_data
+        kv_item.value = serialized_data  # type: ignore
     else:
         kv_item = KeyValue(key=key, value=serialized_data)
         session.add(kv_item)

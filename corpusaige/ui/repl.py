@@ -11,11 +11,12 @@ through deep exploration and understanding of comprehensive document sets and so
 import traceback
 
 from ast import literal_eval
+from corpusaige.config import ANNOTATION_DOCSET_NAME
 
 from corpusaige.documentset import DocumentSet
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.protocols import Input, Output
-from corpusaige.ui.console_tools import strip_invalid_file_chars
+from corpusaige.ui.console_tools import is_empty_str, strip_invalid_file_chars
 from corpusaige.corpus import Corpus
 
 def synonymcommand(*synonyms):
@@ -259,16 +260,16 @@ class PromptRepl:
     @synonymcommand("annotate")
     def do_store(self, *args, cmdtext=None):
         """Incorporate annotation (from scratch or response from the LLM) into the corpus"""
-        if cmdtext is None or cmdtext.strip() == "":
+        if is_empty_str(cmdtext):
             self.out.print("No text to store.")
         else:
             
             title = self._in.prompt("Enter title for annotation: ")
             title = strip_invalid_file_chars(title)
-            if title is None or title.strip() == "":
+            if is_empty_str(title):
                 raise InvalidParameters("No title specified")
             
-            self.corpus.add_annotation('Corpusaige annotations', title, cmdtext)
+            self.corpus.add_annotation(ANNOTATION_DOCSET_NAME, title, cmdtext)
           
 
     def do_update(self, *args, cmdtext=None):
@@ -279,7 +280,7 @@ class PromptRepl:
     @synonymcommand("del", "rm")
     def do_remove(self, *args, cmdtext=None):
         """Remove document set from the corpus"""
-        if cmdtext is None or cmdtext.strip() == "":
+        if is_empty_str(cmdtext):
             raise InvalidParameters("No document set name specified")
         else:
             self.corpus.remove_docset(cmdtext)

@@ -11,4 +11,4 @@ CORPUS_INI = 'corpus.ini'
 CORPUS_STATE_DB = 'corpus-state.db'
 CORPUS_ANNOTATIONS = 'annotations'
 CORPUS_SCRIPTS = 'scripts'
-
+ANNOTATION_DOCSET_NAME = 'Corpusaige annotations'

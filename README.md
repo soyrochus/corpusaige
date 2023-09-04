@@ -1,160 +1,168 @@
 # Corpusaige
-_Corpusaige_ is a Python tool (and utility library) enabling AI-powered systems analysis 
-through deep exploration and understanding of comprehensive document sets and source code.
+_Corpusaige_ is a Python tool (and utility library) for “Retrieval Augmented Generation”: AI-assisted analysis and comprehension of document sets and source code 
 
-__note__: this README is an excersise in [README Driven Development](https://tom.preston-werner.com/2010/08/23/readme-driven-development.html) or otherwise stated: until further notice the README does promise things which are not as yet implemented. Once the implementaion becomes more then a jumbled mess of ugly code that's likely not going to work, this notice will be removed. 
- 
 ## Introduction
 Corpusaige provides a powerful capability for system analysts and developers, aiding in the aggregation of an expansive collection of related document sets and complex source code pertinent to a specific system or domain. By bridging the gap between this collective information (termed the Corpus) and AI Large Language Models (LLMs), Corpusaige facilitates an insightful, AI-aided analysis, granting an holistic view of the project or system at hand.
 
-This library embodies an iterative approach to knowledge refinement. It enables users to supplement the Corpus with additional metadata, introduce new information, and incorporate the AI's analysis results back into the system. This iterative enhancement to the Corpus significantly increases the precision and depth of the system's understanding, fostering a dynamic, ever-evolving model that encapsulates all relevant system or domain information.
+![Corpusaige: A Python utility library and tool for deep exploration and understanding of large document sets and source code](img/corpusaige.png)
 
-![CorpuSaige: A Python utility library and tool for deep exploration and understanding of large document sets and source code](corpusaige.png)
+## How does it work
+The tool works by:
 
-## Features
-__Incremental Knowledge Refinement__: Corpusaige incorporates an iterative process to enhance the depth and precision of system understanding, allowing the Corpus to dynamically evolve with added metadata, new information, and AI-analyzed results.
+ - Aggregate documentation and source code into a searchable (vector) database.
+ - Interact with AI (e.g., GPT-4) for insights on the system (using searches of the database)
+ - Continuous updates enhance AI's accuracy.
 
-__Interface to a Large Language Model (LLM)__: Corpusaige functions as the primary interface to AI Large Language Models (LLMs), facilitating insightful, AI-powered system analysis.
+This tool/library embodies therefore an iterative approach to knowledge refinement. It enables users to supplement the Corpus with additional metadata, introduce new information, and incorporate the AI's analysis results back into the system. This iterative enhancement to the Corpus significantly increases the precision and depth of the system's understanding, fostering a dynamic, ever-evolving model that encapsulates all relevant system or domain information.
 
-__Support for Multiple Document Types__: Corpusaige inherently supports PDF and text files, with an extensible design that permits the addition of other document types, such as Word or Excel, without necessitating modifications to the core library.
+For a good backgrounder on "Retrieval Augmented Generation" (RAG) which forms the basis underlying Corpusaige, see this article: [Harnessing Retrieval Augmented Generation With Langchain](https://betterprogramming.pub/harnessing-retrieval-augmented-generation-with-langchain-2eae65926e82)
 
-__Local and Cloud-Based Vector Data Storage__: Corpusaige accommodates both local and cloud-based vector data storage, offering flexibility for debugging and scalability needs respectively.
-
-__Compatibility with Notebook Environments__: As a Python library, Corpusaige is compatible with Jupyter or comparable notebook environments, enabling seamless incorporation into diverse workflows.
-
-__Versatile CLI Tool__: Corpusaige can operate as a CLI tool, offering two modes: a batch command mode for document indexing and vector database storage, and a REPL mode for ad-hoc interactive sessions with the LLM about the Corpus.
-
-__Plugin for Visual Studio__: Corpusaige can be used through a simple plugin for Visual Studio Code, allowing the user to use the tooling and directly navigate to the relevant documents in the active projects (workspace) related with the Corpus.
-
-__Fully Configurable__: CorpuSaige's configurability extends to its usage as either a library or a CLI tool, permitting customization of the dataset, API key, vector database, and type of LLM.
-
-## Use Case: Navigating and Enhancing a Complex Software System
-Picture this: you're a software engineer who's recently joined a new team. Your responsibility? Maintaining and augmenting a sophisticated, legacy software system. This system is expansive and rather cryptic, characterized by scattered documentation across numerous sources and dense, intricate source code. To unravel this enigma and grasp the system thoroughly, you'd leverage Corpusaige.
-
-Initially, your task is to compile all available documentation associated with the software system. This compilation might encompass design documents, user manuals, API documentation, among other resources. Concurrently, you amass all the source code associated with the software system.
-
-Having compiled the necessary resources, you engage Corpusaige's CLI tool in batch command mode to index the gathered documents and source code. In this stage, the text data undergoes transformation into vector representations, translatable by the LLM. These vectors are then archived in a database, which could reside locally for debug-oriented purposes or in a cloud-based storage system for broader accessibility and scalability.
-
-![CorpuSaige: A Python utility library and tool for deep exploration and understanding of large document sets and source code](corpusaige-diagram.png)
-
-With the database now populated with vectorized data, you're ready to engage with the LLM. Deploying Corpusaige's CLI tool in REPL mode or through Corpusaige's plugin for Visual Studio Code, you can initiate ad-hoc dialogue sessions with the LLM regarding the software system. Whether your queries pertain to specific system components, require clarifications on intricate code sections, or seek advice on implementing novel features, the LLM is equipped to deliver insightful responses, fueled by the vector data, and based on a comprehensive understanding of the software system.
-
-Your interaction with the system and the LLM doesn't end here. As you persist in your work on the software system, you continually enrich the vector database with new documents and modifications to the code, comments and meta-data related with the project as well as the very outcome of the AI's analysis itself. This ongoing data enrichment ensures the LLM's understanding remains current and precise and increases in scope and precision, enabling it to provide accurate and pertinent responses during the whole life cycle. 
-
-In leveraging Corpusaige, you're no longer confronting an opaque software system. Instead, you've found a way to pierce the obscurity, gaining a clear understanding that simplifies system maintenance and enhancement over time.
+![Corpusaige: A Python utility library and tool for deep exploration and understanding of large document sets and source code](img/corpusaige-diagram.png)
 
 ## Installation
 
-Installing the CLI tool:
+For the moment Corpusaige is not available as a distributable. It needs to be installed from source. 
+
+It works with Python 3.11 on any modern Linux distribution. On Windows it has only been tested using Python and dependencies installed with [Scoop](https://scoop.sh/).
+
+Use git to clone the repository. Use the dependency and package manager [Poetry](https://python-poetry.org/) to install all the dependencies.
 
 ```bash
-pip install Corpusaige
+❯ poetry install
 ```
-or using [Poetry](https://python-poetry.org/):
+### Usage of the virtual environment
+[Activate the Python virtual environment](https://python-poetry.org/docs/basic-usage/#activating-the-virtual-environment) with
 
 ```bash
-poetry add Corpusaige
+❯ poetry shell
 ```
+### Run the applicacion
 
-The Visual Studio Code plugin can be found under the name __Corpusaige__
+You can run the application by starting Corpusaige as a module. 
 
+```bash
+❯ python -m corpusaige
+```
+The binary distribution will have a script allowing running the app with a single command ("crpsg", see the examples down). In order to use this in the development environment you have to incorporate the utility in the path. This can be done with the following script
+
+On Windows
+```bash
+❯ setpath.ps1
+```
+On Linux
+```bash
+❯ source setpath.sh
+```
+### Running tests
+
+Corpusaige uses [Pytest](https://docs.pytest.org/) as its primary testing infrastructure. This is installed automatically as part of the dependencies of the project. The tests can be executed by running pytest in the root of the Corpusaige directory:
+
+```bash
+❯ pytest
+```
 ## Usage
 
 ## Command line
 ```bash
+❯ crpsg --help
 python -m corpusaige --help
 #or
-crpsg --help
+❯ crpsg --help
 
-usage: crpsg [-h] {new,add,cli} ...
+usage: crpsg (or python -m corpusaige) [-h] [-p PATH] [-v] {new,add,remove,shell,gui,prompt} ...
 
 Corpusaige command line interface
 
 positional arguments:
-  {new,add,cli}
-    new          Create a new corpus
-    add          Add files to a corpus
-    shell        Display the Corpusaige shell 
-
-options:
-  -p, --path     Path to corpus (default: current dir)
-  -h, --help     show this help message and exit
-
-# (abbrev) help for commands new, add and shell
-
-usage: crpsg new [-h] name
-
-positional arguments:
-  name        Name of the new corpus
-
-# ..
-
-usage: crpsg add [-h] [-r] -t DOC_TYPES [DOC_TYPES ...] -p DOC_PATHS [DOC_PATHS ...] -n NAME
+  {new,add,remove,shell,gui,prompt}
+    new                 Create a new corpus
+    add                 Add a document set (i.e. files) to a corpus
+    remove              Remove a document set (i.e. files) from a corpus
+    shell               Display the Corpusaige Shell (console)
+    gui                 Display the Corpusaige Gui
+    prompt              Send prompt (not repl command) to corpus/AI.
 
 options:
   -h, --help            show this help message and exit
-  -r, --recursive       Recursively add files
-  -t DOC_TYPES [DOC_TYPES ...], --doc-types DOC_TYPES [DOC_TYPES ...]
-                        Document (File) types to add
-  -p DOC_PATHS [DOC_PATHS ...], --doc-paths DOC_PATHS [DOC_PATHS ...]
-                        (root) Path containing documents to add
-  -n NAME, --name NAME  Name for document set
-
-# ..
-usage: crpsg shell [-h]
+  -p PATH, --path PATH  Path to corpus (default: current dir)
+  -v, --version         show program's version number and exit
 
 ```
+
+What follows are more detailed explanations of the commands "new" and "add" with the purpose to get started quickly:
+
 ### A new Corpus
 
-First, create a new Corpus with the folling options
+First, create a new Corpus with the following options
 
 ```bash
-crpsg -p /home/soyrochus/data new gutenberg 
+crpsg -p {path} new {name}
+
+❯ crpsg -p /home/soyrochus/data new gutenberg 
 ```
-This will create a new Corpus witht the name "gutenberg. The Corpus is basically a file with the name corpus.ini in aforementioned directory. It contains a series of parameters
+This will create a new Corpus with the name "gutenberg". The Corpus is basically a file with the name corpus.ini and a number of other files in the aforementioned directory. 
 
-> __TODO__ incorporate description of the parameters  needed to create the Corpus as well as the text UI presented to the user for this very purpose
-
-In case the -p option is ommited, the current directoy will be used to create the corpus subdirectory. 
+In case the -p option is omited, the current directory will be used to create the corpus subdirectory. 
 
 ### Adding documents to the Corpus
 
 A Corpus can contain multiple document sets. These are collections of documents grouped under the same name to 
 
 ```bash
-crpsg -p gutenberg add -n "Philosophy" -p /home/soyrochus/tmp/gutenberg/Philo_txt -t text:{txt:md} -r
+
+crpsg -p {path corpus} add -n {name} -p {path directory with documents} -t {document type(s)} [-r] #(recursive or not)
+❯ crpsg -p gutenberg add -n "Philosophy" -p /home/soyrochus/tmp/gutenberg/Philo_txt -t text:{txt:md} -r
 ```
+In this example the _Philosophy_ document set will consist of all text files with the *.txt and *.md (mark-down) files contained in the mentioned directory and all of its subdirectories, due to the -r (recursive) option.
 
-In this example the _Philosophy_ document set will consist of all text files with the *txt and *.md (mark-down) files contained in the mentioned directory and all of its subdirectories, due to the -r (recursive) option.
+## Usage of the shell and Gui
 
-## Usage of the shell
-
-The shell is a basic multi-line prompt which is immiately avalable to have a conversation (to "chat") with the configured LLM. Use Alt+Enter or Alt-Enter to send the prompt. 
+The shell and Gui are based on a multi-line prompt which is immediately available to have a conversation (to "chat") with the configured LLM. Use Alt+Enter or Alt-Enter to send the prompt. 
 
 Instead of sending a prompt you can give a command. All commands start with the character "/". For example, use command /exit to quit the shell and use /help or /? to get full list commands.
 
 ```bash
+Welcome to the Corpusaige shell
+
+Use: - Alt+Enter or Alt-Enter to send command or prompt.
+     - the Up and Down keys for command history
+     - /exit or /quit to quit the shell.
+     - /help or /? to get full list commands.
+Use TAB to autocomplete commands.
+
+Session: Test Corpus - path: D:\src\corpusaige\tests\assets\test-corpus1\corpus.ini
+> /?
 Available commands:
-/clear      - Clear the screen.
-/db         - Perform database operations:
-            - db search <text> - search for text in the database
-            - db ls            - list all documents in the database 
-        
-/debug      - Toggle debug mode on or off.
-/exit       - Exit the shell.
-/help       - Show this help message.
-/sources    - Toggle between showing sources or not.
+/act          - Let de LLM perform an action (to be approved by the user)
+/add          - Add document set to the corpus
+/clear        - Clear the screen.
+/contextsize  - Gets or sets the number db results to sent to AI
+/conversation - List conversations/interactiions with the AI ; synonym(s): history
+/exit         - Exit the shell. ; synonym(s): quit
+/help         - Show this help message. ; synonym(s): ?
+/ls           - List documents in the corpus. ; synonym(s): dir
+/paged_printing - Toggle paged printing on or off. ; synonym(s): pause
+/remove       - Remove document set from the corpus ; synonym(s): del rm
+/run          - Run a script
+/search       - Search for text in the corpus (without sending to AI)
+/sources      - Toggle between showing sources or not.
+/store        - Incorporate annotation (from scratch or response from the LLM) into the corpus ; synonym(s): annotate
+/trace        - Toggle trace (debug) mode on or off. ; synonym(s): debug
+/update       - Update document set in the corpus
+>
 
 ```
+
+![Corpusaige: the Gui](img/corpusaige-gui.png)
 
 ## Used as a library
 
 ```python
 from corpusaige.corpus import StatefullCorpus
-from corpusaige.config import get_config
 
-config = get_config("../test-case")
-corpus = StatefullCorpus(config)
+corpus = StatefullCorpus("../test-case/test-book") # initiate new Corpus
+print(f'Using Corpus: "{corpus.name}" at {corpus.path.resolve()}')
+# prints: Using Corpus: "Rust book(s)" at /home/iwk/src/corpusaige/test-case/test-book/corpus.ini
 
 result = corpus.send_prompt("What is a trait in Rust?")
 
@@ -175,33 +183,6 @@ For our initial release, these technologies form the core. However, we recognize
 ### ChromaDb
 ChromaDb is integrated for its efficient vector data storage capabilities, crucial in handling the high-dimensional vector representations of our processed documents. It aids in both local and cloud-based data storage, providing scalability and facilitating smooth interaction with the AI models.
 
-## Configuration
-Detailed configuration instructions go here.
-
-
-## Development
-
-### Installation
-
-Clone the repository. Use the dependency and package manager [Poetry](https://python-poetry.org/) to install all the dependencies of vein.
-
-```bash
-poetry install
-```
-
-### Usage of the virtual environment
-[Activate the Python virtual environment](https://python-poetry.org/docs/basic-usage/#activating-the-virtual-environment) with
-
-```bash
-poetry shell
-```
-### Running tests
-
-Corpusaige uses [Pytest](https://docs.pytest.org/) as its primary testing infrastructure. This is installed automatically as part of the dependencies of the project. The tests can be executed by running pytest in the root of the Corpusaige directory:
-
-```bash
-pyshell
-```
 
 ### Contributing
 
@@ -209,7 +190,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-## Copyright and license
+## Copyright and licence
 
 Copyright © 2023 Iwan van der Kleijn
 
