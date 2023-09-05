@@ -97,7 +97,6 @@ class PromptRepl:
 
     def send_prompt(self, message: str) -> None:
         try:
-          
             answer = self.corpus.send_prompt(message)
             self.out.print(answer)    
                 

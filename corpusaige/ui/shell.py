@@ -82,7 +82,7 @@ class ShellApp(Input, Output):
     
     def clear(self):
         """Clear the screen"""
-        self.print("\033c", end="")
+        print("\033c")
     
     def prompt(self, prompt: str) -> str:
         """Prompt for input"""
