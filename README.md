@@ -6,6 +6,8 @@ Corpusaige provides a powerful capability for system analysts and developers, ai
 
 ![Corpusaige: A Python utility library and tool for deep exploration and understanding of large document sets and source code](img/corpusaige.png)
 
+
+See this [presentation on Google Drive](https://docs.google.com/presentation/d/e/2PACX-1vQ0TOeD-0vkiTWKydlxq_qqw4kflgtbSXFktjNpJxK0WqAZK-F7UaUU8HOoRJ2lMP-g0nega5M5dejF/pub?start=false&loop=false&delayms=3000) for a more elaborate introduction.
 ## How does it work
 The tool works by:
 
