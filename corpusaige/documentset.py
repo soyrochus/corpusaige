@@ -63,7 +63,10 @@ class Document:
     def __init__(self, path: Path, file_type: FileType):
         self.path = path
         self.file_type  = file_type
-        
+    
+    def path_relative_to(self, root_path: Path) -> Path:
+        return self.path.relative_to(root_path)
+                   
     @staticmethod
     def initialize(path: Path, delay_validation=False) -> 'Document':
         
@@ -82,7 +85,11 @@ class Entry:
         self.file_type = file_type
         self.file_extension = file_extension
         self.recursive = recursive
-        
+    
+    def path_relative_to(self, root_path: Path) -> Path:
+        return self.path.relative_to(root_path)
+                   
+                   
     @staticmethod
     def create_Entry(path: Path, file_type_ext: str, recursive: bool, delay_validation=False) -> 'Entry':
         
@@ -94,6 +101,8 @@ class Entry:
         _file_type, _file_ext = FileType.parse_file_type_ext(file_type_ext)
         
         return Entry(path,_file_type, _file_ext, recursive)
+    
+
     
 
 class DocumentSet:
@@ -119,3 +128,5 @@ class DocumentSet:
             for doc_type in doc_types:
                 docset.add_entry(Entry.create_Entry(doc_path, doc_type, recursive))
         return docset
+    
+    

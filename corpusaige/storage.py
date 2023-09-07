@@ -6,6 +6,7 @@ through deep exploration and understanding of comprehensive document sets and so
 @copyright: Copyright © 2023 Iwan van der Kleijn
 @license: MIT
 """
+from pathlib import Path
 from typing import List, Protocol
 from corpusaige.config.read import CorpusConfig
 from langchain.document_loaders import DirectoryLoader, TextLoader
@@ -73,6 +74,7 @@ class VectorRepository(Repository):
                 docs = loader.load()
                 for doc in docs:
                     doc.metadata['doc-set'] = doc_set.name
+                    doc.metadata['path'] = str(Path(doc.metadata['source']).relative_to(entry.path))
                 if chunks is None:
                     chunks = text_splitter.split_documents(docs)
                 else:
@@ -99,7 +101,8 @@ class VectorRepository(Repository):
         result = None
         if all_docs:
             result = self.vectorstore.get()
-            sources = [metadata['source'] for metadata in result['metadatas']]
+            sources = [metadata['path'] for metadata in result['metadatas']]
+            #sources = [metadata['source'] for metadata in result['metadatas']]
             #remove duplicates from list
             return list(dict.fromkeys(sources))
         elif not all_docs and not doc_set:
@@ -109,7 +112,8 @@ class VectorRepository(Repository):
             return list(dict.fromkeys(doc_sets))
         else: 
             result = self.vectorstore.get(where={'doc-set': doc_set})
-            sources = [metadata['source'] for metadata in result['metadatas']]
+            sources = [metadata['path'] for metadata in result['metadatas']]
+            #sources = [metadata['source'] for metadata in result['metadatas']]
             #remove duplicates from list
             return list(dict.fromkeys(sources))
             
