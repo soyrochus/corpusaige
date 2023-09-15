@@ -21,10 +21,11 @@ from corpusaige.documentset import Document, DocumentSet
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.interactions import StatefullInteraction
 from corpusaige.protocols import Output
+from corpusaige.registry import PluginRegistry
 from corpusaige.storage import VectorRepository
 from .config.read import CorpusConfig, get_config
-from corpusaige.config import CORPUS_INI, CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
-from importlib import import_module
+from corpusaige.config import CORPUS_INI, CORPUS_PLUGINS, CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
+from importlib import import_module, reload
 
 from corpusaige.data.conversations import Conversation, Interaction
 
@@ -110,6 +111,7 @@ class StatefullCorpus(Corpus):
     out: Output
     last_conversation_id: int | None
     last_interaction_id: int | None
+    plugin_registry: PluginRegistry
 
     def __init__(self, config: str | CorpusConfig,show_sources: bool = False, 
                                             context_size: int = 15):
@@ -132,9 +134,14 @@ class StatefullCorpus(Corpus):
         self.last_interaction_id = None
         
         self.scripts = self._get_scripts()
+        self._cached_script_mods = {}
         self._db_state_engine = init_db(self.state_db_path)
         #set import path to corpus scripts folder
         sys.path.append(str(self.corpus_folder_path / CORPUS_SCRIPTS))
+        
+        for plugin_path in config.get_plugin_folders():
+            PluginRegistry.register_plugins_from_dir(plugin_path)
+        self.plugin_registry = PluginRegistry
 
     @property
     def state_db_path(self) -> Path:
@@ -206,12 +213,22 @@ class StatefullCorpus(Corpus):
     def run_script(self, script_name: str, *args: List[str]) -> Any:
         
         if script_name in self.scripts:
-            script = import_module(script_name)
+            if self._cached_script_mods.get(script_name) is None:
+                script_mod = import_module(script_name)
+            else:
+                script_mod = reload(self._cached_script_mods[script_name])
+               
+            self._cached_script_mods[script_name] = script_mod
+            
             #connect 'print' function in script to printer.print redirecting output to active app
-            script.print = self.out.print #type: ignore 
-            return script.run(self, *args)
+            script_mod.print = self.out.print #type: ignore 
+            
+            return script_mod.run(self, *args)
         else:
             raise InvalidParameters(f"Script {script_name} not found in scripts directory")
+    
+    def get_plugin_registry(self) -> PluginRegistry:
+        return self.plugin_registry
     
     def _get_scripts(self):
         scripts = []
@@ -231,11 +248,13 @@ def create_corpus(corpus_dir_path: Path, config_parser: ConfigParser) -> CorpusC
     #create db file in corpus
     db_file_path = corpus_dir_path / CORPUS_STATE_DB
     annotations_path = corpus_dir_path / CORPUS_ANNOTATIONS
-    scripts_path = corpus_dir_path /CORPUS_SCRIPTS
+    scripts_path = corpus_dir_path / CORPUS_SCRIPTS
+    plugins_path = corpus_dir_path / CORPUS_PLUGINS
     
     create_db(db_file_path)
     ensure_dir_path_exists(annotations_path)
     ensure_dir_path_exists(scripts_path)
+    ensure_dir_path_exists(plugins_path)
     
     return get_config(config_file_path)
     

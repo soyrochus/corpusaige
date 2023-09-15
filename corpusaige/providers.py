@@ -12,7 +12,7 @@ through deep exploration and understanding of comprehensive document sets and so
 from corpusaige.config.read import ConfigEntries, CorpusConfig
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
-#from langchain.llms import OpenAI
+# from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
 from typing import Any
 
@@ -25,7 +25,8 @@ def llm_factory(config: CorpusConfig) -> Any:
         llm_model = llmconfig.get("llm-model", "")
         api_key = llmconfig.get("api-key", "")
 
-        return ChatOpenAI(model=llm_model, openai_api_key=api_key)  # type: ignore
+        # type: ignore
+        return ChatOpenAI(model=llm_model, openai_api_key=api_key)
     else:
         raise NotImplementedError(f"LLM type {config.llm} not implemented")
 
@@ -34,11 +35,12 @@ def embeddings_factory(config: CorpusConfig) -> Any:
     if config.llm == "openai":
 
         llmconfig: ConfigEntries = config.get_llm_config()
-        
+
         embedding_model = llmconfig.get("embedding-model", "")
         api_key = llmconfig.get("api-key", "")
 
-        return OpenAIEmbeddings(model=embedding_model, openai_api_key=api_key) # type: ignore
+        # type: ignore
+        return OpenAIEmbeddings(model=embedding_model, openai_api_key=api_key)
     else:
         raise NotImplementedError(
             f"Embedding function type {config.llm} not implemented")

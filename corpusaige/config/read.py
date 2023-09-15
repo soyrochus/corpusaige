@@ -15,6 +15,7 @@ from typing import Dict, TypeAlias
 from corpusaige.config import CORPUS_INI
 
 from ..exceptions import InvalidConfigSection
+from . import CORPUS_PLUGINS, CORPUSAIGE_HOME_DIR
 
 ConfigEntries : TypeAlias = Dict[str,str]
 class CorpusConfig:
@@ -55,6 +56,16 @@ class CorpusConfig:
             raise InvalidConfigSection(f"Invalid data section: {section}")
         else: 
             return dict(entries.items())
+    
+    def get_plugin_folders(self)-> list[Path]:
+        corpus_plugins = self.get_config_dir() / CORPUS_PLUGINS
+        home_plugins = Path.home() / CORPUSAIGE_HOME_DIR / CORPUS_PLUGINS
+        paths = []
+        if corpus_plugins.exists():
+            paths.append(corpus_plugins)    
+        if home_plugins.exists():
+            paths.append(home_plugins)
+        return paths    
 
     def resolve_path_to_config(self, path: str | Path) -> Path:
         #if isinstance(path, str):
