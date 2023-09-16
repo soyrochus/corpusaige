@@ -15,13 +15,14 @@ from typing import Any, List, Protocol
 
 from sqlalchemy import Engine
 from sqlalchemy.orm.session import Session
+from corpusaige import providers
 from corpusaige.data import annotations, conversations
 from corpusaige.data.db import create_db, init_db
 from corpusaige.documentset import Document, DocumentSet
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.interactions import StatefullInteraction
 from corpusaige.protocols import Output
-from corpusaige.registry import PluginRegistry
+from corpusaige.registry import ServiceRegistry
 from corpusaige.storage import VectorRepository
 from .config.read import CorpusConfig, get_config
 from corpusaige.config import CORPUS_INI, CORPUS_PLUGINS, CORPUS_STATE_DB, CORPUS_ANNOTATIONS, CORPUS_SCRIPTS
@@ -111,7 +112,7 @@ class StatefullCorpus(Corpus):
     out: Output
     last_conversation_id: int | None
     last_interaction_id: int | None
-    plugin_registry: PluginRegistry
+    plugin_registry: ServiceRegistry
 
     def __init__(self, config: str | CorpusConfig,show_sources: bool = False, 
                                             context_size: int = 15):
@@ -124,6 +125,8 @@ class StatefullCorpus(Corpus):
         self.path = config.config_path
         self.show_sources = show_sources
         self.context_size = context_size
+        
+        providers.register_internal_factories()
         self.repository = VectorRepository(config)
         self.interaction = StatefullInteraction(
             config, retriever=self.repository.as_retriever())
@@ -140,8 +143,8 @@ class StatefullCorpus(Corpus):
         sys.path.append(str(self.corpus_folder_path / CORPUS_SCRIPTS))
         
         for plugin_path in config.get_plugin_folders():
-            PluginRegistry.register_plugins_from_dir(plugin_path)
-        self.plugin_registry = PluginRegistry
+            ServiceRegistry.register_plugins_from_dir(plugin_path)
+        self.plugin_registry = ServiceRegistry
 
     @property
     def state_db_path(self) -> Path:
@@ -227,7 +230,7 @@ class StatefullCorpus(Corpus):
         else:
             raise InvalidParameters(f"Script {script_name} not found in scripts directory")
     
-    def get_plugin_registry(self) -> PluginRegistry:
+    def get_plugin_registry(self) -> ServiceRegistry:
         return self.plugin_registry
     
     def _get_scripts(self):

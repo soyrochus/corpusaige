@@ -29,20 +29,23 @@ class CorpusConfig:
         self.config_path = config_path.absolute()
         self.config = configparser.ConfigParser()
         self.config.read(self.config_path)
-        
-        self.main = self.config["main"]
-        self.name = self.main["name"]
-        self.llm = self.main["llm"]
-        self.vector_db = self.main["vector-db"]
-        sections = self.main["data-sections"]
-        if not sections:
-            self.data_sections = []
-        else:
-            self.data_sections = self.main["data-sections"].split(",")
-        
-        self.llm_config = self.config[self.llm]
-        self.vector_db_config = self.config[self.vector_db]
-        self.data_section_configs = {section: self.config[section] for section in self.data_sections}
+        try:
+            self.main = self.config["main"]
+            self.name = self.main["name"]
+            self.llm = self.main["llm"]
+            self.vector_db = self.main["vector-db"]
+            # sections = self.main["data-sections"]
+            # if not sections:
+            #     self.data_sections = []
+            # else:
+            #     self.data_sections = self.main["data-sections"].split(",")
+            #self.data_section_configs = {section: self.config[section] for section in self.data_sections}
+            
+            self.llm_config = self.config[self.llm]
+            self.vector_db_config = self.config[self.vector_db]
+            
+        except KeyError as e:
+            raise InvalidConfigSection(f"Invalid config section: {e}")
 
     def get_llm_config(self) -> ConfigEntries:
         return dict(self.llm_config.items())
@@ -50,12 +53,12 @@ class CorpusConfig:
     def get_vector_db_config(self) -> ConfigEntries:
         return dict(self.vector_db_config.items())
         
-    def get_data_section_config(self, section: str) -> ConfigEntries:
-        entries = self.data_section_configs.get(section)
-        if entries is None:
-            raise InvalidConfigSection(f"Invalid data section: {section}")
-        else: 
-            return dict(entries.items())
+    # def get_data_section_config(self, section: str) -> ConfigEntries:
+    #     entries = self.data_section_configs.get(section)
+    #     if entries is None:
+    #         raise InvalidConfigSection(f"Invalid data section: {section}")
+    #     else: 
+    #         return dict(entries.items())
     
     def get_plugin_folders(self)-> list[Path]:
         corpus_plugins = self.get_config_dir() / CORPUS_PLUGINS
@@ -78,11 +81,11 @@ class CorpusConfig:
     def get_config_dir(self) -> Path:
         return self.config_path.parent
     
-    def get_all_data_section_configs(self) -> Dict[str, ConfigEntries]:
-        configs: dict[str, ConfigEntries] = {}
-        for key, value in self.data_section_configs.items():
-            configs[key] = dict(value.items())
-        return configs
+    # def get_all_data_section_configs(self) -> Dict[str, ConfigEntries]:
+    #     configs: dict[str, ConfigEntries] = {}
+    #     for key, value in self.data_section_configs.items():
+    #         configs[key] = dict(value.items())
+    #     return configs
 
 def get_config(config_path: str | Path) -> CorpusConfig:
    

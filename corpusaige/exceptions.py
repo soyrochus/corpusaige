@@ -16,5 +16,8 @@ class InvalidConfigSection(ValueError):
 class InvalidConfigEntry(ValueError):
     pass
 
+class InvalidProviderConfig(ValueError):
+    pass
+
 class InvalidParameters(ValueError):
     pass

@@ -55,7 +55,7 @@ def prompt_user_for_init() -> configparser.ConfigParser:
                                              ("chroma", "chroma"), ("unspecified", "unspecified")])
 
     config['main'] = {'name': name, 'llm': ai_provider,
-                      'vector-db': vector_db, 'data-sections': ''}
+                      'vector-db': vector_db} #, 'data-sections': ''}
 
     # OpenAI section
     if ai_provider.lower() == 'openai':

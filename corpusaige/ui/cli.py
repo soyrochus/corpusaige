@@ -14,10 +14,11 @@ import sys
 import tkinter as tk
 import traceback
 from typing import List
+from corpusaige import providers
 from corpusaige.exceptions import InvalidParameters
+from corpusaige.providers import vectorstore_creator_factory
 from corpusaige.ui.console_tools import is_data_available
 from corpusaige.ui.gui import GuiApp
-from corpusaige.providers import create_local_vectordb
 from corpusaige.ui.shell import ShellApp
 from ..corpus import StatefullCorpus, create_corpus, ensure_dir_path_exists
 from .repl import PromptRepl
@@ -42,7 +43,11 @@ def new_corpus(name: str, path: str):
     print(f"Creating new corpus {name} at {corpus_path}")
     config = create_corpus(corpus_path, config_parser)
     #TODO replace with more generic factory functions based on config
-    create_local_vectordb(config)
+    #TODO although vectorstore_creator_factory is not generic, it is the only one
+    #TODO and it does not disthinquish between local or remote stored
+    providers.register_internal_factories()
+    dbcreator = vectorstore_creator_factory(config)
+    dbcreator()
  
     print(f"\nCorpus {name} created successfully in {corpus_path}.")
     print("Please add files to the corpus using the 'add' command.")
