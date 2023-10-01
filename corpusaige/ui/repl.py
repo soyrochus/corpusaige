@@ -11,7 +11,6 @@ through deep exploration and understanding of comprehensive document sets and so
 import traceback
 
 from ast import literal_eval
-from corpusaige.audio.voice_conversation import VoiceConversation
 from corpusaige.config import ANNOTATION_DOCSET_NAME
 
 from corpusaige.documentset import DocumentSet

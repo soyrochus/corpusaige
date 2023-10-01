@@ -15,7 +15,8 @@ import tkinter as tk
 import traceback
 from typing import List
 from corpusaige import providers
-from corpusaige.audio.voice_conversation import VoiceConversation
+from corpusaige.ui.audio.audio_utils import Locale
+from corpusaige.ui.audio.voice_conversation import VoiceConversation
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.providers import vectorstore_creator_factory
 from corpusaige.ui.console_tools import is_data_available
@@ -80,15 +81,21 @@ def gui(config: CorpusConfig):
     prompt = PromptRepl(corpus)
     GuiApp(root, prompt, True).run()
     
-def voice(config: CorpusConfig):
+def voice(config: CorpusConfig, language: str):
     """
     Interact with Corpusaige through voice (audio).
     """
+    locale = Locale.from_locale(language)
+    if locale is None:
+        locale = Locale.from_language(language)
+    
+    if locale is None:
+        raise InvalidParameters(f"Unsupported language: {language}")
     
     corpus = StatefullCorpus(config)
     #TODO: integrate with Repl? 
 
-    conv = VoiceConversation(corpus)
+    conv = VoiceConversation(corpus, locale)
     conv.start()
     
     
@@ -158,7 +165,8 @@ def cli_run():
     subparsers.add_parser('gui', help='Display the Corpusaige Gui')
 
      # Voice (Audio) command
-    subparsers.add_parser('voice', help='Interaction with Corpusaige using voice (audio)')
+    voice_parser = subparsers.add_parser('voice', help='Interaction with Corpusaige using voice (audio)')
+    voice_parser.add_argument('-l', '--language', default='en-US', help='Locale (language) to use (default: en-US/en')
 
     # Send prompt command
     prompt_parser = subparsers.add_parser('prompt', help='Send prompt (not repl command) to corpus/AI.')
@@ -187,7 +195,7 @@ def cli_run():
             gui(config)
         case 'voice':
             config = get_config(args.path)
-            voice(config)
+            voice(config, args.language)
         case 'remove':
             config = get_config(args.path)
             remove(config, args.name, args.force)

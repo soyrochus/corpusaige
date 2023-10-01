@@ -20,6 +20,22 @@ class Locale(Enum):
     en_UK=("en-UK", "en", "English")
     es_ES=("es-ES", "es", "Spanish")
     generic=("en-US", "en", "English (fallback)")
+    
+    @classmethod
+    def from_locale(cls, locale:str)-> 'Locale':
+        "return the Locale for the given local descriptio or None if not found"
+        for locale in cls:
+            if locale.value[0] == locale:
+                return locale
+        return None
+    
+    @classmethod
+    def from_language(cls, lang: str)-> 'Locale':
+        "return the Locale for the given language or None if not found"
+        for locale in cls:
+            if locale.value[1] == lang:
+                return locale
+        return None
 
 def text_to_speech(text: str, path: Path, language: Locale = Locale.en_US):
  

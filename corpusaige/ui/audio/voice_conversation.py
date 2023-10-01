@@ -14,7 +14,7 @@ import sounddevice as sd
 import numpy as np
 import wavio
 from pynput import keyboard
-from corpusaige.audio.audio_utils import Locale, text_to_speech, speech_to_text
+from corpusaige.ui.audio.audio_utils import Locale, text_to_speech, speech_to_text
 from corpusaige.corpus import Corpus
 
 conversation_recording = False
@@ -54,22 +54,23 @@ class VoiceConversation:
     audio_file: Path
     response_handler: Callable
     
-    def __init__(self, corpus: Corpus, language: Locale = Locale.es_ES, audio_file: Path = Path("recorded_voice.wav")):
+    def __init__(self, corpus: Corpus, language: Locale = Locale.en_US, audio_file: Path = Path("recorded_voice.wav")):
         self.corpus = corpus
         self.audio_file = audio_file
-        self.language = language #TODO: make configurable
+        self.language = language 
         self.response_handler = create_response_handler(corpus, self)
 
     def start(self):
         
         print("Welcome to the Corpusaige voice interface\n")
-     
+
         print("Use: Talk into the microphone to record your voice.\n")
         print("     Press 'space' to stop recording audio and send it to the AI")
         print("     Press 'm' to mute/unmute the conversation.")
         print("     Press 'p' to pause/resume the conversation.")
         print("     Press 'enter' to stop the conversation and quit the application")
         print(f"Corpus: {self.corpus.name}")
+        print(f"Language: {self.language.value[2]}")
            
         listener = keyboard.Listener(on_release=on_release)
         listener.start()
