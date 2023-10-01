@@ -187,3 +187,5 @@ demo/
 test-case/cv/test-cv-copus/
 tests/assets/test-corpus1/
 tests/assets/test-corpus2/
+
+recorded_voice.*

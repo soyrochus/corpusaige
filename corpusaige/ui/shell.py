@@ -90,7 +90,7 @@ class ShellApp(Input, Output):
     
     def run(self):
         print("Welcome to the Corpusaige shell\n")
-        print("Use: - Alt+Enter or Alt-Enter to send command or prompt.")
+        print("Use: - Esc+Enter or Alt-Enter to send command or prompt.")
         print("     - the Up and Down keys for command history")
         print("     - /exit or /quit to quit the shell.")
         print("     - /help or /? to get full list commands.\nUse TAB to autocomplete commands.\n")

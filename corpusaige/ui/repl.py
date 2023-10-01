@@ -11,6 +11,7 @@ through deep exploration and understanding of comprehensive document sets and so
 import traceback
 
 from ast import literal_eval
+from corpusaige.audio.voice_conversation import VoiceConversation
 from corpusaige.config import ANNOTATION_DOCSET_NAME
 
 from corpusaige.documentset import DocumentSet
@@ -284,6 +285,18 @@ class PromptRepl:
         else:
             self.corpus.remove_docset(cmdtext)
         
+
+    @detailed_help("""Press 'space' to stop recording audio.
+Press 'enter' to stop the conversation (leave the audio mode)
+Press 'm' to mute/unmute the conversation.
+Press  'p' to pause/resume the conversation.""")
+    @synonymcommand("audio")
+    def do_voice(self, *args, cmdtext=None):
+        """Activate voice/audio interaction with the AI"""
+        #self.out.print("BOOM! Voice interaction activated.")
+
+        conv = VoiceConversation(self.corpus)
+        conv.start()
 
     @detailed_help("""Usage: /run <script_name> <<*args>>
 Scripys can be added to the corpus by placing them in the scripts folder""")  

@@ -24,6 +24,13 @@ pytest = "^7.4.0"
 chromadb = "^0.4.3"
 sqlalchemy = "^2.0.19"
 toml = "^0.10.2"
+gtts = "^2.3.2"
+sounddevice = "^0.4.6"
+wavio = "^0.0.7"
+pynput = "^1.7.6"
+speechrecognition = "^3.10.0"
+pydub = "^0.25.1"
+numpy = "^1.26.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"
