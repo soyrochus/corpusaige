@@ -24,17 +24,17 @@ class Locale(Enum):
     @classmethod
     def from_locale(cls, locale:str)-> 'Locale':
         "return the Locale for the given local descriptio or None if not found"
-        for locale in cls:
-            if locale.value[0] == locale:
-                return locale
+        for item in cls:
+            if item.value[0] == locale:
+                return item
         return None
     
     @classmethod
     def from_language(cls, lang: str)-> 'Locale':
         "return the Locale for the given language or None if not found"
-        for locale in cls:
-            if locale.value[1] == lang:
-                return locale
+        for item in cls:
+            if item.value[1] == lang:
+                return item
         return None
 
 def text_to_speech(text: str, path: Path, language: Locale = Locale.en_US):
