@@ -61,11 +61,16 @@ class VoiceConversation:
         self.response_handler = create_response_handler(corpus, self)
 
     def start(self):
-        print("""Recording has started. Press 'space' to stop recording audio.
-                       Press 'enter' to stop the conversation.
-                       Press 'm' to mute/unmute the conversation.
-                       Press 'p' to pause/resume the conversation.""")
         
+        print("Welcome to the Corpusaige voice interface\n")
+     
+        print("Use: Talk into the microphone to record your voice.\n")
+        print("     Press 'space' to stop recording audio and send it to the AI")
+        print("     Press 'm' to mute/unmute the conversation.")
+        print("     Press 'p' to pause/resume the conversation.")
+        print("     Press 'enter' to stop the conversation and quit the application")
+        print(f"Corpus: {self.corpus.name}")
+           
         listener = keyboard.Listener(on_release=on_release)
         listener.start()
         try:

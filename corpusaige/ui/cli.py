@@ -15,6 +15,7 @@ import tkinter as tk
 import traceback
 from typing import List
 from corpusaige import providers
+from corpusaige.audio.voice_conversation import VoiceConversation
 from corpusaige.exceptions import InvalidParameters
 from corpusaige.providers import vectorstore_creator_factory
 from corpusaige.ui.console_tools import is_data_available
@@ -78,6 +79,19 @@ def gui(config: CorpusConfig):
     corpus = StatefullCorpus(config)
     prompt = PromptRepl(corpus)
     GuiApp(root, prompt, True).run()
+    
+def voice(config: CorpusConfig):
+    """
+    Interact with Corpusaige through voice (audio).
+    """
+    
+    corpus = StatefullCorpus(config)
+    #TODO: integrate with Repl? 
+
+    conv = VoiceConversation(corpus)
+    conv.start()
+    
+    
     
 def remove(config: CorpusConfig, docset_name: str, force: bool):
     """
@@ -143,6 +157,9 @@ def cli_run():
      # Gui command
     subparsers.add_parser('gui', help='Display the Corpusaige Gui')
 
+     # Voice (Audio) command
+    subparsers.add_parser('voice', help='Interaction with Corpusaige using voice (audio)')
+
     # Send prompt command
     prompt_parser = subparsers.add_parser('prompt', help='Send prompt (not repl command) to corpus/AI.')
     prompt_parser.add_argument('-r', '--read', action='store_true', help='Read from stdin')
@@ -168,6 +185,9 @@ def cli_run():
         case 'gui':
             config = get_config(args.path)
             gui(config)
+        case 'voice':
+            config = get_config(args.path)
+            voice(config)
         case 'remove':
             config = get_config(args.path)
             remove(config, args.name, args.force)
