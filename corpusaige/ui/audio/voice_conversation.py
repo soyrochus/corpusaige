@@ -41,7 +41,7 @@ def create_response_handler(corpus: Corpus, conversation: "VoiceConversation"):
         if response is None or txt.strip() == "":
             response = "Sorry, I did not understand you."
         
-        print(f"Response: {response}")
+        #print(f"Response: {response}")
             
         if not conversation_muted:
             text_to_speech(response, conversation.audio_file, conversation.language)
@@ -79,7 +79,7 @@ class VoiceConversation:
                 self.record()
                 if self.response_handler: 
                     self.response_handler(self)
-                self.play()
+                #self.play()
         except InterruptConversation:
             print("Conversation ended.")           
     

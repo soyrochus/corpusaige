@@ -14,7 +14,9 @@ from corpusaige.config.read import ConfigEntries, CorpusConfig
 from corpusaige.registry import ServiceRegistry
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
+from corpusaige.ui.audio.text_handling import StreamingAudioOutCallbackHandler
 
 _name = "openai"
 
@@ -27,7 +29,7 @@ def get_llm_factory(config: CorpusConfig) -> Any:
         api_key = llmconfig.get("api-key", "")
 
         # type: ignore
-        return ChatOpenAI(model=llm_model, openai_api_key=api_key)
+        return ChatOpenAI(model=llm_model, openai_api_key=api_key, streaming=True, callbacks=[StreamingStdOutCallbackHandler(), StreamingAudioOutCallbackHandler()])
    
 
 def get_embeddings_factory(config: CorpusConfig) -> Any:
