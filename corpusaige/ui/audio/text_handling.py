@@ -7,6 +7,7 @@ through deep exploration and understanding of comprehensive document sets and so
 @license: MIT
 """
 
+import os
 import re
 import tempfile
 from typing import Any, Dict, List, Tuple, Union
@@ -25,19 +26,26 @@ import io
 from pydub import AudioSegment
 from pydub.playback import play
 
-def play_text(sentences: str, lang: str="es" ):
+def play_text(sentences: str, lang: str= 'es'):
     # Generate speech
-    
-    print(f"SENTENCES: {sentences}")
     tts = gTTS(text=sentences, lang=lang)
-     # Save to a temporary file
-    with tempfile.NamedTemporaryFile(delete=True) as temp:
-        temp_filename = temp.name + ".mp3"
-        tts.save(temp_filename)
-        
-        # Load and play audio 
+    
+    # Create and open a temporary file
+    temp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+    temp_filename = temp.name
+    
+    # Save audio to temporary file and close it
+    tts.save(temp_filename)
+    temp.close()
+    
+    try:
+        # Load and play audio
         audio = AudioSegment.from_mp3(temp_filename)
         play(audio)
+    finally:
+        # Ensure temporary file is deleted
+        if  os.path.exists(temp_filename):
+            os.remove(temp_filename)
 
 class StreamingAudioOutCallbackHandler(BaseCallbackHandler):
     """Callback handler for streaming. Only works with LLMs that support streaming."""
