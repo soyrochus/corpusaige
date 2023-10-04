@@ -85,12 +85,13 @@ def voice(config: CorpusConfig, language: str):
     """
     Interact with Corpusaige through voice (audio).
     """
-    locale = Locale.from_locale(language)
+    lang = language.strip()
+    locale = Locale.from_locale(lang)
     if locale is None:
-        locale = Locale.from_language(language)
+        locale = Locale.from_language(lang)
     
     if locale is None:
-        raise InvalidParameters(f"Unsupported language: {language}")
+        raise InvalidParameters(f"Unsupported language: {lang}")
     
     corpus = StatefullCorpus(config)
     #TODO: integrate with Repl? 
